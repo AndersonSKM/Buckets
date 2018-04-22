@@ -31,3 +31,6 @@ script:
   - make build
   - make up-d
   - make test-all
+
+after_success:
+  - make coverage
