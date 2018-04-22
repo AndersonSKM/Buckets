@@ -50,3 +50,11 @@ clean:
 	@docker-compose exec $(t) sh -c "find . -name "__pycache__" -type d | xargs rm -rf"
 	@docker-compose exec $(t) sh -c "rm -f .coverage"
 	@docker-compose exec $(t) sh -c "rm -rf coverage/"
+
+cov:
+	@docker-compose exec $(t) sh <(curl -s https://codecov.io/env)
+	@docker-compose exec $(t) sh <(curl -s https://codecov.io/bash)
+
+coverage:
+	$(MAKE) -C lib/core coverage
+	$(MAKE) cov t=auth

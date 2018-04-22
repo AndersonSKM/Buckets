@@ -30,3 +30,7 @@ clean:
 	@docker run --rm -it -v $(CURDIR):/app lib/core:latest sh -c "rm -rf coverage/"
 	@docker run --rm -it -v $(CURDIR):/app lib/core:latest sh -c "rm -rf dist/"
 	@docker run --rm -it -v $(CURDIR):/app lib/core:latest sh -c "rm -f *.log"
+
+coverage:
+	@docker run --rm -it -v $(CURDIR):/app lib/core:latest sh <(curl -s https://codecov.io/env)
+	@docker run --rm -it -v $(CURDIR):/app lib/core:latest sh <(curl -s https://codecov.io/bash)
