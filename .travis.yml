@@ -33,4 +33,5 @@ script:
   - make test-all
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash) -s lib/core/
+  - bash <(curl -s https://codecov.io/bash) -s auth/
