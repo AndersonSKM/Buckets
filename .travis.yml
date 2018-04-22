@@ -33,4 +33,4 @@ script:
   - make test-all
 
 after_success:
-  - make coverage
+  - bash <(curl -s https://codecov.io/bash)
