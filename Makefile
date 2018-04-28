@@ -52,7 +52,7 @@ clean:
 	@docker-compose exec $(t) sh -c "rm -rf coverage/"
 
 cov:
-	@docker-compose exec $(t) --env ci_env sh -c "curl -s https://codecov.io/bash > .codecov && ./.codecov && ./.codecov"
+	@docker-compose exec $(t) --env ci_env sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov"
 
 coverage:
 	$(MAKE) -C lib/core cov
