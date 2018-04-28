@@ -27,7 +27,6 @@ install:
   - echo "DEBUG=$DEBUG" >> env
   - echo "SECRET_KEY=$SECRET_KEY" >> env
   - export ci_env=`bash <(curl -s https://codecov.io/env)`
-  - printenv ci_env
 
 script:
   - make build
