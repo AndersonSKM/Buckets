@@ -36,6 +36,7 @@ install:
   - echo "TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST" >> env
   - echo "TRAVIS_TAG=$TRAVIS_TAG" >> env
   - echo "TRAVIS_OS_NAME=$TRAVIS_OS_NAME" >> env
+  - echo "TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG" >> env
   - cp ./env lib/core
 
 script:
