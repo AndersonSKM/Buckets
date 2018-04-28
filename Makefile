@@ -56,4 +56,4 @@ cov:
 
 coverage:
 	$(MAKE) -C lib/core cov ci_env=$(ci_env)
-	$(MAKE) cov t=auth
+	$(MAKE) cov t=auth ci_env=$(ci_env)
