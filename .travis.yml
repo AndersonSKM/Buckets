@@ -34,4 +34,5 @@ script:
   - make test-all
 
 after_success:
-  - make coverage
+  - cd lib/core && ls && bash <(curl -s https://codecov.io/bash)
+  - cd ../../ && ls && bash <(curl -s https://codecov.io/bash)
