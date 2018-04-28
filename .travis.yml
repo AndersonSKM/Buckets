@@ -34,5 +34,5 @@ script:
   - make test-all
 
 after_success:
-  - echo '$ci_env'
-  - make coverage ci_env='$ci_env'
+  - echo $ci_env
+  - make coverage ci_env=$ci_env
