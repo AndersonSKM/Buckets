@@ -26,7 +26,17 @@ install:
   - echo "POSTGRES_PORT=$POSTGRES_PORT" >> env
   - echo "DEBUG=$DEBUG" >> env
   - echo "SECRET_KEY=$SECRET_KEY" >> env
-  - export ci_env=`bash <(curl -s https://codecov.io/env)`
+  - echo "CODECOV_TOKEN=$CODECOV_TOKEN" >> env
+  - echo "CI=$CI" >> env
+  - echo "TRAVIS=$TRAVIS" >> env
+  - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH" >> env
+  - echo "TRAVIS_COMMIT=$TRAVIS_COMMIT" >> env
+  - echo "TRAVIS_JOB_ID=$TRAVIS_JOB_ID" >> env
+  - echo "TRAVIS_JOB_NUMBER=$TRAVIS_JOB_NUMBER" >> env
+  - echo "TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST" >> env
+  - echo "TRAVIS_TAG=$TRAVIS_TAG" >> env
+  - echo "TRAVIS_OS_NAME=$TRAVIS_OS_NAME" >> env
+  - cp ./env lib/core
 
 script:
   - make build
@@ -34,5 +44,4 @@ script:
   - make test-all
 
 after_success:
-  - echo $ci_env
-  - make coverage ci_env=$ci_env
+  - make coverage
