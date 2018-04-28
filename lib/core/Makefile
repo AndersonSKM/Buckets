@@ -32,4 +32,5 @@ clean:
 	@docker run --rm -it -v $(CURDIR):/app lib/core:latest sh -c "rm -f *.log"
 
 cov:
-	@docker run --env-file ./env --rm -it -v $(CURDIR):/app lib/core:latest sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov"
+	$(eval ci_env=$(shell bash <(curl -s https://codecov.io/env)))
+	@docker run $(ci_env) --rm -it -v $(CURDIR):/app lib/core:latest sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov"
