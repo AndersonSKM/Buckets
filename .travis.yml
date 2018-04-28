@@ -34,5 +34,4 @@ script:
   - make test-all
 
 after_success:
-  - cd lib/core && ls && bash <(curl -s https://codecov.io/bash)
-  - cd ../../ && ls && bash <(curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash)
