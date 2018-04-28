@@ -3,6 +3,8 @@ FROM python:3.6-alpine3.7
 # Install packages
 RUN apk update && apk upgrade && \
     apk add --update \
+    bash \
+    curl \
     python3-dev \
     libffi-dev \
     build-base \
