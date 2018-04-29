@@ -1,2 +1,3 @@
-fixes:
-  - "::lib/core/"
+codecov:
+  fixes:
+    - "::lib/core/"
