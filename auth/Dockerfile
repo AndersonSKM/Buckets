@@ -3,8 +3,6 @@ FROM python:3.6-alpine3.7
 # Install packages
 RUN apk update && apk upgrade && \
     apk add --update \
-    bash \
-    curl \
     python3-dev \
     libffi-dev \
     postgresql-client \
@@ -26,6 +24,7 @@ COPY requirements.txt /app
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
 
+# Install core lib
 WORKDIR /dist
 COPY --from=lib/core:latest /dist/* /dist
 RUN pip3 install core-0.1.tar.gz
