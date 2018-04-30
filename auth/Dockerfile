@@ -3,6 +3,7 @@ FROM python:3.6-alpine3.7
 # Install packages
 RUN apk update && apk upgrade && \
     apk add --update \
+    git \
     python3-dev \
     libffi-dev \
     postgresql-client \
