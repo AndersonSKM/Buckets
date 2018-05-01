@@ -5,3 +5,4 @@ coverage:
   fixes:
     - "accounts/::auth/accounts/"
     - "core/::lib/core/core/"
+    - "mailer/::mailer/mailer/"
