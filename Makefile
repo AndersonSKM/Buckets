@@ -16,6 +16,7 @@ test: clean unit-test lint
 test-all:
 	$(MAKE) -C lib/core test
 	$(MAKE) test t=auth
+	$(MAKE) test t=mailer
 
 unit-test:
 	@docker-compose exec $(t) pytest
@@ -48,12 +49,14 @@ clean:
 	@docker-compose exec $(t) sh -c "find . -name "*.cache" | xargs rm -rf"
 	@docker-compose exec $(t) sh -c "find . -name "*.mypy_cache" | xargs rm -rf"
 	@docker-compose exec $(t) sh -c "find . -name "__pycache__" -type d | xargs rm -rf"
+	@docker-compose exec $(t) sh -c "find . -name ".pytest_cache" -type d | xargs rm -rf"
 	@docker-compose exec $(t) sh -c "rm -f .coverage"
 	@docker-compose exec $(t) sh -c "rm -rf coverage/"
 
 cov:
-	@docker-compose exec $(t) sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov -y ./codecov.yml"
+	@docker-compose exec $(t) sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov"
 
 coverage:
 	$(MAKE) -C lib/core cov
 	$(MAKE) cov t=auth
+	$(MAKE) cov t=mailer
