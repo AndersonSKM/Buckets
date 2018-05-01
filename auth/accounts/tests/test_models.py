@@ -1,5 +1,5 @@
 import pytest
-from core.utils.tests import raises
+from testfixtures import should_raise
 
 from accounts.models import User
 
@@ -63,6 +63,6 @@ class TestUserManager:
         assert user.is_superuser
         assert user.is_active
 
-    @raises(ValueError, "Users must have an email address")
+    @should_raise(ValueError("Users must have an email address"))
     def test_invalid_email(self):
         User.objects.create_user(email=None, password=None)
