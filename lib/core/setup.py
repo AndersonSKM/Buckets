@@ -12,7 +12,7 @@ setup(
     name='core',
     version='0.1',
     include_package_data=True,
-    license='BSD License',
+    license='MIT License',
     description='A core app with base classes.',
     long_description=README,
     author='Anderson Macedo',
@@ -27,7 +27,10 @@ setup(
         'mixer>=6.0.0',
         'pytest>=3.1.3',
     ],
-    url='www.python.org',
+    extras_require={
+        'test': ['testfixtures>=6.0.1'],
+    },
+    url='www.github.com/AndersonSKM/Buckets',
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',

@@ -1,9 +1,9 @@
 import pytest
 from django.utils import timezone
 from mixer.backend.django import mixer
+from testfixtures import should_raise
 
 from core.models import Revision
-from core.utils.tests import raises
 from tests.models import Chef, Ingredient
 
 
@@ -27,13 +27,13 @@ class TestAbstractBaseModel:
         obj.destroy()
         assert not Chef.objects.full().filter(pk=obj.pk).exists()
 
-    @raises(AssertionError)
+    @should_raise(AssertionError)
     def test_invalid_deletion(self):
         obj = mixer.blend(Chef)
         obj.deleted_at = timezone.now()
         obj.delete()
 
-    @raises(AssertionError)
+    @should_raise(AssertionError)
     def test_invalid_undeletion(self):
         obj = mixer.blend(Chef)
         obj.deleted_at = None
