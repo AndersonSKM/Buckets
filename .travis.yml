@@ -12,31 +12,25 @@ language: python
 python:
   - "3.6"
 
+cache:
+  bundler: true
+  directories:
+    - $HOME/docker
+
+before_cache:
+  - >
+    mkdir -p $HOME/docker && docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}'
+    | xargs -n 2 -t sh -c 'test -e $HOME/docker/$1.tar.gz || docker save $0 | gzip -2 > $HOME/docker/$1.tar.gz'
+
 before_install:
   - sudo rm /usr/local/bin/docker-compose
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
+  - if [[ -d $HOME/docker ]]; then ls $HOME/docker/*.tar.gz | xargs -I {file} sh -c "zcat {file} | docker load"; fi
 
 install:
-  - echo "POSTGRES_USER=$POSTGRES_USER" >> env
-  - echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> env
-  - echo "POSTGRES_DB=$POSTGRES_DB" >> env
-  - echo "POSTGRES_HOST=$POSTGRES_HOST" >> env
-  - echo "POSTGRES_PORT=$POSTGRES_PORT" >> env
-  - echo "DEBUG=$DEBUG" >> env
-  - echo "SECRET_KEY=$SECRET_KEY" >> env
-  - echo "CODECOV_TOKEN=$CODECOV_TOKEN" >> env
-  - echo "CI=$CI" >> env
-  - echo "TRAVIS=$TRAVIS" >> env
-  - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH" >> env
-  - echo "TRAVIS_COMMIT=$TRAVIS_COMMIT" >> env
-  - echo "TRAVIS_JOB_ID=$TRAVIS_JOB_ID" >> env
-  - echo "TRAVIS_JOB_NUMBER=$TRAVIS_JOB_NUMBER" >> env
-  - echo "TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST" >> env
-  - echo "TRAVIS_TAG=$TRAVIS_TAG" >> env
-  - echo "TRAVIS_OS_NAME=$TRAVIS_OS_NAME" >> env
-  - echo "TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG" >> env
+  - printenv >> env
   - cp ./env lib/core
 
 script:

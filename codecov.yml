@@ -2,3 +2,8 @@ coverage:
   fixes:
     - "accounts/::auth/accounts/"
     - "core/::lib/core/core/"
+
+coverage:
+  range: 95..100
+  round: down
+  precision: 2
