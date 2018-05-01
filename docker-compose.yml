@@ -1,24 +1,8 @@
 version: '3.3'
 
 services:
-  auth:
-    container_name: auth
-    restart: always
-    build: ./auth/
-    env_file: ./env
-    environment:
-      - POSTGRES_DB=auth
-    depends_on:
-      - "db"
-    volumes:
-      - static-data:/static
-      - media-data:/media
-      - ./auth/:/app/
-    expose:
-      - "8000"
-
   nginx:
-    container_name: proxy
+    container_name: nginx
     restart: always
     build: ./nginx/
     depends_on:
@@ -31,8 +15,8 @@ services:
     expose:
       - "80"
 
-  db:
-    container_name: database
+  postgres:
+    container_name: postgres
     restart: always
     build: ./postgres/
     env_file: ./env
@@ -43,8 +27,55 @@ services:
     expose:
       - "5432"
 
+  rabbitmq:
+    container_name: rabbitmq
+    restart: always
+    build: ./rabbitmq/
+    env_file: ./env
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    ports:
+      - "15673:15672"
+      - "5673:5672"
+
+  redis:
+    container_name: redis
+    restart: always
+    build: ./redis/
+    env_file: ./env
+    ports:
+      - "6380:6379"
+
+  auth:
+    container_name: auth
+    restart: always
+    build: ./auth/
+    env_file: ./env
+    environment:
+      - POSTGRES_DB=auth
+    depends_on:
+      - "postgres"
+    volumes:
+      - static-data:/static
+      - media-data:/media
+      - ./auth/:/app/
+    expose:
+      - "8000"
+
+  mailer:
+    container_name: mailer
+    restart: always
+    build: ./mailer/
+    env_file: ./env
+    depends_on:
+      - "rabbitmq"
+    volumes:
+      - './mailer/:/app/'
+
 volumes:
   database:
+    driver: local
+  rabbitmq-data:
     driver: local
   static-data:
     driver: local

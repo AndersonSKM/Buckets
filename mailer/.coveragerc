@@ -1,0 +1,8 @@
+[run]
+omit=
+  *tests/*,
+  *tests.py,
+  *conftest.py,
+  *__init__.py,
+  *__pycache__,
+  *_private.py,
