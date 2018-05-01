@@ -99,7 +99,8 @@ nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
-backend/coverage/
+.pytest_cache*
+
 
 # Translations
 *.mo
