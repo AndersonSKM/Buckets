@@ -1,4 +1,5 @@
 FROM python:3.6-alpine3.7
+LABEL maintainer="anderson.krs95@gmail.com"
 
 # Install packages
 RUN apk update && apk upgrade && \
@@ -23,7 +24,7 @@ RUN mkdir -p /static
 # Install python dependencies
 WORKDIR /app
 COPY requirements.txt /app
-RUN pip3 install --upgrade pip
+RUN pip3 install -U pip
 RUN pip3 install -r requirements.txt
 
 # Install core lib
