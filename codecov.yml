@@ -6,3 +6,5 @@ coverage:
     - "accounts/::auth/accounts/"
     - "core/::lib/core/core/"
     - "mailer/::mailer/mailer/"
+
+comment: off
