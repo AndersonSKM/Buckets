@@ -20,7 +20,7 @@ WORKDIR /app
 
 # Install python dependencies
 COPY requirements.txt /app
-RUN pip3 install -U pip==10.0.1
+RUN pip3 install pip==10.0.1 -U
 RUN pip3 install -r requirements.txt
 
 # Copy the lib
