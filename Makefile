@@ -1,7 +1,7 @@
 SERVICES := api_core service_core auth
 
 define command
-	$(if $(filter $(1),api_core service_core),run --rm --no-deps, exec) $(1)
+	$(if $(filter $(1),api_core service_core),run --rm, exec) $(1)
 endef
 
 up:
