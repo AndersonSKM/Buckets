@@ -14,7 +14,9 @@ stop:
 	docker-compose stop
 
 build:
-	docker build ./lib/images/base_service -t base-service:latest
+	docker build ./lib/api_core -t lib/api-core:latest
+	docker build ./lib/service_core -t lib/service-core:latest
+	docker build ./lib/images/base_service -t lib/base-service:latest
 	docker-compose build
 
 test: clean unit-test lint
