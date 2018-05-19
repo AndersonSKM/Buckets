@@ -24,12 +24,13 @@ RUN mkdir -p /static
 # Install python dependencies
 WORKDIR /app
 COPY requirements.txt /app
-RUN pip3 install pip==10.0.1 -U
+# hadolint ignore=DL3013
+RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
 
 # Install core lib
 WORKDIR /dist
-COPY --from=lib/core:latest /dist/* /dist
+COPY --from=lib/api-core:latest /dist/* /dist
 RUN pip3 install core-0.1.tar.gz
 
 # Copy the app

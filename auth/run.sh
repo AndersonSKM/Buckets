@@ -24,7 +24,6 @@ psql postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT 
 EOSQL
 
 echo "Setup django..."
-python3 manage.py makemigrations
 python3 manage.py migrate --noinput
 python3 manage.py collectstatic --noinput
 

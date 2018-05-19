@@ -46,6 +46,28 @@ services:
     ports:
       - "6380:6379"
 
+  service_core:
+    image: lib/service-core:latest
+    container_name: service_core
+    build: ./lib/service_core/
+    env_file: ./env
+    depends_on:
+      - "rabbitmq"
+    volumes:
+      - ./lib/service_core:/app/
+
+  api_core:
+    image: lib/api-core:latest
+    container_name: api_core
+    build: ./lib/api_core/
+    env_file: ./env
+    depends_on:
+      - "rabbitmq"
+      - "postgres"
+      - "redis"
+    volumes:
+      - ./lib/api_core:/app/
+
   auth:
     container_name: auth
     restart: always
@@ -63,16 +85,6 @@ services:
       - ./auth/:/app/
     expose:
       - "8000"
-
-  mailer:
-    container_name: mailer
-    restart: always
-    build: ./mailer/
-    env_file: ./env
-    depends_on:
-      - "rabbitmq"
-    volumes:
-      - './mailer/:/app/'
 
 volumes:
   database:
