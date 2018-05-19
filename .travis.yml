@@ -20,7 +20,6 @@ before_install:
 
 install:
   - printenv >> env
-  - cp ./env lib/core
 
 script:
   - make build
