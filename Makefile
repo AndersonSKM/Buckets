@@ -23,12 +23,12 @@ test: clean unit-test lint
 
 test-all:
 	make test t=api_core
+	docker-compose logs rabbitmq
 	make test t=service_core
 	make test t=auth
 
 coverage:
 	make codecov t=api_core
-	docker-compose logs rabbitmq
 	make codecov t=service_core
 	make codecov t=auth
 
