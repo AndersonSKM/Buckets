@@ -1,7 +1,7 @@
 SERVICES := api_core service_core auth
 
 define command
-	$(if $(filter $(1),api_core service_core),run --rm, exec) $(1)
+	$(if $(filter $(1),api_core service_core),run --rm --no-deps, exec) $(1)
 endef
 
 up:
@@ -28,6 +28,7 @@ test-all:
 
 coverage:
 	make codecov t=api_core
+	docker-compose logs rabbitmq
 	make codecov t=service_core
 	make codecov t=auth
 
