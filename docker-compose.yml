@@ -1,24 +1,8 @@
 version: '3.3'
 
 services:
-  auth:
-    container_name: auth
-    restart: always
-    build: ./auth/
-    env_file: ./env
-    environment:
-      - POSTGRES_DB=auth
-    depends_on:
-      - "db"
-    volumes:
-      - static-data:/static
-      - media-data:/media
-      - ./auth/:/app/
-    expose:
-      - "8000"
-
   nginx:
-    container_name: proxy
+    container_name: nginx
     restart: always
     build: ./nginx/
     depends_on:
@@ -31,10 +15,10 @@ services:
     expose:
       - "80"
 
-  db:
-    container_name: database
+  postgres:
+    image: postgres:10-alpine
+    container_name: postgres
     restart: always
-    build: ./postgres/
     env_file: ./env
     volumes:
       - database:/var/lib/postgresql
@@ -43,8 +27,69 @@ services:
     expose:
       - "5432"
 
+  rabbitmq:
+    image: rabbitmq:3.7-management-alpine
+    container_name: rabbitmq
+    restart: always
+    env_file: ./env
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    ports:
+      - "15673:15672"
+      - "5673:5672"
+
+  redis:
+    image: redis:3.2-alpine
+    container_name: redis
+    restart: always
+    env_file: ./env
+    ports:
+      - "6380:6379"
+
+  service_core:
+    image: lib/service-core:latest
+    container_name: service_core
+    build: ./lib/service_core/
+    env_file: ./env
+    depends_on:
+      - "rabbitmq"
+    volumes:
+      - ./lib/service_core:/app/
+
+  api_core:
+    image: lib/api-core:latest
+    container_name: api_core
+    build: ./lib/api_core/
+    env_file: ./env
+    depends_on:
+      - "rabbitmq"
+      - "postgres"
+      - "redis"
+    volumes:
+      - ./lib/api_core:/app/
+
+  auth:
+    container_name: auth
+    restart: always
+    build: ./auth/
+    env_file: ./env
+    environment:
+      - POSTGRES_DB=auth
+    depends_on:
+      - "postgres"
+      - "rabbitmq"
+      - "redis"
+    volumes:
+      - static-data:/static
+      - media-data:/media
+      - ./auth/:/app/
+    expose:
+      - "8000"
+
 volumes:
   database:
+    driver: local
+  rabbitmq-data:
     driver: local
   static-data:
     driver: local

@@ -4,29 +4,23 @@ LABEL maintainer="anderson.krs95@gmail.com"
 # Install packages
 RUN apk update && apk upgrade && \
     apk add --update \
-    bash \
     curl \
-    python3-dev \
-    libffi-dev \
+    bash \
     build-base \
-    gettext \
-    jpeg-dev \
-    zlib-dev
+    python3-dev \
+    libevent-dev
 
 # Create dir's
 RUN mkdir -p /app
-RUN mkdir -p /dist
-WORKDIR /app
 
 # Install python dependencies
+WORKDIR /app
 COPY requirements.txt /app
 RUN pip3 install pip==10.0.1 -U
 RUN pip3 install -r requirements.txt
 
-# Copy the lib
+# Copy the app
 COPY . /app
 
-ENV PYTHONPATH=/app
-
-RUN python3 setup.py sdist
-RUN mv dist/* /dist && rm -rf dist/
+# Run nameko services
+CMD ["/bin/sh", "/app/run.sh"]

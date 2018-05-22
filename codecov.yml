@@ -1,7 +1,10 @@
 coverage:
-  range: 95..100
+  range: 100..100
   round: down
   precision: 2
   fixes:
     - "accounts/::auth/accounts/"
-    - "core/::lib/core/core/"
+    - "core/::lib/api_core/core/"
+    - "service_core/::lib/service_core/service_core"
+
+comment: off

@@ -1,29 +1,23 @@
 FROM python:3.6-alpine3.7
 LABEL maintainer="anderson.krs95@gmail.com"
 
-# Install packages
 RUN apk update && apk upgrade && \
     apk add --update \
     bash \
     curl \
     python3-dev \
-    libffi-dev \
     build-base \
-    gettext \
-    jpeg-dev \
-    zlib-dev
+    libevent-dev
 
-# Create dir's
 RUN mkdir -p /app
 RUN mkdir -p /dist
 WORKDIR /app
 
-# Install python dependencies
 COPY requirements.txt /app
-RUN pip3 install pip==10.0.1 -U
+# hadolint ignore=DL3013
+RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
 
-# Copy the lib
 COPY . /app
 
 ENV PYTHONPATH=/app

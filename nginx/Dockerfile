@@ -1,2 +1,4 @@
 FROM nginx:alpine
-ADD nginx.conf /etc/nginx/conf.d/default.conf
+LABEL maintainer="anderson.krs95@gmail.com"
+
+COPY nginx.conf /etc/nginx/conf.d/default.conf
