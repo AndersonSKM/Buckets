@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "Waiting RabbitMQ to be ready..."
+
 rabbitmq_is_ready() {
     eval "curl -I ${RABBITMQ_CTL_URI}/api/vhosts"
 }
