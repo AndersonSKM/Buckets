@@ -5,6 +5,6 @@ coverage:
   fixes:
     - "accounts/::auth/accounts/"
     - "core/::lib/api_core/core/"
-    - "service_core/::lib/service_core/service_core"
+    - "service_core/::lib/service_core/service_core/"
 
 comment: off
