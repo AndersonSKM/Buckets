@@ -7,7 +7,6 @@ services:
 
 env:
   - DOCKER_COMPOSE_VERSION=1.16.1
-  - TAG=${TRAVIS_COMMIT::8}
 
 language: python
 python:
@@ -53,6 +52,7 @@ install:
   - echo "TRAVIS_TAG=$TRAVIS_TAG" >> env
   - echo "TRAVIS_OS_NAME=$TRAVIS_OS_NAME" >> env
   - echo "TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG" >> env
+  - export TAG=${TRAVIS_COMMIT::8}
 
 script:
   - make build
