@@ -1,4 +1,4 @@
-FROM lib/base-api:latest
+FROM buckets/base-api:latest
 
 COPY requirements.txt /app
 RUN pip3 install -r requirements.txt

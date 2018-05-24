@@ -4,7 +4,7 @@ coverage:
   precision: 2
   fixes:
     - "accounts/::auth/accounts/"
-    - "core/::lib/api_core/core/"
-    - "service_core/::lib/service_core/service_core/"
+    - "core/::/api-core/core/"
+    - "service_core/::service-core/service_core/"
 
 comment: off

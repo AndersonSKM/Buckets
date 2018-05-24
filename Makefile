@@ -1,8 +1,15 @@
-SERVICES := api_core service_core auth
-LIBS := api_core service_core
+PROJECT := buckets
+
+PYTHON_LIBRARIES := api-core service-core
+PYTHON_APIS := auth
+PYTHON_IMAGES := $(PYTHON_LIBRARIES) $(PYTHON_APIS)
+BASE_IMAGES := base-api base-service
+CUSTOM_SERVICES := nginx
+
+IMAGES := $(PYTHON_LIBRARIES) $(BASE_IMAGES) $(PYTHON_APIS) $(CUSTOM_SERVICES)
 
 define command
-	$(if $(filter $(1),$(LIBS)),run --rm --no-deps,exec) $(1)
+	$(if $(filter $(1),$(PYTHON_LIBRARIES)),run --rm --no-deps,exec) $(1)
 endef
 
 up:
@@ -15,22 +22,21 @@ stop:
 	docker-compose stop
 
 build:
-	docker build ./lib/api_core -t lib/api-core:latest
-	docker build ./lib/service_core -t lib/service-core:latest
-	docker build ./lib/images/base_service -t lib/base-service:latest
-	docker build ./lib/images/base_api -t lib/base-api:latest
-	docker-compose build
+	for image in $(IMAGES) ; do \
+		echo Building $$image; \
+		docker build ./$$image/ -t $(PROJECT)/$$image:latest; \
+	done
 
 test: clean unit-test lint
 
 test-all:
-	for service in $(SERVICES) ; do \
-		make test t=$$service ; \
+	for service in $(PYTHON_IMAGES) ; do \
+		make test t=$$service; \
 	done
 
 coverage:
-	for service in $(SERVICES) ; do \
-		make codecov t=$$service ; \
+	for service in $(PYTHON_IMAGES) ; do \
+		make codecov t=$$service; \
 	done
 
 unit-test:
@@ -67,3 +73,10 @@ clean:
 
 codecov:
 	docker-compose $(call command,$(t)) codecov
+
+deploy:
+	docker login -e $(DOCKER_EMAIL) -u $(DOCKER_USER) -p $(DOCKER_PASS)
+	for image in $(IMAGES) ; do \
+		docker tag $(PROJECT)/$$image:latest $(PROJECT)/:$(TAG); \
+		docker push $(PROJECT)/$$image; \
+	done

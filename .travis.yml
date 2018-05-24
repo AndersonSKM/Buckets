@@ -7,6 +7,7 @@ services:
 
 env:
   - DOCKER_COMPOSE_VERSION=1.16.1
+  - TAG=${TRAVIS_COMMIT::8}
 
 language: python
 python:
@@ -60,3 +61,9 @@ script:
 
 after_success:
   - make coverage
+
+deploy:
+  - provider: script
+    script: make deploy
+    on:
+      branch: master
