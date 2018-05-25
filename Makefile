@@ -24,19 +24,19 @@ stop:
 build:
 	for image in $(IMAGES) ; do \
 		echo Building $$image; \
-		docker build ./$$image/ -t $(PROJECT)/$$image:latest; \
+		docker build ./$$image/ -t $(PROJECT)/$$image:latest || exit 1; \
 	done
 
 test: clean unit-test lint
 
 test-all:
 	for service in $(PYTHON_IMAGES) ; do \
-		make test t=$$service; \
+		make test t=$$service || exit 1; \
 	done
 
 coverage:
 	for service in $(PYTHON_IMAGES) ; do \
-		make codecov t=$$service; \
+		make codecov t=$$service || exit 1; \
 	done
 
 unit-test:
@@ -72,11 +72,11 @@ clean:
 	@docker-compose $(call command,$(t)) sh -c "rm -f .coverage && rm -rf coverage/"
 
 codecov:
-	docker-compose $(call command,$(t)) sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov"
+	docker-compose $(call command,$(t)) sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov -Z"
 
 deploy:
 	docker login -e $(DOCKER_EMAIL) -u $(DOCKER_USER) -p $(DOCKER_PASS)
 	for image in $(IMAGES) ; do \
-		docker tag $(PROJECT)/$$image:latest $(PROJECT)/:$(TAG); \
-		docker push $(PROJECT)/$$image; \
+		docker tag $(PROJECT)/$$image:latest $(PROJECT)/:$(TAG) || exit 1; \
+		docker push $(PROJECT)/$$image || exit 1 ; \
 	done
