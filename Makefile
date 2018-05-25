@@ -72,7 +72,7 @@ clean:
 	@docker-compose $(call command,$(t)) sh -c "rm -f .coverage && rm -rf coverage/"
 
 codecov:
-	docker-compose $(call command,$(t)) codecov
+	docker-compose $(call command,$(t)) sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov"
 
 deploy:
 	docker login -e $(DOCKER_EMAIL) -u $(DOCKER_USER) -p $(DOCKER_PASS)

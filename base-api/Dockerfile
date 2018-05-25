@@ -27,9 +27,6 @@ COPY --from=buckets/api-core:latest /dist/* /dist
 RUN pip3 install core-0.1.tar.gz
 
 WORKDIR /usr/local/bin
-RUN curl -s https://codecov.io/bash > .codecov
-RUN chmod +x .codecov
-RUN ln -s /usr/local/bin/.codecov codecov
 COPY docker-entrypoint.sh .
 RUN chmod +x docker-entrypoint.sh
 
