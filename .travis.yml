@@ -61,14 +61,21 @@ script:
 
 after_success:
   - make coverage
-  - wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
-  - chmod +x send.sh
-  - ./send.sh success $WEBHOOK_URL
+  - |
+    if [ $TRAVIS_PULL_REQUEST == "false" ]; then
+      wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
+      chmod +x send.sh
+      ./send.sh success $WEBHOOK_URL
+    fi
 
 after_failure:
-  - wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
-  - chmod +x send.sh
-  - ./send.sh failure $WEBHOOK_URL
+  - |
+    if [ $TRAVIS_PULL_REQUEST == "false" ]; then
+      wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
+      chmod +x send.sh
+      ./send.sh failure $WEBHOOK_URL
+    fi
+
 
 deploy:
   - provider: script
