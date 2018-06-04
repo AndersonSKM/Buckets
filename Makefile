@@ -1,16 +1,12 @@
-PROJECT := buckets
+PROJECT_NAME := buckets
 
-PYTHON_LIBRARIES := api-core service-core
-PYTHON_APIS := auth
-PYTHON_IMAGES := $(PYTHON_LIBRARIES) $(PYTHON_APIS)
-BASE_IMAGES := base-api base-service
+PYTHON_LIBRARIES := service-core
+PYTHON_SERVICES := api
+PYTHON_IMAGES := $(PYTHON_LIBRARIES) $(PYTHON_SERVICES)
 CUSTOM_SERVICES := nginx
+BASE_IMAGES := base-service
 
-IMAGES := $(PYTHON_LIBRARIES) $(BASE_IMAGES) $(PYTHON_APIS) $(CUSTOM_SERVICES)
-
-define command
-	$(if $(filter $(1),$(PYTHON_LIBRARIES)),run --rm --no-deps,exec) $(1)
-endef
+IMAGES := $(PYTHON_LIBRARIES) $(BASE_IMAGES) $(PYTHON_SERVICES) $(CUSTOM_SERVICES)
 
 up:
 	docker-compose up
@@ -24,7 +20,7 @@ stop:
 build:
 	for image in $(IMAGES) ; do \
 		echo Building $$image; \
-		docker build ./$$image/ -t $(PROJECT)/$$image:latest || exit 1; \
+		docker build ./$$image/ -t $(PROJECT_NAME)/$$image:dev || exit 1; \
 	done
 
 test: clean unit-test lint
@@ -40,43 +36,43 @@ coverage:
 	done
 
 unit-test:
-	docker-compose $(call command,$(t)) pytest
+	docker-compose exec $(t) pytest
 
 lint: flake isort
 
 logs:
-	docker-compose logs $(t)
+	 logs $(t)
 
 flake:
-	docker-compose $(call command,$(t)) flake8
+	docker-compose exec $(t) flake8
 
 isort:
-	docker-compose $(call command,$(t)) isort --check --diff -tc -rc .
+	docker-compose exec $(t) isort --check --diff -tc -rc .
 
 fix-imports:
-	docker-compose $(call command,$(t)) isort -tc -rc .
+	docker-compose exec $(t) isort -tc -rc .
 
 sh:
-	docker-compose $(call command,$(t)) sh
+	docker-compose exec $(t) sh
 
 outdated:
-	docker-compose $(call command,$(t)) pip3 list --outdated --format=columns
+	docker-compose exec (t) pip3 list --outdated --format=columns
 
 clean:
 	$(info Cleaning directories)
-	@docker-compose $(call command,$(t)) sh -c "find . -name "*.pyo" | xargs rm -rf"
-	@docker-compose $(call command,$(t)) sh -c "find . -name "*.cache" | xargs rm -rf"
-	@docker-compose $(call command,$(t)) sh -c "find . -name "*.mypy_cache" | xargs rm -rf"
-	@docker-compose $(call command,$(t)) sh -c "find . -name "__pycache__" -type d | xargs rm -rf"
-	@docker-compose $(call command,$(t)) sh -c "find . -name ".pytest_cache" -type d | xargs rm -rf"
-	@docker-compose $(call command,$(t)) sh -c "rm -f .coverage && rm -rf coverage/"
+	@docker-compose exec $(t) sh -c "find . -name "*.pyo" | xargs rm -rf"
+	@docker-compose exec $(t) sh -c "find . -name "*.cache" | xargs rm -rf"
+	@docker-compose exec $(t) sh -c "find . -name "*.mypy_cache" | xargs rm -rf"
+	@docker-compose exec $(t) sh -c "find . -name "__pycache__" -type d | xargs rm -rf"
+	@docker-compose exec $(t) sh -c "find . -name ".pytest_cache" -type d | xargs rm -rf"
+	@docker-compose exec $(t) sh -c "rm -f .coverage && rm -rf coverage/"
 
 codecov:
-	docker-compose $(call command,$(t)) sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov -Z"
+	docker-compose exec $(t) sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov -Z"
 
 deploy:
 	docker login -e $(DOCKER_EMAIL) -u $(DOCKER_USER) -p $(DOCKER_PASS)
 	for image in $(IMAGES) ; do \
-		docker tag $(PROJECT)/$$image:latest $(PROJECT)/:$(TAG) || exit 1; \
-		docker push $(PROJECT)/$$image || exit 1 ; \
+		docker tag $(PROJECT_NAME)/$$image:dev $(PROJECT_NAME)/$$image/:$(TAG) || exit 1; \
+		docker push $(PROJECT_NAME)/$$image/:$(TAG) || exit 1 ; \
 	done

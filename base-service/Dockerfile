@@ -2,11 +2,9 @@ FROM python:3.6-alpine3.7
 
 RUN apk update && apk upgrade && \
     apk add --update \
-    git \
-    curl \
     bash \
+    curl \
     build-base \
-    python3-dev \
     libevent-dev
 
 RUN mkdir -p /app
@@ -15,7 +13,7 @@ RUN mkdir -p /app
 RUN pip3 install --upgrade pip
 
 WORKDIR /dist
-COPY --from=buckets/service-core:latest /dist/* /dist
+COPY --from=buckets/service-core:dev /dist/* /dist
 RUN pip3 install service_core-0.1.tar.gz
 
 WORKDIR /usr/local/bin

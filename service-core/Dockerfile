@@ -2,7 +2,6 @@ FROM python:3.6-alpine3.7
 
 RUN apk update && apk upgrade && \
     apk add --update \
-    git \
     bash \
     curl \
     python3-dev \
@@ -24,3 +23,6 @@ ENV PYTHONPATH=/app
 
 RUN python3 setup.py sdist
 RUN mv dist/* /dist && rm -rf dist/
+
+# Just keep container alive for exec tests
+CMD ["tail", "-F", "/etc/alpine-release"]

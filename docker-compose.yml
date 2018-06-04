@@ -2,11 +2,9 @@ version: '3.3'
 
 services:
   nginx:
-    image: buckets/nginx:latest
+    image: buckets/nginx:dev
     container_name: nginx
     restart: always
-    depends_on:
-      - "auth"
     volumes:
       - static-data:/static
       - media-data:/media
@@ -47,7 +45,7 @@ services:
       - "6380:6379"
 
   service-core:
-    image: buckets/service-core:latest
+    image: buckets/service-core:dev
     container_name: service-core
     env_file: ./env
     depends_on:
@@ -55,24 +53,11 @@ services:
     volumes:
       - ./service-core/:/app/
 
-  api-core:
-    image: buckets/api-core:latest
-    container_name: api-core
-    env_file: ./env
-    depends_on:
-      - "rabbitmq"
-      - "postgres"
-      - "redis"
-    volumes:
-      - ./api-core/:/app/
-
-  auth:
-    image: buckets/auth:latest
-    container_name: auth
+  api:
+    image: buckets/api:dev
+    container_name: api
     restart: always
     env_file: ./env
-    environment:
-      - POSTGRES_DB=auth
     depends_on:
       - "postgres"
       - "rabbitmq"
@@ -80,7 +65,7 @@ services:
     volumes:
       - static-data:/static
       - media-data:/media
-      - ./auth/:/app/
+      - ./api/:/app/
     expose:
       - "8000"
 
