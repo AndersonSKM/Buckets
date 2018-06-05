@@ -57,6 +57,16 @@ install:
 script:
   - make build
   - make up-d
+  - |
+    until [ "$(docker inspect -f {{.State.Health.Status}} postgres)" == "healthy" ]; do
+      echo "$(date) - waiting for postgres..."
+      sleep 1
+    done
+    until [ "$(docker inspect -f {{.State.Health.Status}} rabbitmq)" == "healthy" ]; do
+      echo "$(date) - waiting for rabbitmq..."
+      sleep 1
+    done
+
   - make test-all
 
 after_success:

@@ -4,7 +4,6 @@ RUN apk update && apk upgrade && \
     apk add --update \
     bash \
     curl \
-    python3-dev \
     build-base \
     libevent-dev
 
@@ -25,4 +24,4 @@ RUN python3 setup.py sdist
 RUN mv dist/* /dist && rm -rf dist/
 
 # Just keep container alive for exec tests
-CMD ["tail", "-F", "/etc/alpine-release"]
+ENTRYPOINT ["tail", "-F", "/etc/alpine-release"]

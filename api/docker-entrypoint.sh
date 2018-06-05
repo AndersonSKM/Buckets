@@ -5,7 +5,7 @@ until nc -z ${POSTGRES_HOST} ${POSTGRES_PORT}; do
     sleep 1
 done
 
-until nc -z ${RABBITMQ_HOST} ${RABBITMQ_PORT}; do
+until nc -z ${RABBITMQ_HOST} ${RABBITMQ_MANAGEMENT_PORT}; do
     echo "$(date) - waiting for rabbitmq..."
     sleep 1
 done
