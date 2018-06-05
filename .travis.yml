@@ -52,11 +52,44 @@ install:
   - echo "TRAVIS_TAG=$TRAVIS_TAG" >> env
   - echo "TRAVIS_OS_NAME=$TRAVIS_OS_NAME" >> env
   - echo "TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG" >> env
+  - export TAG=${TRAVIS_COMMIT::8}
 
 script:
   - make build
   - make up-d
+  - |
+    until [ "$(docker inspect -f {{.State.Health.Status}} postgres)" == "healthy" ]; do
+      echo "$(date) - waiting for postgres..."
+      sleep 1
+    done
+
+    until [ "$(docker inspect -f {{.State.Health.Status}} rabbitmq)" == "healthy" ]; do
+      echo "$(date) - waiting for rabbitmq..."
+      sleep 1
+    done
+
   - make test-all
 
 after_success:
   - make coverage
+  - |
+    if [ $TRAVIS_PULL_REQUEST == "false" ]; then
+      wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
+      chmod +x send.sh
+      ./send.sh success $WEBHOOK_URL
+    fi
+
+after_failure:
+  - |
+    if [ $TRAVIS_PULL_REQUEST == "false" ]; then
+      wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
+      chmod +x send.sh
+      ./send.sh failure $WEBHOOK_URL
+    fi
+
+
+deploy:
+  - provider: script
+    script: make deploy
+    on:
+      branch: master

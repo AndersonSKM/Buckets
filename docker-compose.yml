@@ -2,11 +2,9 @@ version: '3.3'
 
 services:
   nginx:
+    image: buckets/nginx:dev
     container_name: nginx
     restart: always
-    build: ./nginx/
-    depends_on:
-      - "auth"
     volumes:
       - static-data:/static
       - media-data:/media
@@ -14,6 +12,8 @@ services:
       - "80:80"
     expose:
       - "80"
+    healthcheck:
+      test: ["CMD", "nc", "-z", "nginx", "80"]
 
   postgres:
     image: postgres:10-alpine
@@ -26,6 +26,8 @@ services:
       - "5435:5432"
     expose:
       - "5432"
+    healthcheck:
+      test: ["CMD", "pg_isready"]
 
   rabbitmq:
     image: rabbitmq:3.7-management-alpine
@@ -37,6 +39,8 @@ services:
     ports:
       - "15673:15672"
       - "5673:5672"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
 
   redis:
     image: redis:3.2-alpine
@@ -46,35 +50,21 @@ services:
     ports:
       - "6380:6379"
 
-  service_core:
-    image: lib/service-core:latest
-    container_name: service_core
-    build: ./lib/service_core/
+  service-core:
+    image: buckets/service-core:dev
+    container_name: service-core
     env_file: ./env
     depends_on:
-      - "rabbitmq"
-    volumes:
-      - ./lib/service_core:/app/
-
-  api_core:
-    image: lib/api-core:latest
-    container_name: api_core
-    build: ./lib/api_core/
-    env_file: ./env
-    depends_on:
-      - "rabbitmq"
-      - "postgres"
       - "redis"
+      - "rabbitmq"
     volumes:
-      - ./lib/api_core:/app/
+      - ./service-core/:/app/
 
-  auth:
-    container_name: auth
+  api:
+    image: buckets/api:dev
+    container_name: api
     restart: always
-    build: ./auth/
     env_file: ./env
-    environment:
-      - POSTGRES_DB=auth
     depends_on:
       - "postgres"
       - "rabbitmq"
@@ -82,9 +72,11 @@ services:
     volumes:
       - static-data:/static
       - media-data:/media
-      - ./auth/:/app/
+      - ./api/:/app/
     expose:
       - "8000"
+    healthcheck:
+      test: ["CMD", "nc", "-z", "api", "8000"]
 
 volumes:
   database:

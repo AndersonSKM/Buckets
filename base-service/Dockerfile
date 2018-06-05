@@ -1,0 +1,26 @@
+FROM python:3.6-alpine3.7
+
+RUN apk update && apk upgrade && \
+    apk add --update \
+    bash \
+    curl \
+    build-base \
+    libevent-dev
+
+RUN mkdir -p /app
+
+# hadolint ignore=DL3013
+RUN pip3 install --upgrade pip
+
+WORKDIR /dist
+COPY --from=buckets/service-core:dev /dist/* /dist
+RUN pip3 install service_core-0.1.tar.gz
+
+WORKDIR /usr/local/bin
+COPY docker-entrypoint.sh .
+RUN chmod +x docker-entrypoint.sh
+
+WORKDIR /app
+
+ENTRYPOINT ["/bin/sh", "/usr/local/bin/docker-entrypoint.sh"]
+CMD ["nameko shell", "--config=config.yml"]
