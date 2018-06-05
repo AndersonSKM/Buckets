@@ -25,8 +25,8 @@ class TestRevision:
                 'short_name': 'ZuhevIEMJF',
                 'time_to_cook': '12:43:48',
                 'updated_at': '2018-03-28T12:43:48',
-                'user': 'eramirez@hotmail.com',
                 'vegan': True,
+                'user': '7fc2738c-b5ee-462f-88ce-7ac6cc2aa279',
             },
             'model': 'core.recipe',
             'pk': '0bb9f04d-d0bd-4490-9fe8-cad43f9cdf83',
@@ -40,21 +40,22 @@ class TestRevision:
     def test_init_without_instance(self):
         rev = Revision()
         assert not rev.content_type_id
-        assert not rev.user
         assert not rev.action
         assert not rev.data
 
     @pytest.mark.freeze_time('2018-03-28 12:43:48')
-    def test_init_with_instance(self, data, settings):
+    def test_init_with_instance(self, data, settings, user_model):
         settings.USE_TZ = False
 
         fields = data['fields'].copy()
         chef = mixer.blend(Chef, pk=fields.pop('chef'))
+        user = mixer.blend(user_model, pk=fields.pop('user'))
         ingredient = mixer.blend(Ingredient, pk=fields.pop('ingredients')[0])
         fields = {
             **fields,
             'pk': data['pk'],
             'chef': chef,
+            'user': user,
             'ingredients': (ingredient,),
         }
 
@@ -63,19 +64,8 @@ class TestRevision:
         content_type = ContentType.objects.get_for_model(recipe)
 
         assert rev.data == data
-        assert rev.user == data['fields']['user']
         assert rev.action == DBActions.UPDATE
         assert rev.content_type == content_type
-
-    def test_instance_user_without_user_field(self):
-        obj = mixer.blend(Ingredient)
-        rev = Revision()
-        assert not rev._instance_user(obj)
-
-    def test_instance_user_with_user_field(self):
-        obj = mixer.blend(Chef)
-        rev = Revision()
-        assert rev._instance_user(obj) == obj.user
 
     def test_instance_action(self):
         obj = Chef()

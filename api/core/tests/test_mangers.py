@@ -40,14 +40,14 @@ class TestAbstractBaseManager:
 @pytest.mark.django_db
 class TestBaseManager:
     def test_from_user(self, user, adm_user):
-        obj_user = mixer.blend(Recipe, user=user.email)
-        obj_adm = mixer.blend(Recipe, user=adm_user.email)
+        obj_user = mixer.blend(Recipe, user=user)
+        obj_adm = mixer.blend(Recipe, user=adm_user)
         assert Recipe.objects.all().count() == 2
 
-        qs = Recipe.objects.from_user(user.email)
+        qs = Recipe.objects.from_user(user)
         assert qs.count() == 1
         assert obj_user in qs
 
-        qs = Recipe.objects.from_user(adm_user.email)
+        qs = Recipe.objects.from_user(adm_user)
         assert qs.count() == 1
         assert obj_adm in qs

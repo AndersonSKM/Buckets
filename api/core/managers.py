@@ -35,5 +35,5 @@ class AbstractBaseManager(RevisionManagerMixin):
 
 
 class BaseManager(AbstractBaseManager):
-    def from_user(self, email):
-        return self.get_queryset().filter(user=email)
+    def from_user(self, user):
+        return self.get_queryset().filter(user__id=user.pk)

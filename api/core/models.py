@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.indexes import GinIndex
 from django.core import serializers
-from django.core.exceptions import FieldDoesNotExist
+from django.conf import settings
 from django.db import models, transaction
 from django.utils.translation import gettext_lazy as _
 
@@ -42,8 +42,9 @@ class TimeStampModelMixin(models.Model):
 
 
 class UserModelMixin(models.Model):
-    user = models.EmailField(
-        editable=False,
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
         db_index=True
     )
 
@@ -61,11 +62,6 @@ class Revision(UUIDModelMixin, TimeStampModelMixin):
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
-    )
-    user = models.EmailField(
-        editable=False,
-        null=True,
-        blank=True
     )
     action = models.CharField(
         max_length=25,
@@ -90,7 +86,6 @@ class Revision(UUIDModelMixin, TimeStampModelMixin):
         instance = kwargs.pop('instance', None)
         if instance:
             kwargs['content_type_id'] = self._instance_content_type(instance)
-            kwargs['user'] = self._instance_user(instance)
             kwargs['action'] = self._instance_action(instance)
             kwargs['data'] = self._serialize_instance(instance)
         super(Revision, self).__init__(*args, **kwargs)
@@ -108,13 +103,6 @@ class Revision(UUIDModelMixin, TimeStampModelMixin):
 
     def _instance_content_type(self, obj):
         return ContentType.objects.get_for_model(obj).pk
-
-    def _instance_user(self, obj):
-        try:
-            f = obj._meta.get_field('user')
-        except FieldDoesNotExist:
-            return None
-        return obj.user if isinstance(f, models.EmailField) else None
 
 
 class RevisionModelMixin(models.Model):
