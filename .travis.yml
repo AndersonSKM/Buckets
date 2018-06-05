@@ -62,6 +62,7 @@ script:
       echo "$(date) - waiting for postgres..."
       sleep 1
     done
+
     until [ "$(docker inspect -f {{.State.Health.Status}} rabbitmq)" == "healthy" ]; do
       echo "$(date) - waiting for rabbitmq..."
       sleep 1
