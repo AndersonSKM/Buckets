@@ -27,7 +27,7 @@ class TestUsersApiViewSet:
         response = api_client.get(url)
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    def test_list_auth_normal_user(self, api_auth_client, user):
+    def test_list_auth_normal_user(self, api_auth_client):
         url = reverse('api:users-list')
         response = api_auth_client.get(url)
         assert response.status_code == status.HTTP_403_FORBIDDEN
