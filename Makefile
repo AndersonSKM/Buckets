@@ -71,8 +71,8 @@ codecov:
 	docker-compose exec $(t) sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov -Z"
 
 deploy:
-	docker login -e $(DOCKER_EMAIL) -u $(DOCKER_USER) -p $(DOCKER_PASS)
+	docker login -u $(DOCKER_USER) -p $(DOCKER_PASS)
 	for image in $(IMAGES) ; do \
-		docker tag $(PROJECT_NAME)/$$image:dev $(PROJECT_NAME)/$$image/:$(TAG) || exit 1; \
-		docker push $(PROJECT_NAME)/$$image/:$(TAG) || exit 1 ; \
+		docker tag $(PROJECT_NAME)/$$image:dev $(PROJECT_NAME)/$$image:$(TAG) || exit 1; \
+		docker push $(PROJECT_NAME)/$$image:$(TAG) || exit 1 ; \
 	done
