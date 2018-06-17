@@ -16,16 +16,6 @@ class TestUser:
     def test_get_short_name(self, user):
         assert user.get_short_name() == user.first_name
 
-    def test_is_admin(self):
-        user = User(is_staff=True)
-        assert user.is_admin
-
-        user = User(is_superuser=True)
-        assert user.is_admin
-
-        user = User()
-        assert not user.is_admin
-
 
 @pytest.mark.django_db
 class TestUserManager:

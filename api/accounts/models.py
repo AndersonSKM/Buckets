@@ -77,9 +77,16 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
         verbose_name = _('user')
         verbose_name_plural = _('users')
 
-    @property
-    def is_admin(self):
-        return self.is_staff or self.is_superuser
+    def save(self, force_insert=False, force_update=False,
+             using=None, update_fields=None):
+        if self.is_superuser and not self.is_staff:
+            self.is_staff = True
+        super(User, self).save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields
+        )
 
     def get_full_name(self):
         full_name = '%s %s' % (self.first_name, self.last_name)

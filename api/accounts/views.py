@@ -1,14 +1,25 @@
 from django.contrib.auth import get_user_model
 from rest_framework.viewsets import ModelViewSet
 
-from accounts.serializers import UserSerializer
-from core.permissions import AnonCreateUserUpdateSelfOnly, ListUserAdminOnly
+from accounts import serializers
+from core import permissions
+
+User = get_user_model()
 
 
 class UserViewSet(ModelViewSet):
-    serializer_class = UserSerializer
-    queryset = get_user_model().objects.all()
+    queryset = User.objects.all()
     permission_classes = (
-        AnonCreateUserUpdateSelfOnly,
-        ListUserAdminOnly,
+        permissions.AllowAnyCreateUpdateIsAdminOrOwner,
+        permissions.AllowListIsAdmin,
     )
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            if self.request and self.request.user.is_staff:
+                return serializers.FullUserCreateSerializer
+            return serializers.UserCreateSerializer
+
+        if self.request and self.request.user.is_staff:
+            return serializers.FullUserSerializer
+        return serializers.UserSerializer
