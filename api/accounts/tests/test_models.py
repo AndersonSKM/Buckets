@@ -10,11 +10,15 @@ class TestUser:
         assert str(user) == user.email
 
     def test_get_full_name(self, user):
-        assert user.get_full_name() == \
-            "%s %s" % (user.first_name, user.last_name)
+        assert user.get_full_name() == f'{user.first_name} {user.last_name}'
 
     def test_get_short_name(self, user):
         assert user.get_short_name() == user.first_name
+
+    def test_save_superuser_set_is_staff_true(self, user):
+        user.is_superuser = True
+        user.save()
+        assert user.is_staff
 
 
 @pytest.mark.django_db
