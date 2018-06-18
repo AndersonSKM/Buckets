@@ -77,7 +77,7 @@ class TestUsersApiViewSetIntegration:
     def test_list_anon_user(self, api_client):
         url = reverse('auth:users-list')
         response = api_client.get(url)
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_list_auth_normal_user(self, api_auth_client):
         url = reverse('auth:users-list')
