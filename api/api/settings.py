@@ -3,7 +3,6 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-#APPS_DIR = os.path.join(BASE_DIR, 'apps')
 
 # SECRET KEY
 # ------------------------------------------------------------------------------
@@ -97,7 +96,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'api.wsgi.application'
 
-
 # DATABASE CONFIGURATION
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -177,7 +175,7 @@ REST_FRAMEWORK = {
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
