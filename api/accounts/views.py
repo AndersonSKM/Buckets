@@ -8,6 +8,27 @@ User = get_user_model()
 
 
 class UserViewSet(ModelViewSet):
+    """
+    retrieve:
+    Return the given user.
+
+    list:
+    Return a list of all the existing.\n
+    *Only works if you have staff permissions.*
+
+    create:
+    Create a new user instance.\n
+    *No permissions required for this action.*
+
+    delete:
+    Destroy the given user.
+
+    update:
+    Update the full data of given user.
+
+    partial_update:
+    Update partial data of given .
+    """
     queryset = User.objects.all()
     permission_classes = (
         permissions.AllowAnyCreateUpdateIsAdminOrOwner,
