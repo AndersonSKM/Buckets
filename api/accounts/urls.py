@@ -11,4 +11,3 @@ urlpatterns = [
     path('auth/tokens/', obtain_jwt_token, name='obtain-token'),
     path('auth/', include(router.urls))
 ]
-
