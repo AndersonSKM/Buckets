@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
 
-class AnonCreateUserUpdateSelfOnly(permissions.BasePermission):
+class AllowAnyCreateUpdateIsAdminOrOwner(permissions.BasePermission):
     """
     Custom permission:
         - allow anonymous CREATE
@@ -24,7 +24,7 @@ class AnonCreateUserUpdateSelfOnly(permissions.BasePermission):
         )
 
 
-class ListUserAdminOnly(permissions.BasePermission):
+class AllowListIsAdmin(permissions.BasePermission):
     """
     Custom permission to only allow access to lists for admins
     """

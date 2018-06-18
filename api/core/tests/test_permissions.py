@@ -1,13 +1,13 @@
 import pytest
 from mock import MagicMock
 
-from core.permissions import AnonCreateUserUpdateSelfOnly, ListUserAdminOnly
+from core import permissions
 
 
 class TestAnonCreateUserUpdateSelfOnly:
     @pytest.fixture
     def permission(self):
-        return AnonCreateUserUpdateSelfOnly()
+        return permissions.AllowAnyCreateUpdateIsAdminOrOwner()
 
     def test_has_permission_create(self, permission):
         view = MagicMock(action='create')
@@ -47,7 +47,7 @@ class TestAnonCreateUserUpdateSelfOnly:
 class TestListUserAdminOnly:
     @pytest.fixture
     def permission(self):
-        return ListUserAdminOnly()
+        return permissions.AllowListIsAdmin()
 
     def test_has_permission(self, permission):
         view = MagicMock(action='list')

@@ -41,7 +41,7 @@ unit-test:
 lint: flake isort
 
 logs:
-	 logs $(t)
+	docker-compose logs $(t)
 
 flake:
 	docker-compose exec $(t) flake8
