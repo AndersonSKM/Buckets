@@ -9,7 +9,7 @@ from core.tests.models import Chef, Ingredient, Recipe
 @pytest.mark.django_db
 class TestRevision:
     @pytest.fixture
-    def data(self):
+    def data(self) -> dict:
         return {
             'fields': {
                 'chef': 'c031bab9-1f9d-4168-8be1-02453a57f08c',

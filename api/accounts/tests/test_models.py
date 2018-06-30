@@ -24,7 +24,7 @@ class TestUser:
 @pytest.mark.django_db
 class TestUserManager:
     @pytest.fixture
-    def data(self):
+    def data(self) -> dict:
         return {
             'email': 'bruce@we.com',
             'password': 'batman',
