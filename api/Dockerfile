@@ -26,4 +26,8 @@ RUN mv docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 ENTRYPOINT ["/bin/sh", "/usr/local/bin/docker-entrypoint.sh"]
 
+EXPOSE 8000
 CMD ["python3", "manage.py", "shell"]
+
+HEALTHCHECK --interval=5s --timeout=3s \
+    CMD nc -z 0.0.0.0 8000 || exit 1

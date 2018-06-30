@@ -12,6 +12,5 @@ coverage:
   fixes:
     - "accounts/::api/accounts/"
     - "core/::api/core/"
-    - "service_core/::service-core/service_core/"
 
 comment: off

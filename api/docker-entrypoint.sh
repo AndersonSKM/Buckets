@@ -2,17 +2,12 @@
 
 until nc -z ${POSTGRES_HOST} ${POSTGRES_PORT}; do
     echo "$(date) - waiting for postgresql..."
-    sleep 1
-done
-
-until nc -z ${RABBITMQ_HOST} ${RABBITMQ_MANAGEMENT_PORT}; do
-    echo "$(date) - waiting for rabbitmq..."
-    sleep 1
+    sleep 3s
 done
 
 until nc -z ${REDIS_HOST} ${REDIS_PORT}; do
     echo "$(date) - waiting for redis..."
-    sleep 1
+    sleep 3s
 done
 
 echo "Setup django application..."

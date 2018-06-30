@@ -10,13 +10,9 @@ services:
       - media-data:/media
     ports:
       - "80:80"
-    expose:
-      - "80"
-    healthcheck:
-      test: ["CMD", "nc", "-z", "nginx", "80"]
 
   postgres:
-    image: postgres:10-alpine
+    image: buckets/postgres:dev
     container_name: postgres
     restart: always
     env_file: ./env
@@ -24,41 +20,14 @@ services:
       - database:/var/lib/postgresql
     ports:
       - "5435:5432"
-    expose:
-      - "5432"
-    healthcheck:
-      test: ["CMD", "pg_isready"]
-
-  rabbitmq:
-    image: rabbitmq:3.7-management-alpine
-    container_name: rabbitmq
-    restart: always
-    env_file: ./env
-    volumes:
-      - rabbitmq-data:/var/lib/rabbitmq
-    ports:
-      - "15673:15672"
-      - "5673:5672"
-    healthcheck:
-      test: ["CMD", "rabbitmqctl", "status"]
 
   redis:
-    image: redis:3.2-alpine
+    image: buckets/redis:dev
     container_name: redis
     restart: always
     env_file: ./env
     ports:
       - "6380:6379"
-
-  service-core:
-    image: buckets/service-core:dev
-    container_name: service-core
-    env_file: ./env
-    depends_on:
-      - "redis"
-      - "rabbitmq"
-    volumes:
-      - ./service-core/:/app/
 
   api:
     image: buckets/api:dev
@@ -67,21 +36,14 @@ services:
     env_file: ./env
     depends_on:
       - "postgres"
-      - "rabbitmq"
       - "redis"
     volumes:
       - static-data:/static
       - media-data:/media
       - ./api/:/app/
-    expose:
-      - "8000"
-    healthcheck:
-      test: ["CMD", "nc", "-z", "api", "8000"]
 
 volumes:
   database:
-    driver: local
-  rabbitmq-data:
     driver: local
   static-data:
     driver: local
