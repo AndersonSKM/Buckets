@@ -47,6 +47,10 @@ class UserViewSet(viewsets.ModelViewSet):
 
     partial_update:
     Update partial of data given.
+
+    activate:
+    Active the given user account.\n
+    *No permissions required for this action.*
     """
     queryset = User.objects.all()
     permission_classes = (
