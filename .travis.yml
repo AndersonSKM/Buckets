@@ -28,14 +28,6 @@ install:
   - echo "POSTGRES_HOST=$POSTGRES_HOST" >> env
   - echo "POSTGRES_PORT=$POSTGRES_PORT" >> env
 
-  - echo "RABBITMQ_DEFAULT_USER=$RABBITMQ_DEFAULT_USER" >> env
-  - echo "RABBITMQ_DEFAULT_PASS=$RABBITMQ_DEFAULT_PASS" >> env
-  - echo "RABBITMQ_HOST=$RABBITMQ_HOST" >> env
-  - echo "RABBITMQ_PORT=$RABBITMQ_PORT" >> env
-  - echo "RABBITMQ_MANAGEMENT_PORT=$RABBITMQ_MANAGEMENT_PORT" >> env
-  - echo "AMQP_URI=$AMQP_URI" >> env
-  - echo "RABBITMQ_CTL_URI=$RABBITMQ_CTL_URI" >> env
-
   - echo "REDIS_HOST=$REDIS_HOST" >> env
   - echo "REDIS_PORT=$REDIS_PORT" >> env
 
@@ -58,13 +50,8 @@ script:
   - make build
   - make up-d
   - |
-    until [ "$(docker inspect -f {{.State.Health.Status}} postgres)" == "healthy" ]; do
-      echo "$(date) - waiting for postgres..."
-      sleep 1
-    done
-
-    until [ "$(docker inspect -f {{.State.Health.Status}} rabbitmq)" == "healthy" ]; do
-      echo "$(date) - waiting for rabbitmq..."
+    until [ "$(docker inspect -f {{.State.Health.Status}} api)" == "healthy" ]; do
+      echo "$(date) - waiting for application to be ready..."
       sleep 1
     done
 
