@@ -19,7 +19,7 @@ DEBUG = os.environ.get('DEBUG', False)
 # ALLOWED_HOSTS
 # ------------------------------------------------------------------------------
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split()
 
 # AUTH
 # ------------------------------------------------------------------------------
@@ -190,3 +190,14 @@ REST_FRAMEWORK = {
 JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(hours=1),
 }
+
+
+# Email
+# ------------------------------------------------------------------------------
+
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+EMAIL_HOST = os.environ.get('EMAIL_BACKEND', 'smtp.sendgrid.net')
+EMAIL_PORT = os.environ.get('EMAIL_PORT', 587)
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)

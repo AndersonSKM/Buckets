@@ -3,6 +3,7 @@ from django.contrib.auth.models import (
     BaseUserManager,
     PermissionsMixin,
 )
+from django.core.mail import send_mail
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -77,6 +78,9 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
         verbose_name = _('user')
         verbose_name_plural = _('users')
 
+    def __str__(self) -> str:
+        return self.email
+
     def save(self, force_insert=False, force_update=False,
              using=None, update_fields=None):
         if self.is_superuser and not self.is_staff:
@@ -88,11 +92,11 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
             update_fields=update_fields
         )
 
-    def get_full_name(self):
+    def get_full_name(self) -> str:
         return f'{self.first_name} {self.last_name}'.strip()
 
-    def get_short_name(self):
+    def get_short_name(self) -> str:
         return self.first_name
 
-    def __str__(self):
-        return self.email
+    def email_user(self, subject, message, from_email=None, **kwargs):
+        send_mail(subject, message, from_email, [self.email], **kwargs)
