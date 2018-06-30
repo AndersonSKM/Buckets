@@ -1,7 +1,7 @@
 import pytest
 from django.urls import reverse
 from mixer.backend.django import mixer
-from mock import Mock
+from mock import Mock, patch
 from rest_framework import status
 
 from accounts.serializers import (
@@ -10,6 +10,7 @@ from accounts.serializers import (
     UserCreateSerializer,
     UserSerializer,
 )
+from accounts.services import UserService
 from accounts.views import UserViewSet
 
 
@@ -42,7 +43,7 @@ class TestUsersApiViewSet:
 
 
 @pytest.mark.django_db
-class TestUsersApiViewSetIntegration:
+class TestUsersApiIntegration:
     @pytest.fixture
     def data(self):
         return {
@@ -147,7 +148,7 @@ class TestUsersApiViewSetIntegration:
         url = reverse('auth:users-detail', kwargs={'pk': user.pk})
         response = api_auth_client.delete(url, follow=True)
         assert response.status_code == status.HTTP_204_NO_CONTENT
-        assert not user_model.objects.filter(pk=user.pk).exists()
+        assert not user_model.objects.get_or_none(pk=user.pk)
 
     def test_delete_other_record(self, api_auth_client, user_model):
         user = mixer.blend(user_model)
@@ -162,3 +163,40 @@ class TestUsersApiViewSetIntegration:
         url = reverse('auth:users-detail', kwargs={'pk': user.pk})
         response = api_adm_client.delete(url, follow=True)
         assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    def test_activate(self, api_client, user_model):
+        user = mixer.blend(user_model, is_active=False)
+        info = UserService.activation_info(user)
+        url = reverse('auth:users-activate', kwargs={
+            'uuidb64': info['uuid'],
+            'token': info['token'],
+        })
+
+        response = api_client.get(url)
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_activate_invalid_parameters(self, api_client, user):
+        info = UserService.activation_info(user)
+        url = reverse('auth:users-activate', kwargs={
+            'uuidb64': info['uuid'],
+            'token': info['token'],
+        })
+
+        with patch('accounts.services.user_activation_token') as mock_token:
+            mock_token.check_token.return_value = False
+            response = api_client.get(url)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data['detail'] == "invalid activation parameters"
+
+    def test_activate_active_user(self, api_client, user_model):
+        user = mixer.blend(user_model, is_active=False)
+        info = UserService.activation_info(user)
+        url = reverse('auth:users-activate', kwargs={
+            'uuidb64': info['uuid'],
+            'token': info['token'],
+        })
+        user.active = True
+        user.save()
+
+        response = api_client.get(url)
+        assert response.status_code == status.HTTP_200_OK

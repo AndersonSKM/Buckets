@@ -20,12 +20,12 @@ class TestCreateUserSerializers:
         }
 
     @mock.patch('accounts.serializers.User')
-    def test_create_normal_serializer(self, User, user_data):
+    def test_create_normal_serializer(self, user_model, user_data):
         serializer = serializers.UserCreateSerializer(data=user_data)
         assert serializer.is_valid()
         serializer.create(user_data.copy())
 
-        User.objects.create_user.assert_called_once_with(
+        user_model.objects.create_user.assert_called_once_with(
             user_data['email'],
             user_data['password'],
             False,
@@ -34,13 +34,13 @@ class TestCreateUserSerializers:
         )
 
     @mock.patch('accounts.serializers.User')
-    def test_create_full_serializer(self, User, user_data):
+    def test_create_full_serializer(self, user_model, user_data):
         user_data['is_staff'] = True
         serializer = serializers.FullUserCreateSerializer(data=user_data)
         assert serializer.is_valid()
         serializer.create(user_data.copy())
 
-        User.objects.create_user.assert_called_once_with(
+        user_model.objects.create_user.assert_called_once_with(
             user_data['email'],
             user_data['password'],
             True,
@@ -61,7 +61,7 @@ class TestCreateUserSerializers:
 @pytest.mark.freeze_time('2018-01-04 13:30:55')
 class TestUserSerializer:
     @pytest.fixture
-    def user_data(self):
+    def user_data(self) -> dict:
         return {
             'uri': (
                 'http://testserver/api/auth/users/'
