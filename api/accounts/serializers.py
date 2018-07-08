@@ -1,7 +1,25 @@
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-User = get_user_model()
+from accounts.models import User
+
+default_user_fields = (
+    'uri',
+    'pk',
+    'email',
+    'first_name',
+    'last_name',
+    'is_superuser',
+    'is_staff',
+    'is_active',
+    'last_login',
+    'created_at',
+    'updated_at',
+)
+
+create_user_fields = default_user_fields + (
+    'password',
+    'password_confirm',
+)
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -17,19 +35,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = User
-        fields = (
-            'uri',
-            'pk',
-            'email',
-            'first_name',
-            'last_name',
-            'is_superuser',
-            'is_staff',
-            'is_active',
-            'last_login',
-            'created_at',
-            'updated_at',
-        )
+        fields = default_user_fields
 
 
 class FullUserSerializer(UserSerializer):
@@ -42,28 +48,14 @@ class UserCreateSerializer(UserSerializer):
 
     class Meta:
         model = User
-        fields = (
-            'uri',
-            'pk',
-            'email',
-            'password',
-            'password_confirm',
-            'first_name',
-            'last_name',
-            'is_superuser',
-            'is_staff',
-            'is_active',
-            'last_login',
-            'created_at',
-            'updated_at',
-        )
+        fields = create_user_fields
 
-    def validate(self, data):
+    def validate(self, data: dict) -> dict:
         if data['password'] != data['password_confirm']:
             raise serializers.ValidationError("Passwords don't match.")
         return data
 
-    def create(self, validated_data):
+    def create(self, validated_data: dict) -> User:
         email = validated_data.pop('email', None)
         password = validated_data.pop('password', None)
         validated_data.pop('password_confirm', None)
