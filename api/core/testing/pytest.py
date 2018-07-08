@@ -73,9 +73,9 @@ def api_factory():
 
 
 @pytest.fixture
-def serializer_context(api_factory):
+def serializer_context(api_factory) -> dict:
     """
-    This fixture will return a fake serialize request fro uri fields
+    This fixture will return a fake serialize request for uri fields
     """
     request = api_factory.get('/')
     return {

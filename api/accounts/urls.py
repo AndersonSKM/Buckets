@@ -4,7 +4,7 @@ from rest_framework_jwt.views import obtain_jwt_token
 
 from accounts import views
 
-router = DefaultRouter()  # pylint: disable=invalid-name
+router = DefaultRouter()
 router.register('users', views.UserViewSet, base_name='users')
 
 urlpatterns = [

@@ -90,18 +90,18 @@ class Revision(UUIDModelMixin, TimeStampModelMixin):
             kwargs['data'] = self._serialize_instance(instance)
         super(Revision, self).__init__(*args, **kwargs)
 
-    def _serialize_instance(self, obj):
+    def _serialize_instance(self, obj) -> dict:
         data = serializers.serialize('json', [obj,])
         return json.loads(data)[0]
 
-    def _instance_action(self, obj):
+    def _instance_action(self, obj) -> DBActions:
         if obj._state.adding:
             return DBActions.CREATE
         elif getattr(obj._state, 'destroing', False):
             return DBActions.DESTROY
         return DBActions.UPDATE
 
-    def _instance_content_type(self, obj):
+    def _instance_content_type(self, obj) -> int:
         return ContentType.objects.get_for_model(obj).pk
 
 
