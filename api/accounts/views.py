@@ -37,7 +37,8 @@ class UserViewSet(viewsets.ModelViewSet):
 
     create:
     Create a new user instance.\n
-    When a user is created successfull, an activation link is sent to the registered address\n
+    When a user is created successfull,
+     an activation link is sent to the registered address\n
     *No permissions required for this action.*
 
     delete:
