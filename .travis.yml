@@ -55,7 +55,7 @@ script:
       sleep 1
     done
 
-  - make test-all
+  - make test
 
 after_success:
   - make coverage

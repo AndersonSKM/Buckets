@@ -29,10 +29,7 @@ deploy:
 		docker push $(PROJECT_NAME)/$$image:$(TAG) || exit 1 ; \
 	done
 
-test: clean unit-test lint
-
-test-all:
-	make test t=api
+test: api-clean api-test api-lint
 
 coverage:
 	make codecov t=api
@@ -40,10 +37,10 @@ coverage:
 codecov:
 	docker-compose exec $(t) sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov -Z"
 
-unit-test:
+api-test:
 	docker-compose exec api pytest
 
-lint: flake isort
+api-lint: flake isort
 
 flake:
 	docker-compose exec api flake8
@@ -57,11 +54,11 @@ fix-imports:
 outdated:
 	docker-compose exec api pip3 list --outdated --format=columns
 
-clean:
+api-clean:
 	$(info Cleaning directories)
-	@docker-compose exec $(t) sh -c "find . -name "*.pyo" | xargs rm -rf"
-	@docker-compose exec $(t) sh -c "find . -name "*.cache" | xargs rm -rf"
-	@docker-compose exec $(t) sh -c "find . -name "*.mypy_cache" | xargs rm -rf"
-	@docker-compose exec $(t) sh -c "find . -name "__pycache__" -type d | xargs rm -rf"
-	@docker-compose exec $(t) sh -c "find . -name ".pytest_cache" -type d | xargs rm -rf"
-	@docker-compose exec $(t) sh -c "rm -f .coverage && rm -rf coverage/"
+	@docker-compose exec api sh -c "find . -name "*.pyo" | xargs rm -rf"
+	@docker-compose exec api sh -c "find . -name "*.cache" | xargs rm -rf"
+	@docker-compose exec api sh -c "find . -name "*.mypy_cache" | xargs rm -rf"
+	@docker-compose exec api sh -c "find . -name "__pycache__" -type d | xargs rm -rf"
+	@docker-compose exec api sh -c "find . -name ".pytest_cache" -type d | xargs rm -rf"
+	@docker-compose exec api sh -c "rm -f .coverage && rm -rf coverage/"
