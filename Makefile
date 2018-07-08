@@ -40,13 +40,16 @@ codecov:
 api-test:
 	docker-compose exec api pytest
 
-api-lint: flake isort
+api-lint: mypy flake isort
 
 flake:
 	docker-compose exec api flake8
 
 isort:
 	docker-compose exec api isort --check --diff -tc -rc .
+
+mypy:
+	docker-compose exec api mypy . --ignore-missing-imports --follow-imports=skip
 
 fix-imports:
 	docker-compose exec api isort -tc -rc .

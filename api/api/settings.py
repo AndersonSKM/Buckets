@@ -63,9 +63,7 @@ DJANGO_MIDDLEWARES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-THIRD_PARTY_MIDDLEWARES = []
-
-MIDDLEWARE = DJANGO_MIDDLEWARES + THIRD_PARTY_MIDDLEWARES
+MIDDLEWARE = DJANGO_MIDDLEWARES
 
 # URL Configuration
 # ------------------------------------------------------------------------------
