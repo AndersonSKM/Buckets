@@ -4,8 +4,8 @@ from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from rest_framework.reverse import reverse
 
-from accounts.utils import user_activation_token
 from accounts.models import User
+from accounts.utils import user_activation_token
 
 
 class UserService:
