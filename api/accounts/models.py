@@ -71,7 +71,6 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
 
     class Meta:
         db_table = 'auth_user'

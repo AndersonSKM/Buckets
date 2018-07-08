@@ -15,7 +15,7 @@ from core.utils.fields import ChoiceEnum
 # Mixin's
 
 
-class UUIDModelMixin(models.Model):
+class UUIDModelMixin(models.Model): # type: ignore
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
@@ -26,7 +26,7 @@ class UUIDModelMixin(models.Model):
         abstract = True
 
 
-class TimeStampModelMixin(models.Model):
+class TimeStampModelMixin(models.Model): # type: ignore
     created_at = models.DateTimeField(
         auto_now_add=True,
         editable=False
@@ -41,7 +41,7 @@ class TimeStampModelMixin(models.Model):
         ordering = ['-created_at']
 
 
-class UserModelMixin(models.Model):
+class UserModelMixin(models.Model): # type: ignore
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -58,7 +58,7 @@ class DBActions(ChoiceEnum):
     DESTROY = 'Destroy'
 
 
-class Revision(UUIDModelMixin, TimeStampModelMixin):
+class Revision(UUIDModelMixin, TimeStampModelMixin): # type: ignore
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
@@ -105,7 +105,7 @@ class Revision(UUIDModelMixin, TimeStampModelMixin):
         return ContentType.objects.get_for_model(obj).pk
 
 
-class RevisionModelMixin(models.Model):
+class RevisionModelMixin(models.Model): # type: ignore
     class Meta:
         abstract = True
 
@@ -134,7 +134,7 @@ class RevisionModelMixin(models.Model):
 # Base Classes
 
 
-class AbstractBaseModel(
+class AbstractBaseModel( # type: ignore
     UUIDModelMixin,
     TimeStampModelMixin,
     RevisionModelMixin,
@@ -145,7 +145,7 @@ class AbstractBaseModel(
         abstract = True
 
 
-class BaseModel(AbstractBaseModel, UserModelMixin):
+class BaseModel(AbstractBaseModel, UserModelMixin): # type: ignore
     objects = BaseManager()
 
     class Meta:

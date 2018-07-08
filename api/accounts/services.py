@@ -1,18 +1,16 @@
-
-from django.contrib.auth import get_user_model
+from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from rest_framework.reverse import reverse
 
 from accounts.utils import user_activation_token
-
-User = get_user_model()
+from accounts.models import User
 
 
 class UserService:
     @staticmethod
-    def activation_info(user, request=None) -> dict:
+    def activation_info(user: User, request: HttpRequest = None) -> dict:
         uuid = urlsafe_base64_encode(force_bytes(user.pk)).decode()
         token = user_activation_token.make_token(user)
         uri = reverse(
@@ -28,7 +26,7 @@ class UserService:
         }
 
     @staticmethod
-    def user_from_uuidb64(uuidb64) -> User:
+    def user_from_uuidb64(uuidb64: str) -> User:
         try:
             uuid = force_text(urlsafe_base64_decode(uuidb64))
             user = User.objects.get(pk=uuid)
@@ -37,7 +35,7 @@ class UserService:
         return user
 
     @staticmethod
-    def activate(uuidb64, token):
+    def activate(uuidb64: str, token: str):
         user = UserService.user_from_uuidb64(uuidb64)
         if user and user.is_active:
             return
@@ -49,7 +47,7 @@ class UserService:
         user.save()
 
     @staticmethod
-    def send_activation_email(user, request=None):
+    def send_activation_email(user: User, request: HttpRequest = None):
         if user.is_active:
             raise ValueError("User already active")
         info = UserService.activation_info(user, request)
