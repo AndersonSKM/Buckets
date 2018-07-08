@@ -41,15 +41,17 @@ class UserService:
         user = UserService.user_from_uuidb64(uuidb64)
         if user and user.is_active:
             return
+
         if not user_activation_token.check_token(user, token):
-            raise ValueError("invalid activation parameters")
+            raise ValueError("Invalid activation parameters")
+
         user.is_active = True
         user.save()
 
     @staticmethod
     def send_activation_email(user, request=None):
         if user.is_active:
-            raise ValueError("user already active")
+            raise ValueError("User already active")
         info = UserService.activation_info(user, request)
         message = render_to_string('activation_email.html', info)
         user.email_user("Activate your account", message, fail_silently=False)

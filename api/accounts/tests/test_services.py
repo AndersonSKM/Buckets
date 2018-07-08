@@ -29,11 +29,11 @@ class TestUserService:
         assert info.get('uri')
         assert isinstance(info['uri'], str)
 
-    @should_raise(ValueError("invalid activation parameters"))
+    @should_raise(ValueError("Invalid activation parameters"))
     def test_activate_with_invalid_uuid(self, info):
         UserService.activate('test', info['token'])
 
-    @should_raise(ValueError("invalid activation parameters"))
+    @should_raise(ValueError("Invalid activation parameters"))
     def test_activate_with_invalid_token(self, info):
         UserService.activate(info['uuid'], '12312s')
 
@@ -59,14 +59,14 @@ class TestUserService:
         user = mixer.blend(user_model, is_active=False)
         UserService.send_activation_email(user)
 
-        args, kwargs = mock_render.call_args_list[0]
+        args, _ = mock_render.call_args_list[0]
         assert args[0] == 'activation_email.html'
 
         assert 1 == len(mailoutbox)
         email = mailoutbox[0]
         assert "Activate your account" == email.subject
 
-    @should_raise(ValueError("user already active"))
+    @should_raise(ValueError("User already active"))
     def test_send_activation_email_active_user(self):
         mock_user = Mock(is_active=True)
         UserService.send_activation_email(mock_user)
