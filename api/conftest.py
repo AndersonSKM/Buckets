@@ -1,1 +1,1 @@
-pytest_plugins = 'core.testing.fixtures'
+pytest_plugins = 'core.tests.fixtures'
