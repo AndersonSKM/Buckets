@@ -21,7 +21,9 @@ class TestUserService:
     def test_user_from_uuidb64_invalid_uuid(self, user):
         assert not UserService.user_from_uuidb64('123891ui2')
 
-    def test_activation_info(self, info):
+    def test_activation_info(self, info, user):
+        assert user.get_full_name() == info.get('user_full_name')
+        assert isinstance(info['user_full_name'], str)
         assert info.get('uuid')
         assert isinstance(info['uuid'], str)
         assert info.get('token')
