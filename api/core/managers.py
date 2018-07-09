@@ -2,12 +2,12 @@ import uuid
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
-from django.db import models
+from django.db.models import Manager, Model
 from django.db.models.query import QuerySet
 
 
-class RevisionManagerMixin(models.Manager):
-    def revisions(self, obj) -> QuerySet:
+class RevisionManagerMixin(Manager):
+    def revisions(self, obj: Model) -> QuerySet:
         pk = obj.pk
         if isinstance(pk, uuid.UUID):
             pk = str(pk)
@@ -18,7 +18,7 @@ class RevisionManagerMixin(models.Manager):
         )
 
     @property
-    def revision_model(self) -> models.Model:
+    def revision_model(self) -> Model:
         """This method is used for avoid circular imports on Revision Model."""
         return apps.get_model(app_label='core', model_name='Revision')
 
@@ -28,7 +28,7 @@ class RevisionManagerMixin(models.Manager):
 
 
 class AbstractBaseManager(RevisionManagerMixin):
-    def get_or_none(self, **kwargs) -> models.Model:
+    def get_or_none(self, **kwargs: dict) -> Model:
         try:
             return self.get(**kwargs)
         except self.model.DoesNotExist:
@@ -36,5 +36,5 @@ class AbstractBaseManager(RevisionManagerMixin):
 
 
 class BaseManager(AbstractBaseManager):
-    def from_user(self, user) -> QuerySet:
+    def from_user(self, user: Model) -> QuerySet:
         return self.get_queryset().filter(user__id=user.pk)

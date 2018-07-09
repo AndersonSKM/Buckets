@@ -1,1 +1,1 @@
-pytest_plugins = 'core.testing.pytest'  # pylint: disable=invalid-name
+pytest_plugins = 'core.testing.fixtures'

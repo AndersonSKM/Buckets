@@ -1,9 +1,11 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.http import HttpRequest
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.serializers import ModelSerializer
 
 from accounts.serializers import (
     FullUserCreateSerializer,
@@ -62,7 +64,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=False, permission_classes=[AllowAny],
             url_path=USER_ACTIVATE_URL)
-    def activate(self, request, uuidb64=None, token=None):
+    def activate(self, request: HttpRequest, uuidb64: str, token: str) -> Response:
         try:
             UserService.activate(uuidb64, token)
             return Response(status=status.HTTP_200_OK)
@@ -70,7 +72,7 @@ class UserViewSet(viewsets.ModelViewSet):
             content = {'detail': str(error)}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-    def get_serializer_class(self):
+    def get_serializer_class(self) -> ModelSerializer:
         if self.action == 'create':
             if self.request and self.request.user.is_staff:
                 return FullUserCreateSerializer
@@ -81,6 +83,6 @@ class UserViewSet(viewsets.ModelViewSet):
         return UserSerializer
 
     @transaction.atomic
-    def perform_create(self, serializer):
+    def perform_create(self, serializer: ModelSerializer) -> None:
         instance = serializer.save()
         UserService.send_activation_email(instance, self.request)
