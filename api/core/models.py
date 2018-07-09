@@ -1,5 +1,6 @@
 import json
 import uuid
+from typing import Any, List, Optional
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -82,7 +83,7 @@ class Revision(UUIDModelMixin, TimeStampModelMixin):  # type: ignore
             GinIndex(fields=['data',]),
         ]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         instance = kwargs.pop('instance', None)
         if instance:
             kwargs['content_type_id'] = self._instance_content_type(instance)
@@ -90,18 +91,18 @@ class Revision(UUIDModelMixin, TimeStampModelMixin):  # type: ignore
             kwargs['data'] = self._serialize_instance(instance)
         super(Revision, self).__init__(*args, **kwargs)
 
-    def _serialize_instance(self, obj) -> dict:
+    def _serialize_instance(self, obj: models.Model) -> dict:
         data = serializers.serialize('json', [obj,])
         return json.loads(data)[0]
 
-    def _instance_action(self, obj) -> DBActions:
+    def _instance_action(self, obj: models.Model) -> DBActions:
         if obj._state.adding:
             return DBActions.CREATE
         elif getattr(obj._state, 'destroing', False):
             return DBActions.DESTROY
         return DBActions.UPDATE
 
-    def _instance_content_type(self, obj) -> int:
+    def _instance_content_type(self, obj: models.Model) -> int:
         return ContentType.objects.get_for_model(obj).pk
 
 
@@ -109,8 +110,8 @@ class RevisionModelMixin(models.Model):  # type: ignore
     class Meta:
         abstract = True
 
-    def save(self, force_insert=False, force_update=False,
-             using=None, update_fields=None):
+    def save(self, force_insert: bool = False, force_update: bool = False,
+             using: Optional[str] = None, update_fields: Optional[List[str]] = None) -> None:
         self.full_clean()
         with transaction.atomic():
             Revision.objects.create(instance=self)
@@ -121,7 +122,7 @@ class RevisionModelMixin(models.Model):  # type: ignore
                 update_fields=update_fields
             )
 
-    def delete(self, using=None, keep_parents=False):
+    def delete(self, using: Optional[str] = None, keep_parents: bool = False) -> None:
         self._state.destroing = True
         with transaction.atomic():
             Revision.objects.create(instance=self)

@@ -73,7 +73,7 @@ def api_factory():
 
 
 @pytest.fixture
-def serializer_context(api_factory) -> dict:
+def serializer_context(api_factory):
     """
     This fixture will return a fake serialize request for uri fields
     """

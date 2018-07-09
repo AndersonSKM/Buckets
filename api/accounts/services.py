@@ -1,3 +1,5 @@
+from typing import Dict, Optional
+
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_text
@@ -10,7 +12,7 @@ from accounts.utils import user_activation_token
 
 class UserService:
     @staticmethod
-    def activation_info(user: User, request: HttpRequest = None) -> dict:
+    def activation_info(user: User, request: Optional[HttpRequest] = None) -> Dict[str, str]:
         uuid = urlsafe_base64_encode(force_bytes(user.pk)).decode()
         token = user_activation_token.make_token(user)
         uri = reverse(
@@ -19,7 +21,7 @@ class UserService:
             request=request
         )
         return {
-            'user': user,
+            'user_full_name': user.get_full_name(),
             'uuid': uuid,
             'token': token,
             'uri': uri,
@@ -35,7 +37,7 @@ class UserService:
         return user
 
     @staticmethod
-    def activate(uuidb64: str, token: str):
+    def activate(uuidb64: str, token: str) -> None:
         user = UserService.user_from_uuidb64(uuidb64)
         if user and user.is_active:
             return
@@ -47,7 +49,7 @@ class UserService:
         user.save()
 
     @staticmethod
-    def send_activation_email(user: User, request: HttpRequest = None):
+    def send_activation_email(user: User, request: Optional[HttpRequest] = None) -> None:
         if user.is_active:
             raise ValueError("User already active")
         info = UserService.activation_info(user, request)
