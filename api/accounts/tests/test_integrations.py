@@ -10,7 +10,7 @@ from accounts.services import user_activation_info
 @pytest.mark.django_db
 class TestUsersApiIntegration:
     @pytest.fixture
-    def data(self) -> dict:
+    def data(self):
         return {
             'email': 'bruce@we.com',
             'first_name': 'Bruce',

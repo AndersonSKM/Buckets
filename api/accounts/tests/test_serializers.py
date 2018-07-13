@@ -61,7 +61,7 @@ class TestCreateUserSerializers:
 @pytest.mark.freeze_time('2018-01-04 13:30:55')
 class TestUserSerializer:
     @pytest.fixture
-    def user_data(self) -> dict:
+    def user_data(self):
         return {
             'uri': 'http://testserver/api/auth/users/4af5528b-0b75-44d9-aaf4-995f7f0849e3/',
             'pk': '4af5528b-0b75-44d9-aaf4-995f7f0849e3',
