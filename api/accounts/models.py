@@ -1,10 +1,6 @@
 from typing import Any, List, Optional
 
-from django.contrib.auth.models import (
-    AbstractBaseUser,
-    BaseUserManager,
-    PermissionsMixin,
-)
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.mail import send_mail
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -33,46 +29,23 @@ class UserManager(BaseUserManager, AbstractBaseManager):
         user.save(using=self._db)
         return user
 
-    def create_user(self, email: str, password: str,
-                    is_staff: bool = False, **extra_fields: dict) -> models.Model:
-        return self._create_user(
-            email, password, is_staff, False, False, **extra_fields
-        )
+    def create_user(self, email: str, password: str, is_staff: bool = False,
+                    **extra_fields: dict) -> models.Model:
+        return self._create_user(email, password, is_staff, False, False, **extra_fields)
 
     def create_superuser(self, email: str, password: str, **extra_fields: dict) -> models.Model:
-        return self._create_user(
-            email, password, True, True, True, **extra_fields
-        )
+        return self._create_user(email, password, True, True, True, **extra_fields)
 
 
 class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(
-        _('email address'),
-        max_length=255,
-        unique=True
-    )
-    first_name = models.CharField(
-        _('first name'),
-        max_length=30,
-        blank=True
-    )
-    last_name = models.CharField(
-        _('last name'),
-        max_length=30,
-        blank=True
-    )
-    is_staff = models.BooleanField(
-        _('staff status'),
-        default=False
-    )
-    is_active = models.BooleanField(
-        _('active'),
-        default=False
-    )
+    email = models.EmailField(_('email address'), max_length=255, unique=True)
+    first_name = models.CharField(_('first name'), max_length=30, blank=True)
+    last_name = models.CharField(_('last name'), max_length=30, blank=True)
+    is_staff = models.BooleanField(_('staff status'), default=False)
+    is_active = models.BooleanField(_('active'), default=False)
+    USERNAME_FIELD = 'email'
 
     objects = UserManager()
-
-    USERNAME_FIELD = 'email'
 
     class Meta:
         db_table = 'auth_user'

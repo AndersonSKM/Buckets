@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
@@ -28,7 +29,7 @@ class RevisionManagerMixin(Manager):
 
 
 class AbstractBaseManager(RevisionManagerMixin):
-    def get_or_none(self, **kwargs: dict) -> Model:
+    def get_or_none(self, **kwargs: dict) -> Optional[Model]:
         try:
             return self.get(**kwargs)
         except self.model.DoesNotExist:

@@ -1,27 +1,23 @@
-from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.http import HttpRequest
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import APIException
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 
+from accounts.models import User
 from accounts.serializers import (
     FullUserCreateSerializer,
     FullUserSerializer,
     UserCreateSerializer,
     UserSerializer,
 )
-from accounts.services import UserService
-from core.permissions import (
-    AllowAnyCreateUpdateIsAdminOrOwner,
-    AllowListIsAdmin,
-)
+from accounts.services import activate_user, send_user_activation_email
+from core.permissions import AllowAnyCreateUpdateIsAdminOrOwner, AllowListIsAdmin
 
-User = get_user_model()
-
-USER_ACTIVATE_URL = (
+ACTIVATE_URL = (
     'activate/'
     '(?P<uuidb64>[0-9A-Za-z_\-]+)/'
     '(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})'
@@ -29,7 +25,8 @@ USER_ACTIVATE_URL = (
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    """
+    """User Views
+
     retrieve:
     Return the given user.
 
@@ -57,16 +54,12 @@ class UserViewSet(viewsets.ModelViewSet):
     *No permissions required for this action.*
     """
     queryset = User.objects.all()
-    permission_classes = (
-        AllowAnyCreateUpdateIsAdminOrOwner,
-        AllowListIsAdmin,
-    )
+    permission_classes = (AllowAnyCreateUpdateIsAdminOrOwner, AllowListIsAdmin,)
 
-    @action(methods=['get'], detail=False, permission_classes=[AllowAny],
-            url_path=USER_ACTIVATE_URL)
+    @action(methods=['get',], detail=False, permission_classes=[AllowAny,], url_path=ACTIVATE_URL)
     def activate(self, request: HttpRequest, uuidb64: str, token: str) -> Response:
         try:
-            UserService.activate(uuidb64, token)
+            activate_user(uuidb64, token)
             return Response(status=status.HTTP_200_OK)
         except Exception as error:
             content = {'detail': str(error)}
@@ -84,5 +77,8 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def perform_create(self, serializer: ModelSerializer) -> None:
-        instance = serializer.save()
-        UserService.send_activation_email(instance, self.request)
+        try:
+            instance = serializer.save()
+            send_user_activation_email(instance, self.request)
+        except Exception as error:
+            raise APIException(str(error))

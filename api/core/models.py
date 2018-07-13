@@ -17,25 +17,15 @@ from core.utils.fields import ChoiceEnum
 
 
 class UUIDModelMixin(models.Model):  # type: ignore
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     class Meta:
         abstract = True
 
 
 class TimeStampModelMixin(models.Model):  # type: ignore
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        editable=False
-    )
-    updated_at = models.DateTimeField(
-        auto_now=True,
-        editable=False
-    )
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
 
     class Meta:
         abstract = True
@@ -43,11 +33,7 @@ class TimeStampModelMixin(models.Model):  # type: ignore
 
 
 class UserModelMixin(models.Model):  # type: ignore
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        db_index=True
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True)
 
     class Meta:
         abstract = True
@@ -60,18 +46,9 @@ class DBActions(ChoiceEnum):
 
 
 class Revision(UUIDModelMixin, TimeStampModelMixin):  # type: ignore
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-    )
-    action = models.CharField(
-        max_length=25,
-        choices=DBActions.choices(),
-        editable=False
-    )
-    data = JSONField(
-        editable=False
-    )
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    action = models.CharField(max_length=25, choices=DBActions.choices(), editable=False)
+    data = JSONField(editable=False)
 
     class Meta:
         ordering = ['-created_at',]
@@ -135,11 +112,7 @@ class RevisionModelMixin(models.Model):  # type: ignore
 # Base Classes
 
 
-class AbstractBaseModel(  # type: ignore
-    UUIDModelMixin,
-    TimeStampModelMixin,
-    RevisionModelMixin,
-):
+class AbstractBaseModel(UUIDModelMixin, TimeStampModelMixin, RevisionModelMixin):  # type: ignore
     objects = AbstractBaseManager()
 
     class Meta:

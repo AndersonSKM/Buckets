@@ -13,18 +13,11 @@ class AllowAnyCreateUpdateIsAdminOrOwner(permissions.BasePermission):
     """
 
     def has_permission(self, request: HttpRequest, view: ViewSet) -> bool:
-        return (
-            view.action == 'create' or
-            (request.user and request.user.is_authenticated)
-        )
+        return (view.action == 'create') or (request.user and request.user.is_authenticated)
 
     def has_object_permission(self, request: HttpRequest, view: ViewSet, obj: Model) -> bool:
         safe_actions = ['retrieve', 'update', 'partial_update', 'destroy']
-        return (
-            view.action in safe_actions and
-            obj.id == request.user.id or
-            request.user.is_staff
-        )
+        return view.action in safe_actions and (obj.id == request.user.id or request.user.is_staff)
 
 
 class AllowListIsAdmin(permissions.BasePermission):
@@ -33,7 +26,4 @@ class AllowListIsAdmin(permissions.BasePermission):
     """
 
     def has_permission(self, request: HttpRequest, view: ViewSet) -> bool:
-        return (
-            (view.action != 'list') or
-            (request.user and request.user.is_staff)
-        )
+        return (view.action != 'list') or (request.user and request.user.is_staff)
