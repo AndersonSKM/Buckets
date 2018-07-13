@@ -8,7 +8,7 @@ from core.tests.models import Recipe
 @pytest.mark.django_db
 class TestRevisionManagerMixin:
     def test_revision_model(self):
-        assert Recipe.objects.revision_model is Revision
+        assert Recipe.objects.revision_model == Revision
 
     def test_content_type(self):
         content_type = Recipe.objects.content_type
@@ -31,9 +31,9 @@ class TestRevisionManagerMixin:
 @pytest.mark.django_db
 class TestAbstractBaseManager:
     def test_get_or_none(self):
-        obj = mixer.blend(Recipe)
+        instance = mixer.blend(Recipe)
         fake_uuid = '007102db-a6c0-4aef-a901-b50a1457b9af'
-        assert Recipe.objects.get_or_none(pk=obj.pk)
+        assert Recipe.objects.get_or_none(pk=instance.pk)
         assert not Recipe.objects.get_or_none(pk=fake_uuid)
 
 

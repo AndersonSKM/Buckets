@@ -8,8 +8,8 @@ from django.db.models.query import QuerySet
 
 
 class RevisionManagerMixin(Manager):
-    def revisions(self, obj: Model) -> QuerySet:
-        pk = obj.pk
+    def revisions(self, instance: Model) -> QuerySet:
+        pk = instance.pk
         if isinstance(pk, uuid.UUID):
             pk = str(pk)
 

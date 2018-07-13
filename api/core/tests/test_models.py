@@ -38,10 +38,10 @@ class TestRevision:
         assert chef._state.destroing
 
     def test_init_without_instance(self):
-        rev = Revision()
-        assert not rev.content_type_id
-        assert not rev.action
-        assert not rev.data
+        revision = Revision()
+        assert not revision.content_type_id
+        assert not revision.action
+        assert not revision.data
 
     @pytest.mark.freeze_time('2018-03-28 12:43:48')
     def test_init_with_instance(self, data, settings, user_model):
@@ -60,22 +60,22 @@ class TestRevision:
         }
 
         recipe = mixer.blend(Recipe, **fields)
-        rev = Revision.objects.create(instance=recipe)
+        revision = Revision.objects.create(instance=recipe)
         content_type = ContentType.objects.get_for_model(recipe)
 
-        assert rev.data == data
-        assert rev.action == DBActions.UPDATE
-        assert rev.content_type == content_type
+        assert revision.data == data
+        assert revision.action == DBActions.UPDATE
+        assert revision.content_type == content_type
 
     def test_instance_action(self):
-        obj = Chef()
-        rev = Revision()
+        instance = Chef()
+        revision = Revision()
 
-        obj._state.adding = True
-        assert rev._instance_action(obj) == DBActions.CREATE
+        instance._state.adding = True
+        assert revision._instance_action(instance) == DBActions.CREATE
 
-        obj._state.adding = False
-        assert rev._instance_action(obj) == DBActions.UPDATE
+        instance._state.adding = False
+        assert revision._instance_action(instance) == DBActions.UPDATE
 
-        obj._state.destroing = True
-        assert rev._instance_action(obj) == DBActions.DESTROY
+        instance._state.destroing = True
+        assert revision._instance_action(instance) == DBActions.DESTROY
