@@ -1,6 +1,3 @@
-from typing import Dict, Optional
-
-from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
@@ -10,7 +7,7 @@ from accounts.models import User
 from accounts.utils import user_activation_token
 
 
-def user_activation_info(user: User, request: Optional[HttpRequest] = None) -> Dict[str, str]:
+def user_activation_info(user, request=None):
     uuid = urlsafe_base64_encode(force_bytes(user.pk)).decode()
     token = user_activation_token.make_token(user)
     uri = reverse('auth:users-activate', args=[uuid, token,], request=request)
@@ -22,7 +19,7 @@ def user_activation_info(user: User, request: Optional[HttpRequest] = None) -> D
     }
 
 
-def user_from_uuidb64(uuidb64: str) -> Optional[User]:
+def user_from_uuidb64(uuidb64):
     try:
         uuid = force_text(urlsafe_base64_decode(uuidb64))
         user = User.objects.get(pk=uuid)
@@ -31,7 +28,7 @@ def user_from_uuidb64(uuidb64: str) -> Optional[User]:
     return user
 
 
-def activate_user(uuidb64: str, token: str) -> None:
+def activate_user(uuidb64, token):
     user = user_from_uuidb64(uuidb64)
     if not user or not user_activation_token.check_token(user, token):
         raise ValueError("Invalid activation parameters")
@@ -42,7 +39,7 @@ def activate_user(uuidb64: str, token: str) -> None:
     user.save()
 
 
-def send_user_activation_email(user: User, request: Optional[HttpRequest] = None) -> None:
+def send_user_activation_email(user, request=None):
     if user.is_active:
         raise ValueError("User already active")
     info = user_activation_info(user, request)

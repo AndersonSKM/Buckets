@@ -1,5 +1,3 @@
-from typing import Any, Dict
-
 from rest_framework import serializers
 
 from accounts.models import User
@@ -52,12 +50,12 @@ class UserCreateSerializer(UserSerializer):
         model = User
         fields = CREATE_USER_FIELDS
 
-    def validate(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def validate(self, data):
         if data['password'] != data['password_confirm']:
             raise serializers.ValidationError("Passwords don't match.")
         return data
 
-    def create(self, validated_data: Dict[str, Any]) -> User:
+    def create(self, validated_data):
         email = validated_data.pop('email', None)
         password = validated_data.pop('password', None)
         validated_data.pop('password_confirm', None)

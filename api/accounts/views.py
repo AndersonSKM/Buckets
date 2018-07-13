@@ -62,8 +62,7 @@ class UserViewSet(viewsets.ModelViewSet):
             activate_user(uuidb64, token)
             return Response(status=status.HTTP_200_OK)
         except Exception as error:
-            content = {'detail': str(error)}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': str(error)}, status=status.HTTP_400_BAD_REQUEST)
 
     def get_serializer_class(self) -> ModelSerializer:
         if self.action == 'create':

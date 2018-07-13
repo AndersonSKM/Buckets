@@ -1,5 +1,3 @@
-from typing import Any, List, Optional
-
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.mail import send_mail
 from django.db import models
@@ -12,8 +10,7 @@ from core.models import AbstractBaseModel
 class UserManager(BaseUserManager, AbstractBaseManager):
     use_in_migrations = True
 
-    def _create_user(self, email: str, password: str, is_staff: bool,
-                     is_superuser: bool, is_active: bool, **extra_fields: dict) -> models.Model:
+    def _create_user(self, email, password, is_staff, is_superuser, is_active, **kwargs):
         if not email:
             raise ValueError(_("Users must have an email address"))
 
@@ -22,19 +19,18 @@ class UserManager(BaseUserManager, AbstractBaseManager):
             is_staff=is_staff,
             is_active=is_active,
             is_superuser=is_superuser,
-            **extra_fields
+            **kwargs
         )
 
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_user(self, email: str, password: str, is_staff: bool = False,
-                    **extra_fields: dict) -> models.Model:
-        return self._create_user(email, password, is_staff, False, False, **extra_fields)
+    def create_user(self, email, password, is_staff=False, **kwargs):
+        return self._create_user(email, password, is_staff, False, False, **kwargs)
 
-    def create_superuser(self, email: str, password: str, **extra_fields: dict) -> models.Model:
-        return self._create_user(email, password, True, True, True, **extra_fields)
+    def create_superuser(self, email, password, **kwargs):
+        return self._create_user(email, password, True, True, True, **kwargs)
 
 
 class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
@@ -55,8 +51,7 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
     def __str__(self) -> str:
         return self.email
 
-    def save(self, force_insert: bool = False, force_update: bool = False,
-             using: Optional[str] = None, update_fields: Optional[List[str]] = None) -> None:
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.is_superuser and not self.is_staff:
             self.is_staff = True
         super(User, self).save(
@@ -66,12 +61,11 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
             update_fields=update_fields
         )
 
-    def get_full_name(self) -> str:
+    def get_full_name(self):
         return f'{self.first_name} {self.last_name}'.strip()
 
-    def get_short_name(self) -> str:
+    def get_short_name(self):
         return self.first_name
 
-    def email_user(self, subject: str, message: str, from_email: Optional[str] = None,
-                   **kwargs: Any) -> None:
+    def email_user(self, subject, message, from_email=None, **kwargs):
         send_mail(subject, message, from_email, [self.email], **kwargs)
