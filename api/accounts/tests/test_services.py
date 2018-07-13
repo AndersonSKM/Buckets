@@ -68,6 +68,10 @@ class TestUserServices:
 
         args, _ = mock_render.call_args_list[0]
         assert args[0] == 'activation_email.html'
+        assert 'user_full_name' in args[1]
+        assert 'uri' in args[1]
+        assert 'uuid' in args[1]
+        assert 'token' in args[1]
 
         assert 1 == len(mailoutbox)
         email = mailoutbox[0]
