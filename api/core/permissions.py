@@ -5,11 +5,10 @@ from rest_framework.viewsets import ViewSet
 
 
 class AllowAnyCreateUpdateIsAdminOrOwner(permissions.BasePermission):
-    """
-    Custom permission:
-        - allow anonymous CREATE
-        - allow authenticated GET, PUT, DELETE on self record
-        - allow all actions for staff
+    """Custom permission:
+    - allow anonymous CREATE
+    - allow authenticated GET, PUT, DELETE on self record
+    - allow all actions for staff
     """
 
     def has_permission(self, request: HttpRequest, view: ViewSet) -> bool:
@@ -21,9 +20,10 @@ class AllowAnyCreateUpdateIsAdminOrOwner(permissions.BasePermission):
 
 
 class AllowListIsAdmin(permissions.BasePermission):
-    """
-    Custom permission to only allow access to lists for admins
-    """
+    """Custom permission to only allow access to lists for admins"""
 
     def has_permission(self, request: HttpRequest, view: ViewSet) -> bool:
-        return (view.action != 'list') or (request.user and request.user.is_staff)
+        return (
+            (view.action != 'list') or
+            (request.user and request.user.is_authenticated and request.user.is_staff)
+        )

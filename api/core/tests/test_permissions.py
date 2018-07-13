@@ -1,67 +1,79 @@
 import pytest
 from mock import MagicMock
 
-from core import permissions
+from core.permissions import AllowAnyCreateUpdateIsAdminOrOwner, AllowListIsAdmin
 
 
 class TestAnonCreateUserUpdateSelfOnly:
     @pytest.fixture
     def permission(self):
-        return permissions.AllowAnyCreateUpdateIsAdminOrOwner()
+        return AllowAnyCreateUpdateIsAdminOrOwner()
 
-    def test_has_permission_create(self, permission):
-        view = MagicMock(action='create')
-        request = MagicMock(user=None)
-        assert permission.has_permission(request, view)
-
-    def test_has_object_permission_retrieve(self, permission):
-        self._check_obj_permissions(permission, 'retrieve')
-
-    def test_has_object_permission_update(self, permission):
-        self._check_obj_permissions(permission, 'update')
-
-    def test_has_object_permission_partial_update(self, permission):
-        self._check_obj_permissions(permission, 'partial_update')
-
-    def test_has_object_permission_delete(self, permission):
-        self._check_obj_permissions(permission, 'destroy')
-
-    def _check_obj_permissions(self, permission, action):
+    @pytest.mark.parametrize('action, is_authenticated, expected', [
+        ('create', False, True),
+        ('create', True, True),
+        ('list', False, False),
+        ('list', True, True),
+        ('retrieve', False, False),
+        ('retrieve', True, True),
+        ('update', False, False),
+        ('update', True, True),
+        ('partial_update', False, False),
+        ('partial_update', True, True),
+        ('destroy', False, False),
+        ('destroy', True, True),
+    ])
+    def test_has_permission(self, permission, action, is_authenticated, expected):
         view = MagicMock(action=action)
-        user = MagicMock(is_authenticated=True, id=1, is_staff=False)
+        user = MagicMock(is_authenticated=is_authenticated)
         request = MagicMock(user=user)
-        obj = MagicMock(id=2)
-        assert not permission.has_object_permission(request, view, obj)
+        assert permission.has_permission(request, view) == expected
 
-        user = MagicMock(is_authenticated=True, id=1, is_staff=True)
+    @pytest.mark.parametrize('action, user_id, obj_id, is_staff, expected', [
+        ('retrieve', 1, 1, False, True),
+        ('retrieve', 1, 2, False, False),
+        ('retrieve', 1, 1, True, True),
+        ('retrieve', 1, 2, True, True),
+        ('list', 1, 1, False, False),
+        ('list', 1, 2, False, False),
+        ('list', 1, 1, True, False),
+        ('list', 1, 2, True, False),
+        ('update', 1, 1, False, True),
+        ('update', 1, 2, False, False),
+        ('update', 1, 1, True, True),
+        ('update', 1, 2, True, True),
+        ('partial_update', 1, 1, False, True),
+        ('partial_update', 1, 2, False, False),
+        ('partial_update', 1, 1, True, True),
+        ('partial_update', 1, 2, True, True),
+        ('destroy', 1, 1, False, True),
+        ('destroy', 1, 2, False, False),
+        ('destroy', 1, 1, True, True),
+        ('destroy', 1, 2, True, True),
+    ])
+    def test_has_object_permission(self, permission, action, user_id, obj_id, is_staff, expected):
+        view = MagicMock(action=action)
+        user = MagicMock(id=user_id, is_staff=is_staff)
         request = MagicMock(user=user)
-        obj = MagicMock(id=3)
-        assert permission.has_object_permission(request, view, obj)
-
-        user = MagicMock(is_authenticated=True, id=1, is_staff=False)
-        request = MagicMock(user=user)
-        obj = MagicMock(id=user.id)
-        assert permission.has_object_permission(request, view, obj)
+        obj = MagicMock(id=obj_id)
+        assert permission.has_object_permission(request, view, obj) == expected
 
 
 class TestListUserAdminOnly:
     @pytest.fixture
     def permission(self):
-        return permissions.AllowListIsAdmin()
+        return AllowListIsAdmin()
 
-    def test_has_permission(self, permission):
-        view = MagicMock(action='list')
-        request = MagicMock(user=None)
-        assert not permission.has_permission(request, view)
-
-        user = MagicMock(is_staff=False)
+    @pytest.mark.parametrize('action, is_authenticated, is_staff, expected', [
+        ('list', False, False, False),
+        ('list', True, False, False),
+        ('list', True, True, True),
+        ('retrieve', False, False, True),
+        ('retrieve', True, False, True),
+        ('retrieve', True, True, True),
+    ])
+    def test_has_permission(self, permission, action, is_authenticated, is_staff, expected):
+        view = MagicMock(action=action)
+        user = MagicMock(is_authenticated=is_authenticated, is_staff=is_staff)
         request = MagicMock(user=user)
-        assert not permission.has_permission(request, view)
-
-        user = MagicMock(is_staff=True)
-        request = MagicMock(user=user)
-        assert permission.has_permission(request, view)
-
-        view = MagicMock(action='retrieve')
-        request = MagicMock(user=None)
-        assert permission.has_permission(request, view)
+        assert permission.has_permission(request, view) == expected

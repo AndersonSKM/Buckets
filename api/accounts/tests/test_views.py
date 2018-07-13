@@ -17,22 +17,19 @@ class TestUsersApiViewSet:
         view.request = Mock()
         return view
 
-    def test_get_serializer_class_create_standard_user(self, view):
-        view.request.user.is_staff = False
-        view.action = 'create'
-        assert view.get_serializer_class() == UserCreateSerializer
-
-    def test_get_serializer_class_create_staff_user(self, view):
-        view.request.user.is_staff = True
-        view.action = 'create'
-        assert view.get_serializer_class() == FullUserCreateSerializer
-
-    def test_get_serializer_class_standard_user(self, view):
-        view.request.user.is_staff = False
-        view.action = 'retrieve'
-        assert view.get_serializer_class() == UserSerializer
-
-    def test_get_serializer_class_staff_user(self, view):
-        view.request.user.is_staff = True
-        view.action = 'retrieve'
-        assert view.get_serializer_class() == FullUserSerializer
+    @pytest.mark.parametrize('is_staff, action, expected', [
+        (False, 'create', UserCreateSerializer),
+        (True, 'create', FullUserCreateSerializer),
+        (False, 'retrieve', UserSerializer),
+        (True, 'retrieve', FullUserSerializer),
+        (False, 'list', UserSerializer),
+        (True, 'list', FullUserSerializer),
+        (False, 'update', UserSerializer),
+        (True, 'update', FullUserSerializer),
+        (False, 'partial_update', UserSerializer),
+        (True, 'partial_update', FullUserSerializer),
+    ])
+    def test_get_serializer_class(self, view, is_staff, action, expected):
+        view.request.user.is_staff = is_staff
+        view.action = action
+        assert view.get_serializer_class() == expected

@@ -68,19 +68,22 @@ class Revision(UUIDModelMixin, TimeStampModelMixin):  # type: ignore
             kwargs['data'] = self._serialize_instance(instance)
         super(Revision, self).__init__(*args, **kwargs)
 
-    def _serialize_instance(self, obj: models.Model) -> dict:
-        data = serializers.serialize('json', [obj,])
+    @staticmethod
+    def _serialize_instance(instance: models.Model) -> dict:
+        data = serializers.serialize('json', [instance,])
         return json.loads(data)[0]
 
-    def _instance_action(self, obj: models.Model) -> DBActions:
-        if obj._state.adding:
+    @staticmethod
+    def _instance_action(instance: models.Model) -> DBActions:
+        if instance._state.adding:
             return DBActions.CREATE
-        elif getattr(obj._state, 'destroing', False):
+        elif getattr(instance._state, 'destroing', False):
             return DBActions.DESTROY
         return DBActions.UPDATE
 
-    def _instance_content_type(self, obj: models.Model) -> int:
-        return ContentType.objects.get_for_model(obj).pk
+    @staticmethod
+    def _instance_content_type(instance: models.Model) -> int:
+        return ContentType.objects.get_for_model(instance).pk
 
 
 class RevisionModelMixin(models.Model):  # type: ignore
