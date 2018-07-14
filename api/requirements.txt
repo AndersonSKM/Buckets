@@ -10,7 +10,7 @@ Django==2.0.7
 django-filter==2.0.0
 djangorestframework==3.8.2
 djangorestframework-jwt==1.11.0
-Faker==0.8.8
+Faker==0.8.17
 flake8==3.5.0
 freezegun==0.3.10
 gunicorn==19.9.0
