@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from accounts.models import User
 
-default_user_fields = (
+USER_FIELDS = (
     'uri',
     'pk',
     'email',
@@ -16,7 +16,7 @@ default_user_fields = (
     'updated_at',
 )
 
-create_user_fields = default_user_fields + (
+CREATE_USER_FIELDS = USER_FIELDS + (
     'password',
     'password_confirm',
 )
@@ -35,7 +35,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = User
-        fields = default_user_fields
+        fields = USER_FIELDS
 
 
 class FullUserSerializer(UserSerializer):
@@ -48,25 +48,19 @@ class UserCreateSerializer(UserSerializer):
 
     class Meta:
         model = User
-        fields = create_user_fields
+        fields = CREATE_USER_FIELDS
 
-    def validate(self, data: dict) -> dict:
+    def validate(self, data):
         if data['password'] != data['password_confirm']:
             raise serializers.ValidationError("Passwords don't match.")
         return data
 
-    def create(self, validated_data: dict) -> User:
+    def create(self, validated_data):
         email = validated_data.pop('email', None)
         password = validated_data.pop('password', None)
         validated_data.pop('password_confirm', None)
         is_staff = validated_data.pop('is_staff', False)
-
-        return User.objects.create_user(
-            email,
-            password,
-            is_staff,
-            **validated_data
-        )
+        return User.objects.create_user(email, password, is_staff, **validated_data)
 
 
 class FullUserCreateSerializer(UserCreateSerializer):

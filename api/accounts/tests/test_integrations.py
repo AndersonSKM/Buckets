@@ -4,13 +4,13 @@ from mixer.backend.django import mixer
 from mock import patch
 from rest_framework import status
 
-from accounts.services import UserService
+from accounts.services import user_activation_info
 
 
 @pytest.mark.django_db
 class TestUsersApiIntegration:
     @pytest.fixture
-    def data(self) -> dict:
+    def data(self):
         return {
             'email': 'bruce@we.com',
             'first_name': 'Bruce',
@@ -36,9 +36,19 @@ class TestUsersApiIntegration:
         response = api_adm_client.post(url, data)
         assert response.status_code == status.HTTP_201_CREATED
 
-        user = user_model.objects.get(email=data['email'])
+        user = user_model.objects.get_by_natural_key(data['email'])
         assert user.is_staff
         assert not user.is_active
+
+    @patch('accounts.views.send_user_activation_email')
+    def test_create_send_email_fail(self, mock_send_email, data, api_client, user_model):
+        mock_send_email.side_effect = Exception("Error to send email")
+        url = reverse('auth:users-list')
+        response = api_client.post(url, data)
+
+        assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+        assert "Error to send email" == response.data['detail']
+        assert not user_model.objects.get_or_none(email=data['email'])
 
     def test_list_anon_user(self, api_client):
         url = reverse('auth:users-list')
@@ -133,13 +143,13 @@ class TestUsersApiIntegration:
 
     def test_activate(self, api_client, user_model):
         user = mixer.blend(user_model, is_active=False)
-        info = UserService.activation_info(user)
+        info = user_activation_info(user)
 
         response = api_client.get(info.get('uri'))
         assert response.status_code == status.HTTP_200_OK
 
     def test_activate_invalid_parameters(self, api_client, user):
-        info = UserService.activation_info(user)
+        info = user_activation_info(user)
 
         with patch('accounts.services.user_activation_token') as mock_token:
             mock_token.check_token.return_value = False
@@ -149,7 +159,7 @@ class TestUsersApiIntegration:
 
     def test_activate_active_user(self, api_client, user_model):
         user = mixer.blend(user_model, is_active=True)
-        info = UserService.activation_info(user)
+        info = user_activation_info(user)
 
         response = api_client.get(info.get('uri'))
         assert response.status_code == status.HTTP_200_OK

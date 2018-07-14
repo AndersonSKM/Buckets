@@ -29,7 +29,7 @@ deploy:
 		docker push $(PROJECT_NAME)/$$image:$(TAG) || exit 1 ; \
 	done
 
-test: api-clean api-test api-lint
+test: clean pytest lint
 
 coverage:
 	make codecov t=api
@@ -37,10 +37,10 @@ coverage:
 codecov:
 	docker-compose exec $(t) sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov -Z"
 
-api-test:
+pytest:
 	docker-compose exec api pytest
 
-api-lint: mypy flake isort
+lint: flake isort
 
 flake:
 	docker-compose exec api flake8
@@ -48,16 +48,13 @@ flake:
 isort:
 	docker-compose exec api isort --check --diff -tc -rc .
 
-mypy:
-	docker-compose exec api mypy . 
-
 fix-imports:
 	docker-compose exec api isort -tc -rc .
 
 outdated:
 	docker-compose exec api pip3 list --outdated --format=columns
 
-api-clean:
+clean:
 	$(info Cleaning directories)
 	@docker-compose exec api sh -c "find . -name "*.pyo" | xargs rm -rf"
 	@docker-compose exec api sh -c "find . -name "*.cache" | xargs rm -rf"
