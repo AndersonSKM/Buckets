@@ -1,6 +1,6 @@
-from mock import patch
 import pytest
 from mixer.backend.django import mixer
+from mock import patch
 from rest_framework.exceptions import ValidationError
 from testfixtures import should_raise
 
