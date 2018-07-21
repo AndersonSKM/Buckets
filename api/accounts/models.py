@@ -69,3 +69,9 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
 
     def email_user(self, subject, message, from_email=None, **kwargs):
         send_mail(subject, message, from_email, [self.email], **kwargs)
+
+    def activate(self):
+        if self.is_active:
+            return
+        self.is_active = True
+        self.save()

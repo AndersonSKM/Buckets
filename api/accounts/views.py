@@ -1,27 +1,20 @@
 from django.db import transaction
-from django.http import HttpRequest
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.serializers import ModelSerializer
 
 from accounts.models import User
 from accounts.serializers import (
     FullUserCreateSerializer,
     FullUserSerializer,
+    UserActivateSerializer,
     UserCreateSerializer,
     UserSerializer,
 )
-from accounts.services import activate_user, send_user_activation_email
+from accounts.services import send_user_activation_email
 from core.permissions import AllowAnyCreateUpdateIsAdminOrOwner, AllowListIsAdmin
-
-ACTIVATE_URL = (
-    'activate/'
-    '(?P<uuidb64>[0-9A-Za-z_\-]+)/'
-    '(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})'
-)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -56,15 +49,19 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     permission_classes = (AllowAnyCreateUpdateIsAdminOrOwner, AllowListIsAdmin,)
 
-    @action(methods=['get',], detail=False, permission_classes=[AllowAny,], url_path=ACTIVATE_URL)
-    def activate(self, request: HttpRequest, uuidb64: str, token: str) -> Response:
-        try:
-            activate_user(uuidb64, token)
-            return Response(status=status.HTTP_200_OK)
-        except Exception as error:
-            return Response({'detail': str(error)}, status=status.HTTP_400_BAD_REQUEST)
+    @action(methods=['POST',], detail=False, permission_classes=[AllowAny,])
+    def activate(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.user
 
-    def get_serializer_class(self) -> ModelSerializer:
+        user.activate()
+        return Response(status=status.HTTP_200_OK)
+
+    def get_serializer_class(self):
+        if self.action == 'activate':
+            return UserActivateSerializer
+
         if self.action == 'create':
             if self.request and self.request.user.is_staff:
                 return FullUserCreateSerializer
@@ -75,9 +72,9 @@ class UserViewSet(viewsets.ModelViewSet):
         return UserSerializer
 
     @transaction.atomic
-    def perform_create(self, serializer: ModelSerializer) -> None:
+    def perform_create(self, serializer):
         try:
             instance = serializer.save()
-            send_user_activation_email(instance, self.request)
+            send_user_activation_email(instance)
         except Exception as error:
             raise APIException(str(error))

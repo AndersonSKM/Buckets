@@ -1,10 +1,11 @@
-import mock
 import pytest
 from mixer.backend.django import mixer
+from mock import patch
 from rest_framework.exceptions import ValidationError
 from testfixtures import should_raise
 
 from accounts import serializers
+from accounts.utils import encode_user_uuid, user_activation_token
 
 
 @pytest.mark.django_db
@@ -19,7 +20,7 @@ class TestCreateUserSerializers:
             'last_name': 'Skywalker',
         }
 
-    @mock.patch('accounts.serializers.User')
+    @patch('accounts.serializers.User')
     def test_create_normal_serializer(self, user_model, user_data):
         serializer = serializers.UserCreateSerializer(data=user_data)
         assert serializer.is_valid()
@@ -33,7 +34,7 @@ class TestCreateUserSerializers:
             last_name=user_data['last_name'],
         )
 
-    @mock.patch('accounts.serializers.User')
+    @patch('accounts.serializers.User')
     def test_create_full_serializer(self, user_model, user_data):
         user_data['is_staff'] = True
         serializer = serializers.FullUserCreateSerializer(data=user_data)
@@ -48,11 +49,10 @@ class TestCreateUserSerializers:
             last_name=user_data['last_name'],
         )
 
-    @should_raise(ValidationError("Passwords don't match."))
+    @should_raise(ValidationError("Passwords don't match.", code='invalid_passwords'))
     def test_validate_password_confirm_invalid(self, user_data):
         user_data['password_confirm'] = 'abracadabra'
         serializer = serializers.FullUserCreateSerializer(data=user_data)
-
         assert not serializer.is_valid()
         serializer.validate(user_data)
 
@@ -78,8 +78,31 @@ class TestUserSerializer:
 
     def test_expected_data(self, user_model, user_data, serializer_context):
         user = mixer.blend(user_model, **user_data)
-        serializer = serializers.FullUserSerializer(
-            instance=user,
-            context=serializer_context
-        )
+        serializer = serializers.FullUserSerializer(instance=user, context=serializer_context)
         assert serializer.data == user_data
+
+
+@pytest.mark.django_db
+class TestUserActivateSerializer:
+    @pytest.fixture
+    def serializer(self, user):
+        data = {
+            'uuidb64': encode_user_uuid(user.pk),
+            'token': user_activation_token.make_token(user)
+        }
+        return serializers.UserActivateSerializer(data=data)
+
+    def test_validate(self, serializer):
+        assert serializer.is_valid()
+
+    @should_raise(ValidationError("Invalid user id or user doesn\'t exist.", code='invalid_uuid'))
+    def test_validate_invalid_uuidb64(self, serializer):
+        with patch('accounts.serializers.user_from_uuidb64', return_value=None):
+            assert not serializer.is_valid()
+            serializer.validate(serializer.data)
+
+    @should_raise(ValidationError("Invalid token for given user.", code='invalid_token'))
+    def test_validate_invalid_token(self, serializer):
+        with patch('accounts.serializers.user_activation_token.check_token', return_value=False):
+            assert not serializer.is_valid()
+            serializer.validate(serializer.data)

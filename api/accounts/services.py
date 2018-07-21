@@ -1,47 +1,32 @@
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.template.loader import render_to_string
-from django.utils.encoding import force_bytes, force_text
-from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from rest_framework.reverse import reverse
 
 from accounts.models import User
-from accounts.utils import user_activation_token
+from accounts.utils import decode_user_uuid, encode_user_uuid, user_activation_token
 
 
-def user_activation_info(user, request=None):
-    uuid = urlsafe_base64_encode(force_bytes(user.pk)).decode()
+def user_activation_link(user, request=None):
+    uuidb64 = encode_user_uuid(user.pk)
     token = user_activation_token.make_token(user)
-    uri = reverse('auth:users-activate', args=[uuid, token,], request=request)
-    return {
-        'user_full_name': user.get_full_name(),
-        'uuid': uuid,
-        'token': token,
-        'uri': uri,
-    }
+    if not settings.USER_ACTIVATION_URI:
+        raise ImproperlyConfigured("No activation URI specified.")
+    return settings.USER_ACTIVATION_URI.format(uuidb64=uuidb64, token=token)
 
 
 def user_from_uuidb64(uuidb64):
     try:
-        uuid = force_text(urlsafe_base64_decode(uuidb64))
-        user = User.objects.get(pk=uuid)
+        uuid = decode_user_uuid(uuidb64)
+        return User.objects.get(pk=uuid)
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
-    return user
+        return None
 
 
-def activate_user(uuidb64, token):
-    user = user_from_uuidb64(uuidb64)
-    if not user or not user_activation_token.check_token(user, token):
-        raise ValueError("Invalid activation parameters")
+def send_user_activation_email(user):
     if user.is_active:
-        return
-
-    user.is_active = True
-    user.save()
-
-
-def send_user_activation_email(user, request=None):
-    if user.is_active:
-        raise ValueError("User already active")
-    info = user_activation_info(user, request)
-    message = render_to_string('activation_email.html', info)
+        raise ValueError("User already active.")
+    message = render_to_string('activation_email.html', {
+        'user': user,
+        'activation_link': user_activation_link(user)
+    })
     user.email_user("Activate your account", message, fail_silently=False)

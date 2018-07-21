@@ -4,7 +4,7 @@ from mixer.backend.django import mixer
 from mock import patch
 from rest_framework import status
 
-from accounts.services import user_activation_info
+from accounts.utils import encode_user_uuid, user_activation_token
 
 
 @pytest.mark.django_db
@@ -143,23 +143,14 @@ class TestUsersApiIntegration:
 
     def test_activate(self, api_client, user_model):
         user = mixer.blend(user_model, is_active=False)
-        info = user_activation_info(user)
+        uuidb64 = encode_user_uuid(user.pk)
+        token = user_activation_token.make_token(user)
+        url = reverse('auth:users-activate')
 
-        response = api_client.get(info.get('uri'))
+        response = api_client.post(url, {'uuidb64': uuidb64, 'token': token,})
         assert response.status_code == status.HTTP_200_OK
 
-    def test_activate_invalid_parameters(self, api_client, user):
-        info = user_activation_info(user)
-
-        with patch('accounts.services.user_activation_token') as mock_token:
-            mock_token.check_token.return_value = False
-            response = api_client.get(info.get('uri'))
+    def test_activate_invalid_parameters(self, api_client):
+        url = reverse('auth:users-activate')
+        response = api_client.post(url, {'uuidb64': '123sad2', 'token': '12312s2',})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data['detail'] == "Invalid activation parameters"
-
-    def test_activate_active_user(self, api_client, user_model):
-        user = mixer.blend(user_model, is_active=True)
-        info = user_activation_info(user)
-
-        response = api_client.get(info.get('uri'))
-        assert response.status_code == status.HTTP_200_OK

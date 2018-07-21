@@ -1,4 +1,5 @@
 import pytest
+from mock import Mock
 from testfixtures import should_raise
 
 from accounts.models import User
@@ -19,6 +20,18 @@ class TestUser:
         user.is_superuser = True
         user.save()
         assert user.is_staff
+
+    def test_activate_inactive_user(self, user):
+        user.is_active = False
+        user.activate()
+        assert user.is_active
+
+    def test_activate_active_user(self, user):
+        user.save = Mock()
+        user.is_active = True
+        user.activate()
+        assert user.is_active
+        assert not user.save.called
 
 
 @pytest.mark.django_db

@@ -21,6 +21,7 @@ before_install:
 install:
   - echo "DEBUG=$DEBUG" >> env
   - echo "SECRET_KEY=$SECRET_KEY" >> env
+  - echo "USER_ACTIVATION_URI=$USER_ACTIVATION_URI" >> env
 
   - echo "POSTGRES_USER=$POSTGRES_USER" >> env
   - echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> env
@@ -30,8 +31,6 @@ install:
 
   - echo "REDIS_HOST=$REDIS_HOST" >> env
   - echo "REDIS_PORT=$REDIS_PORT" >> env
-
-  - echo "SENDGRID_API_KEY=$SENDGRID_API_KEY" >> env
 
   - echo "CODECOV_TOKEN=$CODECOV_TOKEN" >> env
   - echo "CI=$CI" >> env
