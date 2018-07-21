@@ -4,6 +4,7 @@ from mock import Mock
 from accounts.serializers import (
     FullUserCreateSerializer,
     FullUserSerializer,
+    UserActivateSerializer,
     UserCreateSerializer,
     UserSerializer,
 )
@@ -28,6 +29,8 @@ class TestUsersApiViewSet:
         (True, 'update', FullUserSerializer),
         (False, 'partial_update', UserSerializer),
         (True, 'partial_update', FullUserSerializer),
+        (False, 'activate', UserActivateSerializer),
+        (True, 'activate', UserActivateSerializer),
     ])
     def test_get_serializer_class(self, view, is_staff, action, expected):
         view.request.user.is_staff = is_staff
