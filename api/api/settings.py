@@ -189,13 +189,19 @@ JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(hours=1),
 }
 
-
 # Email
 # ------------------------------------------------------------------------------
 
 EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST', '')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST', None)
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', None)
 EMAIL_HOST = os.environ.get('EMAIL_BACKEND', 'smtp.sendgrid.net')
 EMAIL_PORT = os.environ.get('EMAIL_PORT', 587)
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
+
+# User activation URI
+# Should be a string like this 'https://myapp.com/user-activation/{uuidb64}/{token}/'
+# The {uuidb64} and {token} will be replaced
+# ------------------------------------------------------------------------------
+
+USER_ACTIVATION_URI = os.environ.get('USER_ACTIVATION_URI', None)

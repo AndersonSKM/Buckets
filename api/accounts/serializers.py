@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
 from accounts.models import User
+from accounts.services import user_from_uuidb64
+from accounts.utils import user_activation_token
 
 USER_FIELDS = (
     'uri',
@@ -46,13 +48,17 @@ class UserCreateSerializer(UserSerializer):
     password = serializers.CharField(write_only=True)
     password_confirm = serializers.CharField(write_only=True)
 
+    default_error_messages = {
+        'invalid_passwords': "Passwords don't match.",
+    }
+
     class Meta:
         model = User
         fields = CREATE_USER_FIELDS
 
     def validate(self, data):
         if data['password'] != data['password_confirm']:
-            raise serializers.ValidationError("Passwords don't match.")
+            self.fail('invalid_passwords')
         return data
 
     def create(self, validated_data):
@@ -65,3 +71,29 @@ class UserCreateSerializer(UserSerializer):
 
 class FullUserCreateSerializer(UserCreateSerializer):
     is_staff = serializers.BooleanField(read_only=False)
+
+
+class UserActivateSerializer(serializers.Serializer):
+    uuidb64 = serializers.RegexField('[0-9A-Za-z_\-]+')
+    token = serializers.RegexField('[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20}')
+    _user = None
+
+    default_error_messages = {
+        'invalid_uuid': "Invalid user id or user doesn\'t exist.",
+        'invalid_token': "Invalid token for given user.",
+    }
+
+    @property
+    def user(self):
+        return self._user
+
+    def validate(self, data):
+        data = super(UserActivateSerializer, self).validate(data)
+
+        self._user = user_from_uuidb64(data['uuidb64'])
+        if not self._user:
+            self.fail('invalid_uuid')
+
+        if not user_activation_token.check_token(self.user, data['token']):
+            self.fail('invalid_token')
+        return data
