@@ -1,6 +1,8 @@
 import datetime
 import os
 
+import dj_database_url
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -14,7 +16,7 @@ SECRET_KEY = os.environ['SECRET_KEY']
 # ------------------------------------------------------------------------------
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = os.environ.get('DEBUG', False)
+DEBUG = os.environ.get('DEBUG', False) == 'True'
 
 # ALLOWED_HOSTS
 # ------------------------------------------------------------------------------
@@ -53,8 +55,11 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/1.10/topics/http/middleware/
 
-DJANGO_MIDDLEWARES = [
+SECURITY_MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+]
+
+DJANGO_MIDDLEWARES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -63,7 +68,11 @@ DJANGO_MIDDLEWARES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-MIDDLEWARE = DJANGO_MIDDLEWARES
+THIRD_PARTY_MIDDLEWARES = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+]
+
+MIDDLEWARE = SECURITY_MIDDLEWARE + THIRD_PARTY_MIDDLEWARES + DJANGO_MIDDLEWARES
 
 # URL Configuration
 # ------------------------------------------------------------------------------
@@ -99,15 +108,24 @@ WSGI_APPLICATION = 'api.wsgi.application'
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
+    'default': dj_database_url.config(conn_max_age=30)
+}
+
+# CACHE CONFIGURATION
+# ------------------------------------------------------------------------------
+
+CACHES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ['POSTGRES_DB'],
-        'USER': os.environ['POSTGRES_USER'],
-        'PASSWORD': os.environ['POSTGRES_PASSWORD'],
-        'HOST': os.environ['POSTGRES_HOST'],
-        'PORT': os.environ['POSTGRES_PORT'],
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': os.environ['REDIS_URL'],
     }
 }
+
+# SESSION ENGINE
+# ------------------------------------------------------------------------------
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
 
 # PASSWORD VALIDATION
 # ------------------------------------------------------------------------------
@@ -149,8 +167,8 @@ SITE_ID = 1
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-
 STATIC_ROOT = '/static/'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # MEDIA CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -171,6 +189,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -181,12 +200,20 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS':
         'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '20/minute',
+        'user': '120/minute',
+    },
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     'PAGE_SIZE': 50
 }
 
 JWT_AUTH = {
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(hours=1),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(minutes=15),
 }
 
 # Email
@@ -195,13 +222,14 @@ JWT_AUTH = {
 EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST', None)
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', None)
-EMAIL_HOST = os.environ.get('EMAIL_BACKEND', 'smtp.sendgrid.net')
+EMAIL_HOST = os.environ.get('EMAIL_BACKEND', None)
 EMAIL_PORT = os.environ.get('EMAIL_PORT', 587)
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
 
-# User activation URI
+# Client Application URI's
 # Should be a string like this 'https://myapp.com/user-activation/{uuidb64}/{token}/'
 # The {uuidb64} and {token} will be replaced
 # ------------------------------------------------------------------------------
 
 USER_ACTIVATION_URI = os.environ.get('USER_ACTIVATION_URI', None)
+USER_PASSWORD_RESET_URI = os.environ.get('USER_PASSWORD_RESET_URI', None)

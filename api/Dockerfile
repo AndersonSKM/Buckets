@@ -9,12 +9,12 @@ RUN apk update && apk upgrade && \
     zlib-dev \
     jpeg-dev
 
+# hadolint ignore=DL3013
+RUN pip3 install --upgrade pip
+
 RUN mkdir -p /app
 RUN mkdir -p /media
 RUN mkdir -p /static
-
-# hadolint ignore=DL3013
-RUN pip3 install --upgrade pip
 
 COPY requirements.txt /app
 RUN pip3 install -r /app/requirements.txt
@@ -22,12 +22,10 @@ RUN pip3 install -r /app/requirements.txt
 COPY . /app
 WORKDIR /app
 
-RUN mv docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-ENTRYPOINT ["/bin/sh", "/usr/local/bin/docker-entrypoint.sh"]
+RUN chmod +x /app/run.sh
+RUN chmod +x /app/health-check.sh
 
-EXPOSE 8000
-CMD ["python3", "manage.py", "shell"]
+ENV PORT=8000
+EXPOSE ${PORT}
 
-HEALTHCHECK --interval=5s --timeout=3s \
-    CMD nc -z 0.0.0.0 8000 || exit 1
+CMD ["/bin/sh", "/app/run.sh"]

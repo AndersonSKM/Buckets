@@ -1,11 +1,11 @@
 PROJECT_NAME := buckets
-IMAGES := api nginx postgres redis
+IMAGES := api
 
 up:
-	docker-compose up
-
-up-d:
 	docker-compose up -d
+	make health-check
+	make migrate
+	make collect-static
 
 stop:
 	docker-compose stop
@@ -62,3 +62,15 @@ clean:
 	@docker-compose exec api sh -c "find . -name "__pycache__" -type d | xargs rm -rf"
 	@docker-compose exec api sh -c "find . -name ".pytest_cache" -type d | xargs rm -rf"
 	@docker-compose exec api sh -c "rm -f .coverage && rm -rf coverage/"
+
+health-check:
+	@docker-compose exec api /bin/sh /app/health-check.sh
+
+migrate:
+	@docker-compose exec api python3 manage.py migrate --noinput
+
+migrations:
+	@docker-compose exec api python3 manage.py makemigrations
+
+collect-static:
+	@docker-compose exec api python3 manage.py collectstatic --noinput

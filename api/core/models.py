@@ -65,7 +65,7 @@ class Revision(UUIDModelMixin, TimeStampModelMixin):
             kwargs['content_type_id'] = self._instance_content_type(instance)
             kwargs['action'] = self._instance_action(instance)
             kwargs['data'] = self._serialize_instance(instance)
-        super(Revision, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     @staticmethod
     def _serialize_instance(instance):
@@ -93,7 +93,7 @@ class RevisionModelMixin(models.Model):
         self.full_clean()
         with transaction.atomic():
             Revision.objects.create(instance=self)
-            super(RevisionModelMixin, self).save(
+            super().save(
                 force_insert=force_insert,
                 force_update=force_update,
                 using=using,
@@ -104,10 +104,7 @@ class RevisionModelMixin(models.Model):
         self._state.destroing = True
         with transaction.atomic():
             Revision.objects.create(instance=self)
-            super(RevisionModelMixin, self).delete(
-                using=using,
-                keep_parents=keep_parents
-            )
+            super().delete(using=using, keep_parents=keep_parents)
 
 
 # Base Models
