@@ -10,5 +10,7 @@ API_DOCS_URLS = include_docs_urls(
 
 urlpatterns = [
     path('api/docs/', API_DOCS_URLS),
+    path('api/auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('api/', include(('core.urls', 'core'), namespace='core')),
     path('api/', include(('accounts.urls', 'accounts'), namespace='auth')),
 ]

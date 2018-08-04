@@ -1,20 +1,12 @@
 version: '3.3'
 
 services:
-  nginx:
-    image: buckets/nginx:dev
-    container_name: nginx
-    restart: always
-    volumes:
-      - static-data:/static
-      - media-data:/media
-    ports:
-      - "80:80"
-
   postgres:
-    image: buckets/postgres:dev
+    image: postgres:10-alpine
     container_name: postgres
     restart: always
+    environment:
+      - POSTGRES_DB=development
     env_file: ./env
     volumes:
       - database:/var/lib/postgresql
@@ -22,7 +14,7 @@ services:
       - "5435:5432"
 
   redis:
-    image: buckets/redis:dev
+    image: redis:3.2-alpine
     container_name: redis
     restart: always
     env_file: ./env
@@ -38,14 +30,10 @@ services:
       - "postgres"
       - "redis"
     volumes:
-      - static-data:/static
-      - media-data:/media
       - ./api/:/app/
+    ports:
+      - "8000:8000"
 
 volumes:
   database:
-    driver: local
-  static-data:
-    driver: local
-  media-data:
     driver: local
