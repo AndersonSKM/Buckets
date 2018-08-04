@@ -1,5 +1,5 @@
 from django.db import transaction
-from rest_framework import status, viewsets
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import AllowAny
@@ -7,31 +7,28 @@ from rest_framework.response import Response
 
 from accounts.models import User
 from accounts.serializers import (
-    FullUserCreateSerializer,
-    FullUserSerializer,
     UserActivateSerializer,
+    UserChangePasswordSerializer,
     UserCreateSerializer,
+    UserPasswordForgotSerializer,
+    UserPasswordResetSerializer,
     UserSerializer,
 )
-from accounts.services import send_user_activation_email
-from core.permissions import AllowAnyCreateUpdateIsAdminOrOwner, AllowListIsAdmin
+from accounts.services import send_user_activation_email, send_user_password_reset_email
+from core.permissions import AllowAnyCreateUpdateIsOwner
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,
+                  mixins.UpdateModelMixin, viewsets.GenericViewSet):
     """User Views
-
-    retrieve:
-    Return the given user.
-
-    list:
-    Return a list of all the existing.\n
-    *Only works if you have staff permissions.*
 
     create:
     Create a new user instance.\n
-    When a user is created successfull,
-     an activation link is sent to the registered address\n
+    When a user is created successfull, an activation link is sent to the registered address\n
     *No permissions required for this action.*
+
+    retrieve:
+    Return the given user.
 
     delete:
     Destroy the given user.
@@ -47,34 +44,59 @@ class UserViewSet(viewsets.ModelViewSet):
     *No permissions required for this action.*
     """
     queryset = User.objects.all()
-    permission_classes = (AllowAnyCreateUpdateIsAdminOrOwner, AllowListIsAdmin,)
+    permission_classes = (AllowAnyCreateUpdateIsOwner,)
+
+    def get_serializer_class(self):
+        serializers = {
+            'create': UserCreateSerializer,
+            'activate': UserActivateSerializer,
+            'password_forgot': UserPasswordForgotSerializer,
+            'password_reset': UserPasswordResetSerializer,
+            'change_password': UserChangePasswordSerializer,
+        }
+        return serializers.get(self.action, UserSerializer)
 
     @action(methods=['POST',], detail=False, permission_classes=[AllowAny,])
     def activate(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.user
-
-        user.activate()
+        serializer = self._validate_request(request)
+        serializer.user.activate()
         return Response(status=status.HTTP_200_OK)
 
-    def get_serializer_class(self):
-        if self.action == 'activate':
-            return UserActivateSerializer
+    @action(methods=['POST',], detail=False, permission_classes=[AllowAny,],
+            url_path='password-forgot')
+    def password_forgot(self, request):
+        serializer = self._validate_request(request)
+        try:
+            send_user_password_reset_email(serializer.user)
+            return Response(status=status.HTTP_200_OK)
+        except Exception as error:
+            raise APIException({'detail': str(error)})
 
-        if self.action == 'create':
-            if self.request and self.request.user.is_staff:
-                return FullUserCreateSerializer
-            return UserCreateSerializer
+    @action(methods=['POST',], detail=False, permission_classes=[AllowAny,],
+            url_path='password-reset')
+    def password_reset(self, request):
+        self._process_change_password(request)
+        return Response(status=status.HTTP_200_OK)
 
-        if self.request and self.request.user.is_staff:
-            return FullUserSerializer
-        return UserSerializer
+    @action(methods=['POST',], detail=False, url_path='change-password')
+    def change_password(self, request):
+        self._process_change_password(request)
+        return Response(status=status.HTTP_200_OK)
 
     @transaction.atomic
     def perform_create(self, serializer):
+        instance = serializer.save()
         try:
-            instance = serializer.save()
             send_user_activation_email(instance)
         except Exception as error:
-            raise APIException(str(error))
+            raise APIException({'detail': str(error)})
+
+    def _validate_request(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return serializer
+
+    def _process_change_password(self, request):
+        serializer = self._validate_request(request)
+        serializer.user.set_password(serializer.validated_data['password'])
+        serializer.user.save()

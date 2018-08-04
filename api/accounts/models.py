@@ -32,6 +32,14 @@ class UserManager(BaseUserManager, AbstractBaseManager):
     def create_superuser(self, email, password, **kwargs):
         return self._create_user(email, password, True, True, True, **kwargs)
 
+    def active(self, **kwargs):
+        kwargs['is_active'] = True
+        return self.get_queryset().filter(**kwargs)
+
+    def get_active_or_none(self, **kwargs):
+        kwargs['is_active'] = True
+        return self.get_or_none(**kwargs)
+
 
 class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_('email address'), max_length=255, unique=True)
@@ -48,13 +56,13 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
         verbose_name = _('user')
         verbose_name_plural = _('users')
 
-    def __str__(self) -> str:
+    def __str__(self):
         return self.email
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.is_superuser and not self.is_staff:
             self.is_staff = True
-        super(User, self).save(
+        super().save(
             force_insert=force_insert,
             force_update=force_update,
             using=using,
