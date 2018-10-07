@@ -2,11 +2,14 @@ FROM cypress/base:8
 
 RUN yarn global add @vue/cli@3.0.3
 
+WORKDIR /tmp
+COPY package.json /tmp
+COPY yarn.lock /tmp
+RUN yarn install --silent --pure-lockfile
+
 RUN mkdir -p /client
 WORKDIR /client
-COPY package.json /client
-COPY yarn.lock /client
-RUN yarn install --silent --pure-lockfile
+RUN cp -R /tmp/node_modules /client/
 
 COPY . /client
 

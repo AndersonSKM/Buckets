@@ -12,31 +12,37 @@ stop:
 build: client-build api-build
 
 api-build:
-	docker build --no-cache ./api/ -t $(PROJECT_NAME)/api:dev
+	docker build ./api/ -t $(PROJECT_NAME)/api:dev
 
 client-build:
-	docker build --no-cache ./client/ -t $(PROJECT_NAME)/client:dev
+	docker build ./client/ -t $(PROJECT_NAME)/client:dev
 
-logs:
-	docker-compose logs --follow --tail=40 $(t)
+push-api-image:
+	make push image=api
 
-sh:
-	docker-compose exec $(t) sh
+push-client-image:
+	make push image=client
 
-deploy:
+push:
 	docker login -u $(DOCKER_USER) -p $(DOCKER_PASS)
-	for image in $(IMAGES) ; do \
-		docker tag $(PROJECT_NAME)/$$image:dev $(PROJECT_NAME)/$$image:$(TAG) || exit 1; \
-		docker push $(PROJECT_NAME)/$$image:$(TAG) || exit 1 ; \
-	done
+	docker tag $(PROJECT_NAME)/$(image):dev $(PROJECT_NAME)/$(image):$(TAG)
+	docker push $(PROJECT_NAME)/$(image):$(TAG)
 
-test: clean pytest lint
+test: api-test client-test
 
-coverage:
-	make codecov t=api
+api-test: clean pytest lint
+
+client-test:
+	docker-compose exec client yarn test:unit
+
+api-coverage:
+	make codecov container=api
+
+client-coverage:
+	make codecov container=client
 
 codecov:
-	docker-compose exec $(t) sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov -Z"
+	docker-compose exec $(container) sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov -Z"
 
 pytest:
 	docker-compose exec api pytest
@@ -75,3 +81,9 @@ makemigrations:
 
 collectstatic:
 	@docker-compose exec api python3 manage.py collectstatic --noinput
+
+logs:
+	docker-compose logs --follow --tail=40 $(t)
+
+sh:
+	docker-compose exec $(t) sh

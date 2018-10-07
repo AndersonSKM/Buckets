@@ -38,17 +38,21 @@ install:
 
 jobs:
   include:
-    - stage: Build docker image
-      script: make api-build
+    - stage: Build docker images
+      script: make api-build && make push-api-image
       language: python
       python:
         - "3.6"
-    - script: make client-build
+    - script: make client-build && make push-client-image
       language: node
       node_js:
         - "8"
-    - stage: Test
-      script: make up && make test
+    - stage: Tests
+      script: make up && make api-test && make api-coverage
       language: python
       python:
         - "3.6"
+      script: make up && make client-test
+      language: node
+      node_js:
+        - "8"
