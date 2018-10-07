@@ -18,15 +18,15 @@ client-build:
 	docker build ./client/ -t $(PROJECT_NAME)/client:dev
 
 push-api-image:
-	make push image=api
+	make push image=api:dev
 
 push-client-image:
-	make push image=client
+	make push image=client:dev
 
 push:
 	docker login -u $(DOCKER_USER) -p $(DOCKER_PASS)
 	docker tag $(PROJECT_NAME)/$(image):dev $(PROJECT_NAME)/$(image):$(TAG)
-	docker push $(PROJECT_NAME)/$(image):$(TAG)
+	docker push $(PROJECT_NAME)/$(image)
 
 test: api-test client-test
 

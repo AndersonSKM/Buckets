@@ -8,12 +8,25 @@ services:
 env:
   global:
     - DOCKER_COMPOSE_VERSION=1.16.1
+    - CACHE_DIR=$HOME/.cache/docker
+    - CACHE_FILE_API=$CACHE_DIR/api.tar.gz
+    - CACHE_FILE_CLIENT=$CACHE_DIR/client.tar.gz
+    - CACHE_FILE_REDIS=$CACHE_DIR/redis.tar.gz
+    - CACHE_FILE_POSTGRES=$CACHE_DIR/postgres.tar.gz
+
+cache:
+  directories:
+    - $CACHE_DIR
 
 before_install:
   - sudo rm /usr/local/bin/docker-compose
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
+  - if [ -f ${CACHE_FILE_API} ]; then gunzip -c ${CACHE_FILE_API} | docker load; fi
+  - if [ -f ${CACHE_FILE_CLIENT} ]; then gunzip -c ${CACHE_FILE_CLIENT} | docker load; fi
+  - if [ -f ${CACHE_FILE_REDIS} ]; then gunzip -c ${CACHE_FILE_REDIS} | docker load; fi
+  - if [ -f ${CACHE_FILE_POSTGRES} ]; then gunzip -c ${CACHE_FILE_POSTGRES} | docker load; fi
 
 install:
   - echo "DEBUG=$DEBUG" >> .env
@@ -47,6 +60,15 @@ jobs:
       language: node
       node_js:
         - "8"
+    - script:
+      - mkdir -p $CACHE_DIR
+      - if [ ! -f ${CACHE_FILE_API} ]; then docker save buckets/api:dev | gzip > ${CACHE_FILE_API}; fi
+      - if [ ! -f ${CACHE_FILE_CLIENT} ]; then docker save buckets/client:dev | gzip > ${CACHE_FILE_CLIENT}; fi
+      - docker-compose pull redis
+      - if [ ! -f ${CACHE_FILE_REDIS} ]; then docker save redis:3.2-alpine | gzip > ${CACHE_FILE_REDIS}; fi
+      - docker-compose pull postgres
+      - if [ ! -f ${CACHE_FILE_POSTGRES} ]; then docker save postgres:10-alpine | gzip > ${CACHE_FILE_POSTGRES}; fi
+      language: c
     - stage: Tests
       script: make up && make api-test && make api-coverage
       language: python
