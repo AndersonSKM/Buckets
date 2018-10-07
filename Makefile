@@ -12,10 +12,10 @@ stop:
 build: client-build api-build
 
 api-build:
-	docker build --no-cache ./$$image/ -t $(PROJECT_NAME)/api:dev
+	docker build --no-cache ./api/ -t $(PROJECT_NAME)/api:dev
 
 client-build:
-	docker build --no-cache ./$$image/ -t $(PROJECT_NAME)/client:dev
+	docker build --no-cache ./client/ -t $(PROJECT_NAME)/client:dev
 
 logs:
 	docker-compose logs --follow --tail=40 $(t)
