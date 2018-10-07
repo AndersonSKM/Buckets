@@ -52,7 +52,7 @@ jobs:
       language: python
       python:
         - "3.6"
-      script: make up && make client-test
+    - script: make up && make client-test
       language: node
       node_js:
         - "8"
