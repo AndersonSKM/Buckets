@@ -25,7 +25,6 @@ push-client-image:
 
 push:
 	docker login -u $(DOCKER_USER) -p $(DOCKER_PASS)
-	docker tag $(PROJECT_NAME)/$(image):dev $(PROJECT_NAME)/$(image):$(TAG)
 	docker push $(PROJECT_NAME)/$(image)
 
 test: api-test client-test
