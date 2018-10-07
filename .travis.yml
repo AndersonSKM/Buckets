@@ -33,12 +33,18 @@ install:
   - echo "TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST" >> .env
   - echo "TRAVIS_TAG=$TRAVIS_TAG" >> .env
   - echo "TRAVIS_OS_NAME=$TRAVIS_OS_NAME" >> .env
-  - echo "TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG" >> .  env
+  - echo "TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG" >> .env
   - export TAG=${TRAVIS_COMMIT::8}
 
 jobs:
   include:
     - stage: api-build
+      language: python
+      python:
+        - "3.6"
       script: make api-build
     - stage: client-build
+      language: node
+      node_js:
+        - "8"
       script: make client-build
