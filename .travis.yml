@@ -19,6 +19,8 @@ cache:
     - $CACHE_DIR
 
 before_install:
+  - sudo apt update -y
+  - sudo apt install --only-upgrade docker-ce -y
   - sudo rm /usr/local/bin/docker-compose
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
@@ -54,17 +56,13 @@ jobs:
         - make api-build
         - mkdir -p $CACHE_DIR
         - if [ ! -f ${CACHE_FILE_API} ]; then docker save buckets/api:dev | gzip > ${CACHE_FILE_API}; fi
-      language: python
-      python:
-        - "3.6"
+      language: minimal
     - script:
       - if [ -f ${CACHE_FILE_CLIENT} ]; then gunzip -c ${CACHE_FILE_CLIENT} | docker load; fi
       - make client-build
       - mkdir -p $CACHE_DIR
       - if [ ! -f ${CACHE_FILE_CLIENT} ]; then docker save buckets/client:dev | gzip > ${CACHE_FILE_CLIENT}; fi
-      language: node
-      node_js:
-        - "8"
+      language: minimal
     - stage: Tests
       before_script:
         - if [ -f ${CACHE_FILE_API} ]; then gunzip -c ${CACHE_FILE_API} | docker load; fi
@@ -73,10 +71,6 @@ jobs:
         - make up
         - make api-test
         - make api-coverage
-      language: python
-      python:
-        - "3.6"
+      language: minimal
     - script: make up && make client-test
-      language: node
-      node_js:
-        - "8"
+      language: minimal
