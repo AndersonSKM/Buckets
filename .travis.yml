@@ -43,7 +43,7 @@ jobs:
       language: python
       python:
         - "3.6"
-      script: make client-build
+    - script: make client-build
       language: node
       node_js:
         - "8"
