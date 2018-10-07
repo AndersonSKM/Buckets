@@ -6,11 +6,8 @@ services:
   - docker
 
 env:
-  - DOCKER_COMPOSE_VERSION=1.16.1
-
-language: python
-python:
-  - "3.6"
+  global:
+    - DOCKER_COMPOSE_VERSION=1.16.1
 
 before_install:
   - sudo rm /usr/local/bin/docker-compose
@@ -19,51 +16,29 @@ before_install:
   - sudo mv docker-compose /usr/local/bin
 
 install:
-  - echo "DEBUG=$DEBUG" >> env
-  - echo "SECRET_KEY=$SECRET_KEY" >> env
-  - echo "USER_ACTIVATION_URI=$USER_ACTIVATION_URI" >> env
-  - echo "USER_PASSWORD_RESET_URI=$USER_PASSWORD_RESET_URI" >> env
-  - echo "DATABASE_URL=$DATABASE_URL" >> env
-  - echo "REDIS_URL=$REDIS_URL" >> env
+  - echo "DEBUG=$DEBUG" >> .env
+  - echo "SECRET_KEY=$SECRET_KEY" >> .env
+  - echo "USER_ACTIVATION_URI=$USER_ACTIVATION_URI" >> .env
+  - echo "USER_PASSWORD_RESET_URI=$USER_PASSWORD_RESET_URI" >> .env
+  - echo "DATABASE_URL=$DATABASE_URL" >> .env
+  - echo "REDIS_URL=$REDIS_URL" >> .env
 
-  - echo "CODECOV_TOKEN=$CODECOV_TOKEN" >> env
+  - echo "CODECOV_TOKEN=$CODECOV_TOKEN" >> .env
   - echo "CI=$CI" >> env
   - echo "TRAVIS=$TRAVIS" >> env
-  - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH" >> env
-  - echo "TRAVIS_COMMIT=$TRAVIS_COMMIT" >> env
-  - echo "TRAVIS_JOB_ID=$TRAVIS_JOB_ID" >> env
-  - echo "TRAVIS_JOB_NUMBER=$TRAVIS_JOB_NUMBER" >> env
-  - echo "TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST" >> env
-  - echo "TRAVIS_TAG=$TRAVIS_TAG" >> env
-  - echo "TRAVIS_OS_NAME=$TRAVIS_OS_NAME" >> env
-  - echo "TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG" >> env
+  - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH" >> .env
+  - echo "TRAVIS_COMMIT=$TRAVIS_COMMIT" >> .env
+  - echo "TRAVIS_JOB_ID=$TRAVIS_JOB_ID" >> .env
+  - echo "TRAVIS_JOB_NUMBER=$TRAVIS_JOB_NUMBER" >> .env
+  - echo "TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST" >> .env
+  - echo "TRAVIS_TAG=$TRAVIS_TAG" >> .env
+  - echo "TRAVIS_OS_NAME=$TRAVIS_OS_NAME" >> .env
+  - echo "TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG" >> .  env
   - export TAG=${TRAVIS_COMMIT::8}
 
-script:
-  - make build
-  - make up
-  - make test
-
-after_success:
-  - make coverage
-  - |
-    if [ $TRAVIS_PULL_REQUEST == "false" ]; then
-      wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
-      chmod +x send.sh
-      ./send.sh success $WEBHOOK_URL
-    fi
-
-after_failure:
-  - |
-    if [ $TRAVIS_PULL_REQUEST == "false" ]; then
-      wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
-      chmod +x send.sh
-      ./send.sh failure $WEBHOOK_URL
-    fi
-
-
-deploy:
-  - provider: script
-    script: make deploy
-    on:
-      branch: master
+jobs:
+  include:
+    - stage: api-build
+      script: make api-build
+    - stage: client-build
+      script: make client-build

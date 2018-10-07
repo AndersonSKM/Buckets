@@ -42,6 +42,7 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'rest_framework',
+    'corsheaders',
 ]
 
 LOCAL_APPS = [
@@ -56,6 +57,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # https://docs.djangoproject.com/en/1.10/topics/http/middleware/
 
 SECURITY_MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
 ]
 
@@ -214,6 +216,8 @@ REST_FRAMEWORK = {
 
 JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(minutes=15),
+    'JWT_ALLOW_REFRESH': True,
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=2),
 }
 
 # Email
@@ -233,3 +237,9 @@ EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
 
 USER_ACTIVATION_URI = os.environ.get('USER_ACTIVATION_URI', None)
 USER_PASSWORD_RESET_URI = os.environ.get('USER_PASSWORD_RESET_URI', None)
+
+# CORS
+# ------------------------------------------------------------------------------
+
+CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_WHITELIST = os.environ.get('CORS_ORIGIN_WHITELIST', '').split()

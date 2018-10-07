@@ -1,23 +1,24 @@
 PROJECT_NAME := buckets
-IMAGES := api
 
 up:
 	docker-compose up -d
 	make health-check
 	make migrate
-	make collect-static
+	make collectstatic
 
 stop:
 	docker-compose stop
 
-build:
-	for image in $(IMAGES) ; do \
-		echo Building $$image; \
-		docker build ./$$image/ -t $(PROJECT_NAME)/$$image:dev || exit 1; \
-	done
+build: client-build api-build
+
+api-build:
+	docker build --no-cache ./$$image/ -t $(PROJECT_NAME)/api:dev
+
+client-build:
+	docker build --no-cache ./$$image/ -t $(PROJECT_NAME)/client:dev
 
 logs:
-	docker-compose logs $(t)
+	docker-compose logs --follow --tail=40 $(t)
 
 sh:
 	docker-compose exec $(t) sh
@@ -69,8 +70,8 @@ health-check:
 migrate:
 	@docker-compose exec api python3 manage.py migrate --noinput
 
-migrations:
+makemigrations:
 	@docker-compose exec api python3 manage.py makemigrations
 
-collect-static:
+collectstatic:
 	@docker-compose exec api python3 manage.py collectstatic --noinput
