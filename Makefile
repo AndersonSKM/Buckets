@@ -15,7 +15,7 @@ api-build:
 	docker build ./api/ -t $(PROJECT_NAME)/api:dev
 
 client-build:
-	docker build ./client/ -t $(PROJECT_NAME)/client:dev
+	docker build --cache-from=$(PROJECT_NAME)/client:dev ./client/ -t $(PROJECT_NAME)/client:dev
 
 push-api-image:
 	make push image=api:dev

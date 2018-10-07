@@ -23,10 +23,7 @@ before_install:
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
-  - if [ -f ${CACHE_FILE_API} ]; then gunzip -c ${CACHE_FILE_API} | docker load; fi
-  - if [ -f ${CACHE_FILE_CLIENT} ]; then gunzip -c ${CACHE_FILE_CLIENT} | docker load; fi
-  - if [ -f ${CACHE_FILE_REDIS} ]; then gunzip -c ${CACHE_FILE_REDIS} | docker load; fi
-  - if [ -f ${CACHE_FILE_POSTGRES} ]; then gunzip -c ${CACHE_FILE_POSTGRES} | docker load; fi
+  - mkdir -p $CACHE_DIR
 
 install:
   - echo "DEBUG=$DEBUG" >> .env
@@ -53,6 +50,7 @@ jobs:
   include:
     - stage: Build docker images
       script:
+        - if [ -f ${CACHE_FILE_API} ]; then gunzip -c ${CACHE_FILE_API} | docker load; fi
         - make api-build
         - mkdir -p $CACHE_DIR
         - if [ ! -f ${CACHE_FILE_API} ]; then docker save buckets/api:dev | gzip > ${CACHE_FILE_API}; fi
@@ -60,6 +58,7 @@ jobs:
       python:
         - "3.6"
     - script:
+      - if [ -f ${CACHE_FILE_CLIENT} ]; then gunzip -c ${CACHE_FILE_CLIENT} | docker load; fi
       - make client-build
       - mkdir -p $CACHE_DIR
       - if [ ! -f ${CACHE_FILE_CLIENT} ]; then docker save buckets/client:dev | gzip > ${CACHE_FILE_CLIENT}; fi
@@ -67,7 +66,13 @@ jobs:
       node_js:
         - "8"
     - stage: Tests
-      script: make up && make api-test && make api-coverage
+      before_script:
+        - if [ -f ${CACHE_FILE_API} ]; then gunzip -c ${CACHE_FILE_API} | docker load; fi
+        - if [ -f ${CACHE_FILE_CLIENT} ]; then gunzip -c ${CACHE_FILE_CLIENT} | docker load; fi
+      script:
+        - make up
+        - make api-test
+        - make api-coverage
       language: python
       python:
         - "3.6"
