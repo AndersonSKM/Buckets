@@ -52,23 +52,22 @@ install:
 jobs:
   include:
     - stage: Build docker images
-      script: make api-build && make push-api-image
+      script:
+        - make api-build
+        - make push-api-image
+        - mkdir -p $CACHE_DIR
+        - if [ ! -f ${CACHE_FILE_API} ]; then docker save buckets/api:dev | gzip > ${CACHE_FILE_API}; fi
       language: python
       python:
         - "3.6"
-    - script: make client-build && make push-client-image
+    - script:
+      - make client-build
+      - make push-client-image
+      - mkdir -p $CACHE_DIR
+      - if [ ! -f ${CACHE_FILE_CLIENT} ]; then docker save buckets/client:dev | gzip > ${CACHE_FILE_CLIENT}; fi
       language: node
       node_js:
         - "8"
-    - script:
-      - mkdir -p $CACHE_DIR
-      - if [ ! -f ${CACHE_FILE_API} ]; then docker save buckets/api:dev | gzip > ${CACHE_FILE_API}; fi
-      - if [ ! -f ${CACHE_FILE_CLIENT} ]; then docker save buckets/client:dev | gzip > ${CACHE_FILE_CLIENT}; fi
-      - docker-compose pull redis
-      - if [ ! -f ${CACHE_FILE_REDIS} ]; then docker save redis:3.2-alpine | gzip > ${CACHE_FILE_REDIS}; fi
-      - docker-compose pull postgres
-      - if [ ! -f ${CACHE_FILE_POSTGRES} ]; then docker save postgres:10-alpine | gzip > ${CACHE_FILE_POSTGRES}; fi
-      language: c
     - stage: Tests
       script: make up && make api-test && make api-coverage
       language: python
