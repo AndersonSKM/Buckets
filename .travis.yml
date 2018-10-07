@@ -7,7 +7,7 @@ services:
 
 env:
   global:
-    - DOCKER_COMPOSE_VERSION=1.16.1
+    - DOCKER_COMPOSE_VERSION=1.22.0
     - CACHE_DIR=$HOME/.cache/docker
     - CACHE_FILE_API=$CACHE_DIR/api.tar.gz
     - CACHE_FILE_CLIENT=$CACHE_DIR/client.tar.gz
@@ -54,7 +54,6 @@ jobs:
     - stage: Build docker images
       script:
         - make api-build
-        - make push-api-image
         - mkdir -p $CACHE_DIR
         - if [ ! -f ${CACHE_FILE_API} ]; then docker save buckets/api:dev | gzip > ${CACHE_FILE_API}; fi
       language: python
@@ -62,7 +61,6 @@ jobs:
         - "3.6"
     - script:
       - make client-build
-      - make push-client-image
       - mkdir -p $CACHE_DIR
       - if [ ! -f ${CACHE_FILE_CLIENT} ]; then docker save buckets/client:dev | gzip > ${CACHE_FILE_CLIENT}; fi
       language: node
