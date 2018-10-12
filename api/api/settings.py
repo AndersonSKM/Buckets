@@ -76,6 +76,13 @@ THIRD_PARTY_MIDDLEWARES = [
 
 MIDDLEWARE = SECURITY_MIDDLEWARE + THIRD_PARTY_MIDDLEWARES + DJANGO_MIDDLEWARES
 
+# AUTHENTICATION BACKENDS
+# ------------------------------------------------------------------------------
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.AllowAllUsersModelBackend'
+]
+
 # URL Configuration
 # ------------------------------------------------------------------------------
 
