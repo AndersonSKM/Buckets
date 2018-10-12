@@ -48,7 +48,7 @@ install:
 
 before_script:
   - if [ -f ${CACHE_FILE_API} ]; then gunzip -c ${CACHE_FILE_API} | docker load; fi
-	- if [ -f ${CACHE_FILE_CLIENT} ]; then gunzip -c ${CACHE_FILE_CLIENT} | docker load; fi
+  - if [ -f ${CACHE_FILE_CLIENT} ]; then gunzip -c ${CACHE_FILE_CLIENT} | docker load; fi
 
 script:
   - make build
@@ -58,5 +58,5 @@ script:
 after_success:
   - make coverage 
   - docker save $(docker history -q buckets/api:dev | grep -v '<missing>') | gzip > ${CACHE_FILE_API}
-	- docker save $(docker history -q buckets/client:dev | grep -v '<missing>') | gzip > ${CACHE_FILE_CLIENT}
+  - docker save $(docker history -q buckets/client:dev | grep -v '<missing>') | gzip > ${CACHE_FILE_CLIENT}
 
