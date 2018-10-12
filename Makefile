@@ -35,7 +35,7 @@ ci-cache-recover:
 api-build:
 	docker build ./api/ -t $(PROJECT_NAME)/api:dev
 
-api-test: clean pytest lint
+api-test: api-clean api-pytest api-lint
 
 api-pytest:
 	docker-compose exec api pytest
