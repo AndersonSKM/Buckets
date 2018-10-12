@@ -1,0 +1,10 @@
+build:
+  docker:
+    api: api/Dockerfile
+release:
+  command:
+    - python3 manage.py migrate --noinput
+    - python3 manage.py collectstatic --noinput
+  image: api
+run:
+  api: ./run.sh
