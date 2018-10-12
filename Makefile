@@ -19,17 +19,6 @@ sh:
 
 test: api-test client-test
 
-coverage:
-	docker-compose exec api sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov -Z"
-
-ci-cache-save:
-	docker save $(docker history -q $(PROJECT_NAME)/api:dev | grep -v '<missing>') | gzip > ${CACHE_FILE_API}
-	docker save $(docker history -q $(PROJECT_NAME)/client:dev | grep -v '<missing>') | gzip > ${CACHE_FILE_CLIENT}
-
-ci-cache-recover:
-	if [ -f ${CACHE_FILE_API} ]; then gunzip -c ${CACHE_FILE_API} | docker load; fi
-	if [ -f ${CACHE_FILE_CLIENT} ]; then gunzip -c ${CACHE_FILE_CLIENT} | docker load; fi
-
 # API Commands ----------------------------------------------------------------------------------------------------
 
 api-build:
