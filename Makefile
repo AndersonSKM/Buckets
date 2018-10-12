@@ -19,6 +19,9 @@ sh:
 
 test: api-test client-test
 
+coverage:
+	docker-compose exec api sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov -Z"
+
 # API Commands ----------------------------------------------------------------------------------------------------
 
 api-build:
