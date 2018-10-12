@@ -34,8 +34,8 @@ install:
   - echo "REDIS_URL=$REDIS_URL" >> .env
 
   - echo "CODECOV_TOKEN=$CODECOV_TOKEN" >> .env
-  - echo "CI=$CI" >> env
-  - echo "TRAVIS=$TRAVIS" >> env
+  - echo "CI=$CI" >> .env
+  - echo "TRAVIS=$TRAVIS" >> .env
   - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH" >> .env
   - echo "TRAVIS_COMMIT=$TRAVIS_COMMIT" >> .env
   - echo "TRAVIS_JOB_ID=$TRAVIS_JOB_ID" >> .env
