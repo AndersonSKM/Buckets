@@ -40,7 +40,7 @@ router.beforeEach(
         path: '/sign-in'
       })
     } else {
-      //store.dispatch('auth/tryRefreshToken')
+      store.dispatch('auth/tryRefreshToken')
       next()
     }
   }

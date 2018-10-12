@@ -114,22 +114,27 @@ export default {
   },
 
   methods: {
-    login (submitEvent) {
+    async login (submitEvent) {
       this.$v.$touch()
       if (this.$v.$invalid) {
         return
       }
 
-      this.$store.dispatch('auth/obtainToken', {
-        email: this.email,
-        password: this.password
-      })
-        .then(() => {
+      try {
+        const response = await this.$store.dispatch('auth/obtainToken', {
+          email: this.email,
+          password: this.password
+        })
+
+        if (response.status === 200) {
           this.$router.push('/home')
-        })
-        .catch(error => {
+        }
+      } catch (error) {
+        this.errors = []
+        if (error.response.data) {
           this.errors = error.response.data['non_field_errors'] || []
-        })
+        }
+      }
     }
   }
 }
