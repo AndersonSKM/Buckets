@@ -2,68 +2,59 @@ sudo: required
 dist: trusty
 group: edg
 
+language: generic
+
 services:
   - docker
 
 env:
-  - DOCKER_COMPOSE_VERSION=1.16.1
+  global:
+    - DOCKER_COMPOSE_VERSION=1.22.0
+    - CACHE_DIR=$HOME/.cache/docker
+    - CACHE_FILE_API=$CACHE_DIR/api.tar.gz
+    - CACHE_FILE_CLIENT=$CACHE_DIR/client.tar.gz
 
-language: python
-python:
-  - "3.6"
+cache:
+  directories:
+    - $CACHE_DIR
 
 before_install:
   - sudo rm /usr/local/bin/docker-compose
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
+  - mkdir -p $CACHE_DIR  
 
 install:
-  - echo "DEBUG=$DEBUG" >> env
-  - echo "SECRET_KEY=$SECRET_KEY" >> env
-  - echo "USER_ACTIVATION_URI=$USER_ACTIVATION_URI" >> env
-  - echo "USER_PASSWORD_RESET_URI=$USER_PASSWORD_RESET_URI" >> env
-  - echo "DATABASE_URL=$DATABASE_URL" >> env
-  - echo "REDIS_URL=$REDIS_URL" >> env
+  - echo "DEBUG=$DEBUG" >> .env
+  - echo "SECRET_KEY=$SECRET_KEY" >> .env
+  - echo "USER_ACTIVATION_URI=$USER_ACTIVATION_URI" >> .env
+  - echo "USER_PASSWORD_RESET_URI=$USER_PASSWORD_RESET_URI" >> .env
+  - echo "DATABASE_URL=$DATABASE_URL" >> .env
+  - echo "REDIS_URL=$REDIS_URL" >> .env
 
-  - echo "CODECOV_TOKEN=$CODECOV_TOKEN" >> env
-  - echo "CI=$CI" >> env
-  - echo "TRAVIS=$TRAVIS" >> env
-  - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH" >> env
-  - echo "TRAVIS_COMMIT=$TRAVIS_COMMIT" >> env
-  - echo "TRAVIS_JOB_ID=$TRAVIS_JOB_ID" >> env
-  - echo "TRAVIS_JOB_NUMBER=$TRAVIS_JOB_NUMBER" >> env
-  - echo "TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST" >> env
-  - echo "TRAVIS_TAG=$TRAVIS_TAG" >> env
-  - echo "TRAVIS_OS_NAME=$TRAVIS_OS_NAME" >> env
-  - echo "TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG" >> env
+  - echo "CODECOV_TOKEN=$CODECOV_TOKEN" >> .env
+  - echo "CI=$CI" >> .env
+  - echo "TRAVIS=$TRAVIS" >> .env
+  - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH" >> .env
+  - echo "TRAVIS_COMMIT=$TRAVIS_COMMIT" >> .env
+  - echo "TRAVIS_JOB_ID=$TRAVIS_JOB_ID" >> .env
+  - echo "TRAVIS_JOB_NUMBER=$TRAVIS_JOB_NUMBER" >> .env
+  - echo "TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST" >> .env
+  - echo "TRAVIS_TAG=$TRAVIS_TAG" >> .env
+  - echo "TRAVIS_OS_NAME=$TRAVIS_OS_NAME" >> .env
+  - echo "TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG" >> .env
   - export TAG=${TRAVIS_COMMIT::8}
 
+before_script:
+  - if [ -f ${CACHE_FILE_API} ]; then gunzip -c ${CACHE_FILE_API} | docker load; fi
+  - if [ -f ${CACHE_FILE_CLIENT} ]; then gunzip -c ${CACHE_FILE_CLIENT} | docker load; fi
+
 script:
+  - tail .env
   - make build
   - make up
   - make test
-
-after_success:
   - make coverage
-  - |
-    if [ $TRAVIS_PULL_REQUEST == "false" ]; then
-      wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
-      chmod +x send.sh
-      ./send.sh success $WEBHOOK_URL
-    fi
-
-after_failure:
-  - |
-    if [ $TRAVIS_PULL_REQUEST == "false" ]; then
-      wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
-      chmod +x send.sh
-      ./send.sh failure $WEBHOOK_URL
-    fi
-
-
-deploy:
-  - provider: script
-    script: make deploy
-    on:
-      branch: master
+  - docker save $(docker history -q buckets/api:dev | grep -v '<missing>') | gzip > ${CACHE_FILE_API}
+  - docker save $(docker history -q buckets/client:dev | grep -v '<missing>') | gzip > ${CACHE_FILE_CLIENT}

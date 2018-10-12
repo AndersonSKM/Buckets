@@ -7,7 +7,7 @@ services:
     restart: always
     environment:
       - POSTGRES_DB=development
-    env_file: ./env
+    env_file: ./.env
     volumes:
       - database:/var/lib/postgresql
     ports:
@@ -17,7 +17,7 @@ services:
     image: redis:3.2-alpine
     container_name: redis
     restart: always
-    env_file: ./env
+    env_file: ./.env
     ports:
       - "6380:6379"
 
@@ -25,7 +25,7 @@ services:
     image: buckets/api:dev
     container_name: api
     restart: always
-    env_file: ./env
+    env_file: ./.env
     depends_on:
       - "postgres"
       - "redis"
@@ -34,6 +34,19 @@ services:
     ports:
       - "8000:8000"
 
+  client:
+    image: buckets/client:dev
+    container_name: client
+    restart: always
+    env_file: ./.env
+    volumes:
+      - ./client:/client/
+      - node_modules:/client/node_modules
+    ports:
+      - "8080:8080"
+
 volumes:
+  node_modules:
+    driver: local
   database:
     driver: local
