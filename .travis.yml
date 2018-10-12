@@ -2,7 +2,7 @@ sudo: required
 dist: trusty
 group: edg
 
-language: minimal
+language: generic
 
 services:
   - docker
@@ -55,8 +55,6 @@ script:
   - make build
   - make up
   - make test
+  - make coverage
   - docker save $(docker history -q buckets/api:dev | grep -v '<missing>') | gzip > ${CACHE_FILE_API}
   - docker save $(docker history -q buckets/client:dev | grep -v '<missing>') | gzip > ${CACHE_FILE_CLIENT}
-  - make coverage
-   
-
