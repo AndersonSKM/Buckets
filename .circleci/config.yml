@@ -38,12 +38,14 @@ jobs:
               echo "CIRCLE_REPOSITORY_URL=$CIRCLE_REPOSITORY_URL" >> .env
               echo "CIRCLE_COMPARE_URL=$CIRCLE_COMPARE_URL" >> .env
       - run:
-          name: Build and run images
-          command: |
-            make build
-            make up
+          name: Build images
+          command: make build
       - run:
-          name: Tests and coverage
-          command: |
-            make test
-            make coverage
+          name: Up services
+          command: make up
+      - run:
+          name: Test
+          command: make test
+      - run:
+          name: Coverage
+          command: make coverage
