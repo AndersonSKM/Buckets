@@ -18,31 +18,8 @@ from accounts.services import send_user_activation_email, send_user_password_res
 from core.permissions import AllowAnyCreateUpdateIsOwner
 
 
-class UserViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,
-                  mixins.UpdateModelMixin, viewsets.GenericViewSet):
-    """User Views
-
-    create:
-    Create a new user instance.\n
-    When a user is created successfull, an activation link is sent to the registered address\n
-    *No permissions required for this action.*
-
-    retrieve:
-    Return the given user.
-
-    delete:
-    Destroy the given user.
-
-    update:
-    Update the full data of given user.
-
-    partial_update:
-    Update partial of data given.
-
-    activate:
-    Active the given user account.\n
-    *No permissions required for this action.*
-    """
+class UserViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+                  mixins.DestroyModelMixin, viewsets.GenericViewSet):
     queryset = User.objects.all()
     permission_classes = (AllowAnyCreateUpdateIsOwner,)
 

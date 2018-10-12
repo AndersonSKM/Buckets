@@ -1,60 +1,52 @@
 PROJECT_NAME := buckets
-IMAGES := api
 
 up:
 	docker-compose up -d
-	make health-check
-	make migrate
-	make collect-static
+	make api-health-check
+	make api-migrate
+	make api-collectstatic
 
 stop:
 	docker-compose stop
 
-build:
-	for image in $(IMAGES) ; do \
-		echo Building $$image; \
-		docker build ./$$image/ -t $(PROJECT_NAME)/$$image:dev || exit 1; \
-	done
+build: client-build api-build
 
 logs:
-	docker-compose logs $(t)
+	docker-compose logs --follow --tail=40 $(service)
 
 sh:
-	docker-compose exec $(t) sh
+	docker-compose exec $(service) sh
 
-deploy:
-	docker login -u $(DOCKER_USER) -p $(DOCKER_PASS)
-	for image in $(IMAGES) ; do \
-		docker tag $(PROJECT_NAME)/$$image:dev $(PROJECT_NAME)/$$image:$(TAG) || exit 1; \
-		docker push $(PROJECT_NAME)/$$image:$(TAG) || exit 1 ; \
-	done
-
-test: clean pytest lint
+test: api-test client-test
 
 coverage:
-	make codecov t=api
+	docker-compose exec api sh -c "printenv && curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov -Z"
 
-codecov:
-	docker-compose exec $(t) sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov -Z"
+# API Commands ----------------------------------------------------------------------------------------------------
 
-pytest:
+api-build:
+	docker build ./api/ -t $(PROJECT_NAME)/api:dev
+
+api-test: api-clean api-pytest api-lint
+
+api-pytest:
 	docker-compose exec api pytest
 
-lint: flake isort
+api-lint: api-flake api-isort
 
-flake:
+api-flake:
 	docker-compose exec api flake8
 
-isort:
+api-isort:
 	docker-compose exec api isort --check --diff -tc -rc .
 
-fix-imports:
+api-fix-imports:
 	docker-compose exec api isort -tc -rc .
 
-outdated:
+api-outdated:
 	docker-compose exec api pip3 list --outdated --format=columns
 
-clean:
+api-clean:
 	$(info Cleaning directories)
 	@docker-compose exec api sh -c "find . -name "*.pyo" | xargs rm -rf"
 	@docker-compose exec api sh -c "find . -name "*.cache" | xargs rm -rf"
@@ -63,14 +55,24 @@ clean:
 	@docker-compose exec api sh -c "find . -name ".pytest_cache" -type d | xargs rm -rf"
 	@docker-compose exec api sh -c "rm -f .coverage && rm -rf coverage/"
 
-health-check:
+api-health-check:
 	@docker-compose exec api /bin/sh /app/health-check.sh
 
-migrate:
+api-migrate:
 	@docker-compose exec api python3 manage.py migrate --noinput
 
-migrations:
+api-makemigrations:
 	@docker-compose exec api python3 manage.py makemigrations
 
-collect-static:
+api-collectstatic:
 	@docker-compose exec api python3 manage.py collectstatic --noinput
+
+# Client Commands --------------------------------------------------------------------------
+
+client-build:
+	docker build ./client/ -t $(PROJECT_NAME)/client:dev
+
+client-test: client-unit
+
+client-unit:
+	docker-compose exec client yarn test:unit

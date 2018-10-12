@@ -1,0 +1,14 @@
+{
+  "application": {
+    "name": "Cash Miner"
+  },
+  "globals": {
+    "password": "Password"
+  },
+  "sign-in": {
+    "label": "Sign in",
+    "login": "Login",
+    "forgot-your-password": "Forgot your password?",
+    "dont-have-an-account": "Don't have an account?"
+  }
+}
