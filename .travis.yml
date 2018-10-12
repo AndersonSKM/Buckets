@@ -2,6 +2,8 @@ sudo: required
 dist: trusty
 group: edg
 
+language: minimal
+
 services:
   - docker
 
@@ -11,21 +13,17 @@ env:
     - CACHE_DIR=$HOME/.cache/docker
     - CACHE_FILE_API=$CACHE_DIR/api.tar.gz
     - CACHE_FILE_CLIENT=$CACHE_DIR/client.tar.gz
-    - CACHE_FILE_REDIS=$CACHE_DIR/redis.tar.gz
-    - CACHE_FILE_POSTGRES=$CACHE_DIR/postgres.tar.gz
 
 cache:
   directories:
     - $CACHE_DIR
 
 before_install:
-  - sudo apt update -y
-  - sudo apt install --only-upgrade docker-ce -y
   - sudo rm /usr/local/bin/docker-compose
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
-  - mkdir -p $CACHE_DIR
+  - mkdir -p $CACHE_DIR  
 
 install:
   - echo "DEBUG=$DEBUG" >> .env
@@ -48,29 +46,15 @@ install:
   - echo "TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG" >> .env
   - export TAG=${TRAVIS_COMMIT::8}
 
-jobs:
-  include:
-    - stage: Build docker images
-      script:
-        - if [ -f ${CACHE_FILE_API} ]; then gunzip -c ${CACHE_FILE_API} | docker load; fi
-        - make api-build
-        - mkdir -p $CACHE_DIR
-        - if [ ! -f ${CACHE_FILE_API} ]; then docker save buckets/api:dev | gzip > ${CACHE_FILE_API}; fi
-      language: minimal
-    - script:
-      - if [ -f ${CACHE_FILE_CLIENT} ]; then gunzip -c ${CACHE_FILE_CLIENT} | docker load; fi
-      - make client-build
-      - mkdir -p $CACHE_DIR
-      - if [ ! -f ${CACHE_FILE_CLIENT} ]; then docker save buckets/client:dev | gzip > ${CACHE_FILE_CLIENT}; fi
-      language: minimal
-    - stage: Tests
-      before_script:
-        - if [ -f ${CACHE_FILE_API} ]; then gunzip -c ${CACHE_FILE_API} | docker load; fi
-        - if [ -f ${CACHE_FILE_CLIENT} ]; then gunzip -c ${CACHE_FILE_CLIENT} | docker load; fi
-      script:
-        - make up
-        - make api-test
-        - make api-coverage
-      language: minimal
-    - script: make up && make client-test
-      language: minimal
+before_script:
+  - make ci-cache-recover
+
+script:
+  - make build
+  - make up
+  - make test
+
+after_success:
+  - make coverage 
+  - make ci-cache-save
+

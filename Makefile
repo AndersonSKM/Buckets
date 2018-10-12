@@ -2,65 +2,63 @@ PROJECT_NAME := buckets
 
 up:
 	docker-compose up -d
-	make health-check
-	make migrate
-	make collectstatic
+	make api-health-check
+	make api-migrate
+	make api-collectstatic
 
 stop:
 	docker-compose stop
 
 build: client-build api-build
 
-api-build:
-	docker build --cache-from=$(PROJECT_NAME)/api:dev ./api/ -t $(PROJECT_NAME)/api:dev
+logs:
+	docker-compose logs --follow --tail=40 $(service)
 
-client-build:
-	docker build --cache-from=$(PROJECT_NAME)/client:dev ./client/ -t $(PROJECT_NAME)/client:dev
-
-push-api-image:
-	make push image=api:dev
-
-push-client-image:
-	make push image=client:dev
-
-push:
-	docker login -u $(DOCKER_USER) -p $(DOCKER_PASS)
-	docker push $(PROJECT_NAME)/$(image)
+sh:
+	docker-compose exec $(service) sh
 
 test: api-test client-test
 
+coverage:
+	docker-compose exec api sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov -Z"
+
+ci-cache-save:
+	docker save $(docker history -q ${PROJECT_NAME}/api:dev | grep -v '<missing>') | gzip > ${CACHE_FILE_API}
+	docker save $(docker history -q ${PROJECT_NAME}/client:dev | grep -v '<missing>') | gzip > ${CACHE_FILE_CLIENT}
+
+ci-cache-recover:
+	ifeq (,$(wildcard ${CACHE_FILE_API})
+		gunzip -c ${CACHE_FILE_API} | docker load 
+	endif
+	ifeq (,$(wildcard ${CACHE_FILE_CLIENT})
+		gunzip -c ${CACHE_FILE_CLIENT} | docker load 
+	endif
+
+# API Commands ----------------------------------------------------------------------------------------------------
+
+api-build:
+	docker build ./api/ -t $(PROJECT_NAME)/api:dev
+
 api-test: clean pytest lint
 
-client-test:
-	docker-compose exec client yarn test:unit
-
-api-coverage:
-	make codecov container=api
-
-client-coverage:
-	make codecov container=client
-
-codecov:
-	docker-compose exec $(container) sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov -Z"
-
-pytest:
+api-pytest:
 	docker-compose exec api pytest
 
-lint: flake isort
+api-lint: api-flake api-isort
 
-flake:
+api-flake:
 	docker-compose exec api flake8
 
-isort:
+api-isort:
 	docker-compose exec api isort --check --diff -tc -rc .
 
-fix-imports:
+api-fix-imports:
 	docker-compose exec api isort -tc -rc .
 
-outdated:
+api-outdated:
 	docker-compose exec api pip3 list --outdated --format=columns
 
-clean:
+api-clean:
 	$(info Cleaning directories)
 	@docker-compose exec api sh -c "find . -name "*.pyo" | xargs rm -rf"
 	@docker-compose exec api sh -c "find . -name "*.cache" | xargs rm -rf"
@@ -69,20 +67,24 @@ clean:
 	@docker-compose exec api sh -c "find . -name ".pytest_cache" -type d | xargs rm -rf"
 	@docker-compose exec api sh -c "rm -f .coverage && rm -rf coverage/"
 
-health-check:
+api-health-check:
 	@docker-compose exec api /bin/sh /app/health-check.sh
 
-migrate:
+api-migrate:
 	@docker-compose exec api python3 manage.py migrate --noinput
 
-makemigrations:
+api-makemigrations:
 	@docker-compose exec api python3 manage.py makemigrations
 
-collectstatic:
+api-collectstatic:
 	@docker-compose exec api python3 manage.py collectstatic --noinput
 
-logs:
-	docker-compose logs --follow --tail=40 $(t)
+# Client Commands --------------------------------------------------------------------------
 
-sh:
-	docker-compose exec $(t) sh
+client-build:
+	docker build ./client/ -t $(PROJECT_NAME)/client:dev
+
+client-test: client-unit
+
+client-unit:
+	docker-compose exec client yarn test:unit
