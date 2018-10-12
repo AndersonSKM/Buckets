@@ -16,11 +16,11 @@ const Auth = {
   },
   getters: {
     isAuthenticated: (state, getters) => {
-      return (state.token !== '') && getters.isExpiredToken()
+      return (state.token !== '') && getters.isExpiredToken
     },
     isExpiredToken: (state, getters) => {
       const fiveteenMinutesInSeconds = 900
-      const decodedToken = getters.decodedToken()
+      const decodedToken = getters.decodedToken
 
       return (decodedToken.exp - (Date.now() / 1000)) < fiveteenMinutesInSeconds
     },
@@ -28,6 +28,11 @@ const Auth = {
       return jwt.decode(state.token)
     },
     canRefreshToken: (state, getters) => {
+      if (!getters.isAuthenticated) {
+        return false
+      }
+
+      const thirteenMinutesInSeconds = 780
       const twoDaysInSeconds = 172800
       const decodedToken = getters.decodedToken
 
@@ -36,25 +41,24 @@ const Auth = {
   },
   actions: {
     async obtainToken ({ commit }, credentials) {
-      console.log(process.env)
-      const response = await api.post('tokens/', credentials)
+      const response = await api().post('tokens/', credentials)
+
       if (response.status === 200) {
         commit('setToken', response.data.token)
       }
 
       return response
     },
-    tryRefreshToken ({ getters, actions }) {
-      console.log('tryRefreshToken')
-      if (!getters.canRefreshToken()) {
+    async tryRefreshToken ({ getters, dispatch }) {
+      if (!getters.canRefreshToken) {
         return
       }
 
-      actions.refreshToken()
+      await dispatch('refreshToken')
     },
     async refreshToken ({ state, commit }) {
       try {
-        const response = await api.post('tokens/refresh/', { token: state.token })
+        const response = await api().post('tokens/refresh/', { token: state.token })
 
         if (response.status === 200) {
           commit('setToken', response.data.token)
