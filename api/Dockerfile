@@ -23,7 +23,7 @@ COPY . /app
 WORKDIR /app
 
 RUN chmod +x /app/run.sh
-RUN chmod +x /app/health-check.sh
+RUN chmod +x /app/release.sh
 
 ENV PORT=8000
 EXPOSE ${PORT}

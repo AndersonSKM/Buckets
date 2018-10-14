@@ -1,6 +1,4 @@
 release:
-  command: |
-    ./health-check.sh &&
-    python3 manage.py migrate --noinput &&
-    python3 manage.py collectstatic --noinput
+  command:
+    - ./release.sh
   image: api
