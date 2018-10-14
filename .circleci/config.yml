@@ -53,12 +53,7 @@ jobs:
           name: Deploy API image on Heroku
           command: |
             if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
-              docker login --username=_ --password=$HEROKU_API_KEY registry.heroku.com
-              docker tag buckets/api:dev registry.heroku.com/$HEROKU_APP_NAME/api
-              docker push registry.heroku.com/$HEROKU_APP_NAME/api
-              curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
-              heroku container:login
-              heroku container:release --app=$HEROKU_APP_NAME api
+              git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP.git master
             fi
 
 workflows:

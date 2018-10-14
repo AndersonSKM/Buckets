@@ -1,4 +1,10 @@
+build:
+  docker:
+    api: api/Dockerfile
 release:
   command:
-    - ./release.sh
+    - python3 manage.py collectstatic --noinput
+    - python3 manage.py migrate --noinput
   image: api
+run:
+  api: /usr/local/bin/gunicorn api.wsgi -b 0.0.0.0:${PORT}
