@@ -58,7 +58,7 @@ jobs:
               docker push registry.heroku.com/$HEROKU_APP_NAME/api
               curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
               heroku container:login
-              heroku container:release --app=$HEROKU_APP_NAME
+              heroku container:release --app=$HEROKU_APP_NAME api
             fi
 
 workflows:
