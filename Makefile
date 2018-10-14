@@ -2,9 +2,7 @@ PROJECT_NAME := buckets
 
 up:
 	docker-compose up -d
-	make api-health-check
-	make api-migrate
-	make api-collectstatic
+	make api-release
 
 stop:
 	docker-compose stop
@@ -55,8 +53,8 @@ api-clean:
 	@docker-compose exec api sh -c "find . -name ".pytest_cache" -type d | xargs rm -rf"
 	@docker-compose exec api sh -c "rm -f .coverage && rm -rf coverage/"
 
-api-health-check:
-	@docker-compose exec api /bin/sh /app/health-check.sh
+api-release:
+	@docker-compose exec api /bin/sh /app/release.sh
 
 api-migrate:
 	@docker-compose exec api python3 manage.py migrate --noinput
