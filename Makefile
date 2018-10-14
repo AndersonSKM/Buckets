@@ -2,7 +2,8 @@ PROJECT_NAME := buckets
 
 up:
 	docker-compose up -d
-	make api-release
+	make api-health-check
+	make api-migrate
 
 stop:
 	docker-compose stop
@@ -53,8 +54,8 @@ api-clean:
 	@docker-compose exec api sh -c "find . -name ".pytest_cache" -type d | xargs rm -rf"
 	@docker-compose exec api sh -c "rm -f .coverage && rm -rf coverage/"
 
-api-release:
-	@docker-compose exec api /bin/sh /app/release.sh
+api-health-check:
+	@docker-compose exec api curl -sS --retry 10 --retry-max-time 30 --retry-connrefused http://0.0.0.0:8000/api/health-check/
 
 api-migrate:
 	@docker-compose exec api python3 manage.py migrate --noinput
