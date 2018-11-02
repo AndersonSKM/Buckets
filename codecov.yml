@@ -9,5 +9,8 @@ coverage:
   range: 95..100
   round: down
   precision: 2
+    fixes:
+    - "/api/::api/"
+    - "/client/::client/"
 
 comment: off
