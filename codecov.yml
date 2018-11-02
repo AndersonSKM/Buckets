@@ -10,6 +10,11 @@ coverage:
   round: down
   precision: 2
   fixes:
-    - "/app/*::api/*"
-    - "/client/src/*::client/src/*"
+    - "api/::api/api"
+    - "accounts/::api/accounts/"
+    - "core/::api/core/"
+    - "src/::client/src/"
+    - "src/stores/::client/src/stores"
+    - "src/views/::client/src/views"
+    - "src/plugins/::client/src/plugins"
 comment: off
