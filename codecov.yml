@@ -10,7 +10,7 @@ coverage:
   round: down
   precision: 2
     fixes:
-    - "/api/::api/"
-    - "/client/::client/"
+    - "/api/*::api/"
+    - "/client/*::client/"
 
 comment: off
