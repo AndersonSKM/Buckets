@@ -3,7 +3,7 @@
     <v-layout align-center justify-center mb-5>
       <v-flex xs12 sm8 md6 lg3>
         <p class="text-xs-center display-1 font-weight-thin">{{ $t('application.name') }}</p>
-        <v-form @submit.prevent="login">
+        <v-form>
           <v-layout align-center justify-space-around wrap fill-height mb-3>
             <v-avatar size="150" >
               <v-img
@@ -15,12 +15,13 @@
           <p class="text-xs-center title font-weight-light">{{ $t('sign-in.label') }}</p>
           <v-layout align-center mt-3 mb-3 ml-4>
           <ul>
-            <li class="title font-weight-light red--text" v-for="(error, index) in errors" :key="index">
+            <li class="title font-weight-light red--text" v-for="(error, index) in form_errors" :key="index">
               {{error}}
             </li>
           </ul>
           </v-layout>
           <v-text-field
+            id="email"
             prepend-icon="person"
             name="login"
             label="E-mail"
@@ -29,8 +30,9 @@
             autofocus
             required
             v-model="email"
-            @input="$v.email.$touch()"
-            v-bind:error-messages="emailErrors">
+            v-validate="'required|email'"
+            data-vv-name="email"
+            :error-messages="errors.first('email')">
           </v-text-field>
           <v-text-field
             id="password"
@@ -41,11 +43,12 @@
             ref="password"
             required
             v-model="password"
-            @input="$v.password.$touch()"
-            v-bind:error-messages="passwordErrors">
+            v-validate="'required'"
+            data-vv-name="password"
+            :error-messages="errors.first('password')">
           </v-text-field>
           <v-layout row mt-2>
-            <v-btn type="submit" round large block color="secondary" dark>
+            <v-btn id="btn-submit" type="submit" round large block color="secondary" dark @click="login">
               <v-layout row justify-space-between>
                 <v-flex xs2></v-flex><v-flex xs2>{{ $t('sign-in.login') }}</v-flex>
                 <v-flex xs2>
@@ -69,70 +72,34 @@
 </template>
 
 <script>
-import { validationMixin } from 'vuelidate'
-import { required, email } from 'vuelidate/lib/validators'
-
 export default {
-  mixins: [validationMixin],
   name: 'SigIn',
-
-  validations: {
-    email: { required, email },
-    password: { required }
-  },
 
   data () {
     return {
       email: '',
       password: '',
-      errors: []
-    }
-  },
-
-  computed: {
-    emailErrors () {
-      const errors = []
-
-      if (!this.$v.email.$dirty) {
-        return errors
-      }
-
-      !this.$v.email.email && errors.push('Must be valid e-mail')
-      !this.$v.email.required && errors.push('E-mail is required')
-      return errors
-    },
-    passwordErrors () {
-      const errors = []
-
-      if (!this.$v.password.$dirty) {
-        return errors
-      }
-
-      !this.$v.password.required && errors.push('Password is required.')
-      return errors
+      form_errors: []
     }
   },
 
   methods: {
     async login (submitEvent) {
-      this.$v.$touch()
-      if (this.$v.$invalid) {
+      if (!await this.$validator.validateAll()) {
         return
       }
 
       try {
-        const response = await this.$store.dispatch('auth/obtainToken', {
+        await this.$store.dispatch('auth/obtainToken', {
           email: this.email,
           password: this.password
         })
 
-        if (response.status === 200) {
-          this.$router.push('/home')
-        }
+        this.$router.push('/home')
       } catch (error) {
-        this.errors = []
+        console.log(error)
         if (error.response.data) {
-          this.errors = error.response.data['non_field_errors'] || []
+          this.form_errors = error.response.data['non_field_errors'] || []
         }
       }
     }

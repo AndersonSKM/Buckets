@@ -20,6 +20,7 @@ test: api-test client-test
 
 coverage:
 	docker-compose exec api sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov -Z"
+	docker-compose exec client sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov -Z"
 
 # API Commands ----------------------------------------------------------------------------------------------------
 
@@ -71,7 +72,13 @@ api-collectstatic:
 client-build:
 	docker build ./client/ -t $(PROJECT_NAME)/client:dev
 
-client-test: client-unit
+client-test: client-lint client-unit
 
 client-unit:
 	docker-compose exec client yarn test:unit
+
+client-lint:
+	docker-compose exec client yarn lint
+
+client-lint-fix:
+	docker-compose exec client yarn lint:fix

@@ -6,11 +6,11 @@ import router from './router'
 import store from './store'
 import './registerServiceWorker'
 import i18n from './i18n'
-import Vuelidate from 'vuelidate'
+import VeeValidate from 'vee-validate'
 
 Vue.config.productionTip = false
 
-Vue.use(Vuelidate)
+Vue.use(VeeValidate)
 
 new Vue({
   router,
