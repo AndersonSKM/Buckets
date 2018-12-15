@@ -22,6 +22,7 @@ jobs:
               echo "REDIS_URL=$REDIS_URL" >> .env
               echo "VUE_APP_API_URL=$VUE_APP_API_URL" >> .env
               echo "CODECOV_TOKEN=$CODECOV_TOKEN" >> .env
+              echo "CYPRESS_RECORD_KEY=$CYPRESS_RECORD_KEY" >> .env
 
               echo "CI=$CI" >> .env
               echo "CIRCLECI=$CIRCLECI" >> .env

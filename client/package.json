@@ -108,6 +108,7 @@
     ]
   },
   "vue": {
+    "assetsDir": "static",
     "devServer": {
       "hot": true,
       "progress": true,

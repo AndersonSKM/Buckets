@@ -5,10 +5,15 @@
   "globals": {
     "password": "Password"
   },
-  "sign-in": {
+  "sign-in-view": {
     "label": "Sign in",
     "login": "Login",
     "forgot-your-password": "Forgot your password?",
     "dont-have-an-account": "Don't have an account?"
+  },
+  "password-forgot-view": {
+    "label": "Reset your password",
+    "submit": "Submit",
+    "try-sign-in": "Try to sign in again."
   }
 }

@@ -94,7 +94,7 @@ ROOT_URLCONF = 'api.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['/public/'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -125,7 +125,7 @@ DATABASES = {
 
 CACHES = {
     'default': {
-        'BACKEND': 'redis_cache.RedisCache',
+        'BACKEND': 'django_redis.cache.RedisCache',
         'LOCATION': os.environ['REDIS_URL'],
     }
 }
@@ -176,7 +176,8 @@ SITE_ID = 1
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/static/'
+STATIC_ROOT = os.path.join('/public/', 'static')
+STATICFILES_DIRS = []
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # MEDIA CONFIGURATION
@@ -217,6 +218,7 @@ REST_FRAMEWORK = {
         'anon': '20/minute',
         'user': '120/minute',
     },
+    'EXCEPTION_HANDLER': 'core.exceptions.exception_handler',
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     'PAGE_SIZE': 50
 }
@@ -225,6 +227,7 @@ JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(minutes=15),
     'JWT_ALLOW_REFRESH': True,
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(hours=4),
+    'JWT_RESPONSE_PAYLOAD_HANDLER': 'accounts.serializers.jwt_response_payload_handler'
 }
 
 # Email
@@ -250,3 +253,38 @@ USER_PASSWORD_RESET_URI = os.environ.get('USER_PASSWORD_RESET_URI', None)
 
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = os.environ.get('CORS_ORIGIN_WHITELIST', '').split()
+
+# LOGGING
+# ------------------------------------------------------------------------------
+
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'console': {
+            'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'console',
+            'level': LOG_LEVEL,
+        },
+    },
+    'loggers': {
+        '': {
+            'level': LOG_LEVEL,
+            'handlers': ['console'],
+        },
+        'django': {
+            'level': LOG_LEVEL,
+            'handlers': ['console'],
+        },
+        'gunicorn': {
+            'level': LOG_LEVEL,
+            'handlers': ['console'],
+        }
+    }
+}

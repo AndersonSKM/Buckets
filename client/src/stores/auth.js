@@ -18,13 +18,13 @@ const getters = {
   isAuthenticated: (state, getters) => {
     return (state.token !== '') && !getters.isExpiredToken
   },
-  isExpiredToken: (getters) => {
+  isExpiredToken: (state, getters) => {
     const token = getters.decodedToken
     if (!token) {
       return true
     }
 
-    return token.exp < Date.now()
+    return Date.now() > token.exp
   },
   decodedToken: (state) => {
     if (!state.token) {
@@ -38,7 +38,7 @@ const getters = {
       exp: token.exp * 1000
     }
   },
-  canRefreshToken: (getters) => {
+  canRefreshToken: (state, getters) => {
     const token = getters.decodedToken
     if (!token) {
       return false

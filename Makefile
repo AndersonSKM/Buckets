@@ -1,3 +1,7 @@
+#!make
+include .env
+export $(shell sed 's/=.*//' .env)
+
 PROJECT_NAME := buckets
 
 up:
@@ -70,12 +74,16 @@ api-collectstatic:
 # Client Commands --------------------------------------------------------------------------
 
 client-build:
-	docker build ./client/ -t $(PROJECT_NAME)/client:dev
+	docker build --build-arg api_url=$(VUE_APP_API_URL) ./client/ -t $(PROJECT_NAME)/client:dev
 
-client-test: client-lint client-unit
+client-test: client-lint client-unit client-e2e
 
 client-unit:
 	docker-compose exec client yarn test:unit
+
+client-e2e:
+	@if [ "$(CI)" = "true" ]; then FLAGS := --record; fi
+	docker-compose run --rm -e VUE_APP_API_URL=http://api:8000/api/ client yarn test:e2e $(FLAGS)
 
 client-lint:
 	docker-compose exec client yarn lint

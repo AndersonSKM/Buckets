@@ -6,7 +6,22 @@ from mock import patch
 from rest_framework import status
 
 from accounts.models import User
+from accounts.serializers import UserSerializer
 from accounts.utils import encode_user_uuid, user_activation_token
+
+
+@pytest.fixture
+def user_data():
+    return {
+        'url': 'http://testserver/api/users/4af5528b-0b75-44d9-aaf4-995f7f0849e3/',
+        'pk': '4af5528b-0b75-44d9-aaf4-995f7f0849e3',
+        'email': 'bruce@we.com',
+        'first_name': 'Bruce',
+        'last_name': 'Wayne',
+        'is_active': True,
+        'created_at': '2018-01-04T13:30:55Z',
+        'updated_at': '2018-01-04T13:30:55Z',
+    }
 
 
 @pytest.mark.django_db
@@ -23,7 +38,7 @@ class TestUsersApiCreateIntegration:
 
     @pytest.fixture()
     def url(self):
-        return reverse('auth:users-list')
+        return reverse('accounts:users-list')
 
     def test_anonymous_user(self, anonymous_client, url, data, mailoutbox):
         response = anonymous_client.post(path=url, data=data)
@@ -34,7 +49,7 @@ class TestUsersApiCreateIntegration:
         assert not user.is_active
         assert len(mailoutbox) == 1
 
-    @patch('accounts.views.send_user_activation_email')
+    @patch('accounts.managers.UserManager.send_activation_email')
     def test_send_email_fail(self, send_email, anonymous_client, url, data):
         send_email.side_effect = Exception("Error to send email")
         response = anonymous_client.post(path=url, data=data)
@@ -57,19 +72,62 @@ class TestUsersApiCreateIntegration:
         response = anonymous_client.post(path=url, data=data)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data['password'] and len(response.data['password']) > 0
+        assert len(response.data['non_field_errors']) > 0
         assert not User.objects.get_or_none(email=data['email'])
+
+
+@pytest.mark.django_db
+@pytest.mark.freeze_time('2018-01-04 13:30:55')
+class TestUsersApiRetrieveIntegration:
+    @pytest.fixture()
+    def url(self):
+        return reverse(
+            'accounts:users-detail',
+            kwargs={'pk': '4af5528b-0b75-44d9-aaf4-995f7f0849e3'}
+        )
+
+    @pytest.fixture()
+    def data(self):
+        return {
+            'url': 'http://testserver/api/users/4af5528b-0b75-44d9-aaf4-995f7f0849e3/',
+            'pk': '4af5528b-0b75-44d9-aaf4-995f7f0849e3',
+            'email': 'bruce@we.com',
+            'first_name': 'Bruce',
+            'last_name': 'Wayne',
+            'is_active': True,
+            'created_at': '2018-01-04T13:30:55Z',
+            'updated_at': '2018-01-04T13:30:55Z',
+        }
+
+    def test_retrieve_self_instance(self, anonymous_client, url, data, jwt):
+        user = mixer.blend(User, **data)
+
+        token = jwt(user)
+        anonymous_client.credentials(HTTP_AUTHORIZATION=f'JWT {token}')
+        response = anonymous_client.get(path=url)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == data
+
+    def test_retrieve_other_user(self, client, url, data):
+        mixer.blend(User, **data)
+        response = client.get(path=url)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_anonymous_user(self, anonymous_client, url):
+        response = anonymous_client.get(path=url)
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 @pytest.mark.django_db
 class TestUsersApiUpdateIntegration:
     @pytest.fixture()
     def url(self, user):
-        return reverse('auth:users-detail', kwargs={'pk': user.pk})
+        return reverse('accounts:users-detail', kwargs={'pk': user.pk})
 
     def test_update_other_record(self, client):
         user = mixer.blend(User, first_name='Bruce')
-        url = reverse('auth:users-detail', kwargs={'pk': user.pk})
+        url = reverse('accounts:users-detail', kwargs={'pk': user.pk})
         response = client.patch(path=url, data={'first_name': 'Batman'})
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -106,7 +164,7 @@ class TestUsersApiUpdateIntegration:
 class TestUsersApiDeleteIntegration:
     @pytest.fixture()
     def url(self, user):
-        return reverse('auth:users-detail', kwargs={'pk': user.pk})
+        return reverse('accounts:users-detail', kwargs={'pk': user.pk})
 
     def test_delete_self_record(self, client, url, user):
         response = client.delete(path=url, follow=True)
@@ -116,7 +174,7 @@ class TestUsersApiDeleteIntegration:
 
     def test_delete_other_record(self, client):
         user = mixer.blend(User)
-        url = reverse('auth:users-detail', kwargs={'pk': user.pk})
+        url = reverse('accounts:users-detail', kwargs={'pk': user.pk})
         response = client.delete(path=url, follow=True)
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -127,56 +185,10 @@ class TestUsersApiDeleteIntegration:
 
 
 @pytest.mark.django_db
-@pytest.mark.freeze_time('2018-01-04 13:30:55')
-class TestUsersApiRetrieveIntegration:
-    @pytest.fixture()
-    def url(self):
-        return reverse(
-            'auth:users-detail',
-            kwargs={'pk': '4af5528b-0b75-44d9-aaf4-995f7f0849e3'}
-        )
-
-    @pytest.fixture()
-    def data(self):
-        return {
-            'uri': 'http://testserver/api/users/4af5528b-0b75-44d9-aaf4-995f7f0849e3/',
-            'pk': '4af5528b-0b75-44d9-aaf4-995f7f0849e3',
-            'email': 'bruce@we.com',
-            'first_name': 'Bruce',
-            'last_name': 'Wayne',
-            'is_staff': False,
-            'is_superuser': False,
-            'is_active': True,
-            'last_login': None,
-            'created_at': '2018-01-04T13:30:55Z',
-            'updated_at': '2018-01-04T13:30:55Z',
-        }
-
-    def test_retrieve_self_instance(self, anonymous_client, url, data, jwt):
-        user = mixer.blend(User, **data)
-
-        token = jwt(user)
-        anonymous_client.credentials(HTTP_AUTHORIZATION=f'JWT {token}')
-        response = anonymous_client.get(path=url)
-
-        assert response.status_code == status.HTTP_200_OK
-        assert response.data == data
-
-    def test_retrieve_other_user(self, client, url, data):
-        mixer.blend(User, **data)
-        response = client.get(path=url)
-        assert response.status_code == status.HTTP_403_FORBIDDEN
-
-    def test_anonymous_user(self, anonymous_client, url):
-        response = anonymous_client.get(path=url)
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
-
-
-@pytest.mark.django_db
 class TestUsersApiActivateIntegration:
     @pytest.fixture
     def url(self):
-        return reverse('auth:users-activate')
+        return reverse('accounts:users-activate')
 
     def test_successful(self, anonymous_client, url):
         user = mixer.blend(User, is_active=False)
@@ -198,7 +210,7 @@ class TestUsersApiActivateIntegration:
         response = anonymous_client.post(path=url, data=data)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data['uuidb64'] == ["Invalid user id or user doesn't exist."]
+        assert response.data['non_field_errors'] == ["Invalid user id or user doesn't exist."]
 
     def test_invalid_token(self, anonymous_client, url, user):
         data = {
@@ -215,7 +227,7 @@ class TestUsersApiActivateIntegration:
 class TestUsersApiPasswordForgotIntegration:
     @pytest.fixture
     def url(self):
-        return reverse('auth:users-password-forgot')
+        return reverse('accounts:users-password-forgot')
 
     def test_successful(self, anonymous_client, url, user, mailoutbox):
         response = anonymous_client.post(path=url, data={'email': user.email})
@@ -227,14 +239,15 @@ class TestUsersApiPasswordForgotIntegration:
         response = anonymous_client.post(path=url, data={'email': 'fake@fake.com'})
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data['email'] == ["Invalid email or user doesn't exist."]
+        assert response.data['non_field_errors'] == ["Invalid email or user doesn't exist."]
         assert len(mailoutbox) == 0
 
-    @patch('accounts.views.send_user_password_reset_email')
+    @patch('accounts.managers.UserManager.send_password_reset_email')
     def test_send_email_fail(self, send_email, client, url, user):
         send_email.side_effect = Exception("Error to send email")
         response = client.post(path=url, data={'email': user.email})
 
+        assert send_email.called
         assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
         assert response.data['detail'] == "Error to send email"
 
@@ -243,7 +256,7 @@ class TestUsersApiPasswordForgotIntegration:
 class TestUsersApiPasswordResetIntegration:
     @pytest.fixture
     def url(self):
-        return reverse('auth:users-password-reset')
+        return reverse('accounts:users-password-reset')
 
     @pytest.fixture
     def data(self, user):
@@ -267,7 +280,7 @@ class TestUsersApiPasswordResetIntegration:
         response = anonymous_client.post(path=url, data=data)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert len(response.data['password']) > 1
+        assert len(response.data['non_field_errors']) > 1
 
     def test_invalid_passowrd_confirm(self, anonymous_client, url, data, user):
         data['password_confirm'] = 'invalid'
@@ -283,7 +296,7 @@ class TestUsersApiPasswordResetIntegration:
 class TestUsersApiChangePassowordIntegration:
     @pytest.fixture
     def url(self):
-        return reverse('auth:users-change-password')
+        return reverse('accounts:users-change-password')
 
     @pytest.fixture
     def data(self, user):
@@ -313,7 +326,7 @@ class TestUsersApiChangePassowordIntegration:
         user.refresh_from_db()
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data['current_password'] == ["Invalid current password."]
+        assert response.data['non_field_errors'] == ["Invalid current password."]
 
     def test_weak_password(self, client, url, data, user):
         data['password'] = 'qwerty'
@@ -322,7 +335,7 @@ class TestUsersApiChangePassowordIntegration:
         user.refresh_from_db()
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert len(response.data['password']) > 1
+        assert len(response.data['non_field_errors']) > 1
         assert not user.check_password(data['password'])
 
     def test_invalid_passowrd_confirm(self, client, url, data, user):
@@ -333,3 +346,74 @@ class TestUsersApiChangePassowordIntegration:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data['non_field_errors'] == ["Passwords don't match."]
         assert not user.check_password(data['password'])
+
+
+@pytest.mark.django_db
+class TestTokensApiObtainTokenIntegration:
+    @pytest.fixture
+    def user(self):
+        return User.objects.create_user(
+            email='superman@us.com',
+            password='secretPa$$123',
+            confirm='secretPa$$123'
+        )
+
+    @pytest.fixture
+    def url(self):
+        return reverse('accounts:obtain-token')
+
+    def test_obtain_token_invalid_credentials(self, url, anonymous_client):
+        response = anonymous_client.post(path=url, data={
+            'email': 'fake@fake.com',
+            'password': 'aslfoakf3'
+        })
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data['non_field_errors'] == [
+            'Unable to log in with provided credentials.'
+        ]
+
+    def test_obtain_token_inactive_user(self, url, user, anonymous_client):
+        response = anonymous_client.post(path=url, data={
+            'email': 'superman@us.com',
+            'password': 'secretPa$$123'
+        })
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data['non_field_errors'] == ["User account is disabled."]
+
+    @pytest.mark.freeze_time('2018-01-04 13:30:55')
+    def test_obtain_token_active_user(self, url, user, anonymous_client, jwt, serializer_context):
+        User.objects.activate(user=user)
+        response = anonymous_client.post(path=url, data={
+            'email': 'superman@us.com',
+            'password': 'secretPa$$123'
+        })
+        expected_data = UserSerializer(user, context=serializer_context).data
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['token'] == jwt(user)
+        assert response.data['user'] == expected_data
+
+
+@pytest.mark.django_db
+class TestTokensApiRefreshTokenIntegration:
+    @pytest.fixture
+    def url(self):
+        return reverse('accounts:refresh-token')
+
+    def test_refresh_token_invalid_data(self, jwt, user, url, anonymous_client):
+        response = anonymous_client.post(path=url, data={
+            'token': 'asdaosd1201k1do312mdkmm2im3rk213',
+        })
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data['non_field_errors'] == ['Error decoding signature.']
+
+    def test_refresh_token_valid_data(self, jwt, url, user, anonymous_client):
+        response = anonymous_client.post(path=url, data={
+            'token': jwt(user)
+        })
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['token'] == jwt(user)

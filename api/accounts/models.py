@@ -1,44 +1,9 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-from django.core.mail import send_mail
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from core.managers import AbstractBaseManager
+from accounts.managers import UserManager
 from core.models import AbstractBaseModel
-
-
-class UserManager(BaseUserManager, AbstractBaseManager):
-    use_in_migrations = True
-
-    def _create_user(self, email, password, is_staff, is_superuser, is_active, **kwargs):
-        if not email:
-            raise ValueError(_("Users must have an email address"))
-
-        user = self.model(
-            email=self.normalize_email(email),
-            is_staff=is_staff,
-            is_active=is_active,
-            is_superuser=is_superuser,
-            **kwargs
-        )
-
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_user(self, email, password, is_staff=False, **kwargs):
-        return self._create_user(email, password, is_staff, False, False, **kwargs)
-
-    def create_superuser(self, email, password, **kwargs):
-        return self._create_user(email, password, True, True, True, **kwargs)
-
-    def active(self, **kwargs):
-        kwargs['is_active'] = True
-        return self.get_queryset().filter(**kwargs)
-
-    def get_active_or_none(self, **kwargs):
-        kwargs['is_active'] = True
-        return self.get_or_none(**kwargs)
 
 
 class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
@@ -74,12 +39,3 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
 
     def get_short_name(self):
         return self.first_name
-
-    def email_user(self, subject, message, from_email=None, **kwargs):
-        send_mail(subject, message, from_email, [self.email], **kwargs)
-
-    def activate(self):
-        if self.is_active:
-            return
-        self.is_active = True
-        self.save()

@@ -26,4 +26,9 @@ COPY . /client
 
 EXPOSE 8080
 
+ARG api_url
+ENV VUE_APP_API_URL=$api_url
+
+RUN yarn build
+
 CMD ["yarn", "serve"]

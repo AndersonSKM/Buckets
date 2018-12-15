@@ -3,7 +3,7 @@
     <v-layout align-center justify-center mb-5>
       <v-flex xs12 sm8 md6 lg3>
         <p class="text-xs-center display-1 font-weight-thin">{{ $t('application.name') }}</p>
-        <v-form>
+        <v-form @submit.prevent="login" ref="form" data-ref="form">
           <v-layout align-center justify-space-around wrap fill-height mb-3>
             <v-avatar size="150" >
               <v-img
@@ -12,21 +12,24 @@
               />
             </v-avatar>
           </v-layout>
-          <p class="text-xs-center title font-weight-light">{{ $t('sign-in.label') }}</p>
+          <p
+            data-ref="greeting-label"
+            class="text-xs-center title font-weight-light">
+            {{ $t('sign-in-view.label') }}
+          </p>
           <v-layout align-center mt-3 mb-3 ml-4>
-          <ul>
+          <ul data-ref="error-list">
             <li class="title font-weight-light red--text" v-for="(error, index) in form_errors" :key="index">
               {{error}}
             </li>
           </ul>
           </v-layout>
           <v-text-field
-            id="email"
             prepend-icon="person"
-            name="login"
             label="E-mail"
             type="text"
             ref="email"
+            data-ref="email"
             autofocus
             required
             v-model="email"
@@ -35,12 +38,11 @@
             :error-messages="errors.first('email')">
           </v-text-field>
           <v-text-field
-            id="password"
             prepend-icon="lock"
-            name="password"
             v-bind:label="$t('globals.password')"
             type="password"
             ref="password"
+            data-ref="password"
             required
             v-model="password"
             v-validate="'required'"
@@ -48,9 +50,9 @@
             :error-messages="errors.first('password')">
           </v-text-field>
           <v-layout row mt-2>
-            <v-btn id="btn-submit" type="submit" round large block color="secondary" dark @click="login">
+            <v-btn type="submit" round large block color="secondary" data-ref="submit" dark>
               <v-layout row justify-space-between>
-                <v-flex xs2></v-flex><v-flex xs2>{{ $t('sign-in.login') }}</v-flex>
+                <v-flex xs2></v-flex><v-flex xs2>{{ $t('sign-in-view.login') }}</v-flex>
                 <v-flex xs2>
                   <v-icon class="material-icons" right>keyboard_arrow_right</v-icon>
                 </v-flex>
@@ -60,10 +62,12 @@
         </v-form>
         <v-layout justify-space-between row fill-height mt-3>
           <p class="subheading font-weight-light grey--text" role="button">
-            <u>{{ $t('sign-in.forgot-your-password') }}</u>
+            <router-link to="/password-forgot" data-ref="password-forgot">
+              <u>{{ $t('sign-in-view.forgot-your-password') }}</u>
+            </router-link>
           </p>
           <p class="subheading font-weight-light grey--text" role="button">
-            <u>{{ $t('sign-in.dont-have-an-account') }}</u>
+            <u>{{ $t('sign-in-view.dont-have-an-account') }}</u>
           </p>
         </v-layout>
       </v-flex>
@@ -73,7 +77,7 @@
 
 <script>
 export default {
-  name: 'SigIn',
+  name: 'SigInView',
 
   data () {
     return {
@@ -84,7 +88,9 @@ export default {
   },
 
   methods: {
-    async login (submitEvent) {
+    async login () {
+      this.form_errors = []
+
       if (!await this.$validator.validateAll()) {
         return
       }
@@ -98,10 +104,17 @@ export default {
         this.$router.push('/home')
       } catch (error) {
         console.log(error)
+
         if (error.response.data) {
           this.form_errors = error.response.data['non_field_errors'] || []
         }
       }
+
+      this.resetForm()
+    },
+    resetForm () {
+      this.$refs.form.reset()
+      this.$refs.email.focus()
     }
   }
 }

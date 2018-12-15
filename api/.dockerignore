@@ -1,0 +1,6 @@
+Dockerfile
+coverage
+dist
+.coverage
+.pytest_cache
+__pycache__
