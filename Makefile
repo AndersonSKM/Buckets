@@ -3,6 +3,7 @@ include .env
 export $(shell sed 's/=.*//' .env)
 
 PROJECT_NAME := buckets
+FLAGS :=
 
 up:
 	docker-compose up -d
@@ -82,8 +83,7 @@ client-unit:
 	docker-compose exec client yarn test:unit
 
 client-e2e:
-	@if [ "$(CI)" = "true" ]; then FLAGS := --record; fi
-	docker-compose run --rm -e VUE_APP_API_URL=http://api:8000/api/ client yarn test:e2e $(FLAGS)
+	docker-compose run --rm -e VUE_APP_API_URL=http://api:8000/api/ client yarn test:e2e --record
 
 client-lint:
 	docker-compose exec client yarn lint
