@@ -2,6 +2,7 @@ import datetime
 import os
 
 import dj_database_url
+from prettyconf import config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -10,18 +11,18 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # ------------------------------------------------------------------------------
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY = os.environ['SECRET_KEY']
+SECRET_KEY = config('SECRET_KEY')
 
 # DEBUG
 # ------------------------------------------------------------------------------
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = os.environ.get('DEBUG', False) == 'True'
+DEBUG = config('DEBUG', default=False, cast=config.boolean)
 
 # ALLOWED_HOSTS
 # ------------------------------------------------------------------------------
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split()
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=['*',], cast=config.list)
 
 # AUTH
 # ------------------------------------------------------------------------------
@@ -126,7 +127,7 @@ DATABASES = {
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': os.environ['REDIS_URL'],
+        'LOCATION': config('REDIS_URL'),
     }
 }
 
@@ -160,15 +161,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
-
 SITE_ID = 1
 
 # STATIC FILE CONFIGURATION
@@ -233,31 +229,31 @@ JWT_AUTH = {
 # Email
 # ------------------------------------------------------------------------------
 
-EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST', None)
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', None)
-EMAIL_HOST = os.environ.get('EMAIL_BACKEND', None)
-EMAIL_PORT = os.environ.get('EMAIL_PORT', 587)
-EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST_USER = config('EMAIL_HOST', default=None)
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default=None)
+EMAIL_HOST = config('EMAIL_BACKEND', default=None)
+EMAIL_PORT = config('EMAIL_PORT', default=587)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=config.boolean)
 
 # Client Application URI's
 # Should be a string like this 'https://myapp.com/user-activation/{uuidb64}/{token}/'
 # The {uuidb64} and {token} will be replaced
 # ------------------------------------------------------------------------------
 
-USER_ACTIVATION_URI = os.environ.get('USER_ACTIVATION_URI', None)
-USER_PASSWORD_RESET_URI = os.environ.get('USER_PASSWORD_RESET_URI', None)
+USER_ACTIVATION_URI = config('USER_ACTIVATION_URI', default=None)
+USER_PASSWORD_RESET_URI = config('USER_PASSWORD_RESET_URI', default=None)
 
 # CORS
 # ------------------------------------------------------------------------------
 
 CORS_ORIGIN_ALLOW_ALL = False
-CORS_ORIGIN_WHITELIST = os.environ.get('CORS_ORIGIN_WHITELIST', '').split()
+CORS_ORIGIN_WHITELIST = config('CORS_ORIGIN_WHITELIST', default=[], cast=config.list)
 
 # LOGGING
 # ------------------------------------------------------------------------------
 
-LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
+LOG_LEVEL = config('LOG_LEVEL', default='INFO').upper()
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
