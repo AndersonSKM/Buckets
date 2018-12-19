@@ -15,11 +15,25 @@ from core.managers import AbstractBaseManager
 class UserManager(BaseUserManager, AbstractBaseManager):
     use_in_migrations = True
 
-    def create_user(self, email, password, confirm, is_staff=False, **kwargs):
-        return self._create_user(email, password, confirm, is_staff, False, **kwargs)
+    def create_user(self, email, password, confirm, **kwargs):
+        kwargs['is_staff'] = False
+        kwargs['is_superuser'] = False
+        return self._create_user(
+            email=email,
+            password=password,
+            confirm=confirm,
+            **kwargs
+        )
 
     def create_superuser(self, email, password, confirm, **kwargs):
-        return self._create_user(email, password, confirm, True, True, **kwargs)
+        kwargs['is_staff'] = True
+        kwargs['is_superuser'] = True
+        return self._create_user(
+            email=email,
+            password=password,
+            confirm=confirm,
+            **kwargs
+        )
 
     def change_current_password(self, user, current_password, password, confirm):
         if not user.check_password(current_password):
@@ -109,11 +123,9 @@ class UserManager(BaseUserManager, AbstractBaseManager):
             return None
 
     @transaction.atomic
-    def _create_user(self, email, password, confirm, is_staff, is_superuser, **kwargs):
+    def _create_user(self, email, password, confirm, **kwargs):
         user = self.model(
             email=self.normalize_email(email),
-            is_staff=is_staff,
-            is_superuser=is_superuser,
             is_active=False,
             **kwargs
         )
@@ -122,7 +134,6 @@ class UserManager(BaseUserManager, AbstractBaseManager):
             self.activate(user=user, commit=False)
 
         self.update_password(user=user, password=password, confirm=confirm, commit=False)
-
         if not user.is_active:
             self.send_activation_email(user=user)
 

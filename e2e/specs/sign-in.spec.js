@@ -1,5 +1,3 @@
-var jwt = require('jsonwebtoken')
-
 describe('/sign-in', () => {
   it('redirects to sign in view when acess the root url', () => {
     cy.visit('/')
@@ -46,37 +44,6 @@ describe('/sign-in', () => {
         .should('have.value', '')
       cy.get('ul[data-ref=error-list] li:first')
         .should('contain', 'Unable to log in with provided credentials')
-    })
-  })
-
-  it('redirects to the home page after sucessfull login', () => {
-    cy.visit('/sign-in')
-
-    const token = jwt.sign({
-      orig_iat: Math.floor(Date.now() / 1000)
-    }, 'secret', {
-      expiresIn: '1h'
-    })
-
-    cy.server()
-    cy.route({
-      method: 'POST',
-      url: '**/api/tokens/',
-      status: 200,
-      response: {
-        'token': token
-      }
-    })
-
-    cy.get('form[data-ref=form]').within(() => {
-      cy.get('input[data-ref=email]')
-        .type('test@test.com')
-      cy.get('input[data-ref=password]')
-        .type('secretpassword')
-      cy.get('button[data-ref=submit]')
-        .click()
-      cy.url()
-        .should('contain', '/home')
     })
   })
 })

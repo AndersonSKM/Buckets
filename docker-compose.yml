@@ -39,11 +39,24 @@ services:
     container_name: client
     restart: always
     env_file: ./.env
+    depends_on:
+      - "api"
     volumes:
       - ./client:/client/
       - node_modules:/client/node_modules
     ports:
       - "8080:8080"
+
+  e2e:
+    image: buckets/e2e:dev
+    container_name: e2e
+    env_file: ./.env
+    depends_on:
+      - "client"
+    volumes:
+      - ./e2e/:/e2e/
+    network_mode: 'host'
+
 
 volumes:
   node_modules:

@@ -69,7 +69,6 @@ class UserViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.Destr
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
-
         User.objects.change_current_password(
             user=request.user,
             current_password=data['current_password'],

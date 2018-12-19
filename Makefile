@@ -3,7 +3,10 @@ include .env
 export $(shell sed 's/=.*//' .env)
 
 PROJECT_NAME := buckets
-FLAGS :=
+
+ifeq ("$(CI)", "true")
+	CYPRESS_FLAGS := --record
+endif
 
 up:
 	docker-compose up -d
@@ -13,7 +16,7 @@ up:
 stop:
 	docker-compose stop
 
-build: client-build api-build
+build: client-build api-build e2e-build
 
 logs:
 	docker-compose logs --follow --tail=40 $(service)
@@ -21,7 +24,7 @@ logs:
 sh:
 	docker-compose exec $(service) sh
 
-test: api-test client-test
+test: api-test client-test e2e-test
 
 coverage:
 	docker-compose exec api sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov -Z"
@@ -52,7 +55,7 @@ api-outdated:
 	docker-compose exec api pip3 list --outdated --format=columns
 
 api-clean:
-	$(info Cleaning directories)
+	$(info Cleaning API directories)
 	@docker-compose exec api sh -c "find . -name "*.pyo" | xargs rm -rf"
 	@docker-compose exec api sh -c "find . -name "*.cache" | xargs rm -rf"
 	@docker-compose exec api sh -c "find . -name "*.mypy_cache" | xargs rm -rf"
@@ -77,16 +80,21 @@ api-collectstatic:
 client-build:
 	docker build --build-arg api_url=$(VUE_APP_API_URL) ./client/ -t $(PROJECT_NAME)/client:dev
 
-client-test: client-lint client-unit client-e2e
+client-test: client-lint client-unit
 
 client-unit:
 	docker-compose exec client yarn test:unit
-
-client-e2e:
-	docker-compose run --rm -e VUE_APP_API_URL=http://api:8000/api/ client yarn test:e2e --record
 
 client-lint:
 	docker-compose exec client yarn lint
 
 client-lint-fix:
 	docker-compose exec client yarn lint:fix
+
+# E2E Commands --------------------------------------------------------------------------
+
+e2e-build:
+	docker build ./e2e/ -t $(PROJECT_NAME)/e2e:dev
+
+e2e-test:
+	docker-compose run --rm e2e cypress run $(CYPRESS_FLAGS)
