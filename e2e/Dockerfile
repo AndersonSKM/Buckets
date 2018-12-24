@@ -1,4 +1,4 @@
-FROM cypress/browsers:chrome67-ff57
+FROM cypress/base:latest
 
 RUN yarn global add cypress@3.1.1
 

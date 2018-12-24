@@ -40,7 +40,9 @@ jobs:
               echo "CIRCLE_COMPARE_URL=$CIRCLE_COMPARE_URL" >> .env
       - run:
           name: Build images
-          command: make build
+          command: |
+            docker images prune
+            make build
       - run:
           name: Up services
           command: make up
