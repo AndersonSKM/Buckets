@@ -48,7 +48,9 @@ jobs:
           command: make up
       - run:
           name: Test
-          command: make test
+          command: |
+            ps -ef | grep Xvfb | grep -v grep | awk '{print $2}' | xargs kill -9
+            make test
       - run:
           name: Coverage
           command: make coverage

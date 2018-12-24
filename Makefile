@@ -97,5 +97,4 @@ e2e-build:
 	docker build ./e2e/ -t $(PROJECT_NAME)/e2e:dev
 
 e2e-test:
-	ps -ef | grep Xvfb | grep -v grep | awk '{print $2}' | xargs kill -9
 	docker-compose run --rm e2e cypress run $(CYPRESS_FLAGS)
