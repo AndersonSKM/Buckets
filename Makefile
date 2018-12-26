@@ -97,4 +97,4 @@ e2e-build:
 	docker build ./e2e/ -t $(PROJECT_NAME)/e2e:dev
 
 e2e-test:
-	docker-compose run --rm e2e cypress run $(CYPRESS_FLAGS)
+	docker-compose run --rm e2e sh run.sh
