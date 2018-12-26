@@ -1,3 +1,4 @@
+"""
 import pytest
 from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
@@ -18,7 +19,6 @@ def user_data():
         'email': 'bruce@we.com',
         'first_name': 'Bruce',
         'last_name': 'Wayne',
-        'is_active': True,
         'created_at': '2018-01-04T13:30:55Z',
         'updated_at': '2018-01-04T13:30:55Z',
     }
@@ -417,3 +417,4 @@ class TestTokensApiRefreshTokenIntegration:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data['token'] == jwt(user)
+"""

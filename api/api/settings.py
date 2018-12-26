@@ -43,6 +43,7 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'rest_framework',
+    'djoser',
     'corsheaders',
 ]
 
@@ -223,7 +224,16 @@ JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(minutes=15),
     'JWT_ALLOW_REFRESH': True,
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(hours=4),
-    'JWT_RESPONSE_PAYLOAD_HANDLER': 'accounts.serializers.jwt_response_payload_handler'
+}
+
+# Djoser
+# ------------------------------------------------------------------------------
+
+DJOSER = {
+    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
+    'ACTIVATION_URL': '#/activate/{uid}/{token}',
+    'SEND_ACTIVATION_EMAIL': not DEBUG,
+    'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND': True,
 }
 
 # Email
@@ -235,14 +245,6 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default=None)
 EMAIL_HOST = config('EMAIL_BACKEND', default=None)
 EMAIL_PORT = config('EMAIL_PORT', default=587)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=config.boolean)
-
-# Client Application URI's
-# Should be a string like this 'https://myapp.com/user-activation/{uuidb64}/{token}/'
-# The {uuidb64} and {token} will be replaced
-# ------------------------------------------------------------------------------
-
-USER_ACTIVATION_URI = config('USER_ACTIVATION_URI', default=None)
-USER_PASSWORD_RESET_URI = config('USER_PASSWORD_RESET_URI', default=None)
 
 # CORS
 # ------------------------------------------------------------------------------
@@ -266,7 +268,6 @@ LOGGING = {
         'console': {
             'class': 'logging.StreamHandler',
             'formatter': 'console',
-            'level': LOG_LEVEL,
         },
     },
     'loggers': {

@@ -20,6 +20,7 @@ urlpatterns = [
     path('', index, name='index'),
     path('api/docs/', API_DOCS_URLS),
     path('api/auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('api/', include('djoser.urls')),
+    path('api/', include('djoser.urls.jwt')),
     path('api/', include(('core.urls', 'core'), namespace='core')),
-    path('api/', include(('accounts.urls', 'accounts'), namespace='accounts')),
 ]

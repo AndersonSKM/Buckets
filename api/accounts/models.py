@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.core.mail import send_mail
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -13,6 +14,10 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(_('staff status'), default=False)
     is_active = models.BooleanField(_('active'), default=False)
     USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = [
+        'first_name',
+        'last_name',
+    ]
 
     objects = UserManager()
 
@@ -23,6 +28,9 @@ class User(AbstractBaseModel, AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+    def email_user(subject, message, from_email=None, **kwargs):
+        send_mail(subject, message, from_email, [self.email], **kwargs)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.is_superuser and not self.is_staff:

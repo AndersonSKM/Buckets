@@ -4,10 +4,6 @@ export $(shell sed 's/=.*//' .env)
 
 PROJECT_NAME := buckets
 
-ifeq ("$(CI)", "true")
-	CYPRESS_FLAGS := --record
-endif
-
 up:
 	docker-compose up -d
 	make api-health-check
