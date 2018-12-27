@@ -9,7 +9,7 @@ def exception_handler(exception, context):
         message = getattr(exception, 'message', None)
         messages = getattr(exception, 'messages', None)
         detail = {
-            'non_field_errors': [message] or messages
+            'non_field_errors': messages or [message]
         }
         exception = DRFValidationError(detail=detail)
 

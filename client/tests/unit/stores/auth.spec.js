@@ -206,7 +206,7 @@ describe('Actions', () => {
 
       await store.actions.obtainToken({ commit }, credentials)
 
-      expect(mockAxios.post).toHaveBeenCalledWith('tokens/', credentials)
+      expect(mockAxios.post).toHaveBeenCalledWith('auth/jwt/create/', credentials)
       expect(commit).toHaveBeenCalledWith('SET_TOKEN', token)
     })
 
@@ -254,7 +254,7 @@ describe('Actions', () => {
       }))
 
       await store.actions.refreshToken({ state, commit })
-      expect(mockAxios.post).toHaveBeenCalledWith('tokens/refresh/', { token: state.token })
+      expect(mockAxios.post).toHaveBeenCalledWith('auth/jwt/refresh/', { token: state.token })
       expect(commit).toHaveBeenCalledWith('SET_TOKEN', 'newToken')
     })
 

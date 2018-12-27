@@ -196,7 +196,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
@@ -223,11 +223,12 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 50
 }
 
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=15),
-    'AUTH_HEADER_TYPES': ('JWT',),
-    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(hours=4),
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(minutes=15),
+    'JWT_ALLOW_REFRESH': True,
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(hours=4),
 }
+
 
 # Djoser
 # ------------------------------------------------------------------------------
@@ -257,7 +258,7 @@ EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=config.boolean)
 # CORS
 # ------------------------------------------------------------------------------
 
-CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_ALLOW_ALL = DEBUG
 CORS_ORIGIN_WHITELIST = config('CORS_ORIGIN_WHITELIST', default=[], cast=config.list)
 
 # LOGGING

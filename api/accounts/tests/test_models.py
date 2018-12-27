@@ -1,5 +1,4 @@
 import pytest
-from mock import patch
 
 from accounts.models import User
 
@@ -18,12 +17,19 @@ class TestUser:
     def test_get_short_name(self, user):
         assert user.get_short_name() == user.first_name
 
-    @patch('accounts.models.AbstractBaseModel.save')
-    def test_save_superuser_set_is_staff_true(self, mock_save, user):
+    def test_clean_superuser_set_is_staff_true(self, user):
         user.is_staff = False
         user.is_superuser = True
-        user.save()
+        user.clean()
 
         assert user.is_staff
         assert user.is_superuser
-        assert mock_save.called
+
+    def test_email_user(self, user, mailoutbox):
+        user.email_user(subject='this is an important email', message='test')
+        assert len(mailoutbox) == 1
+
+        mail = mailoutbox[0]
+        assert mail.subject == 'this is an important email'
+        assert mail.body == 'test'
+        assert mail.to == [user.email]

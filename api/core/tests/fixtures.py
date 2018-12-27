@@ -1,10 +1,11 @@
 import pytest
 from django.contrib.auth.models import AnonymousUser
-from django.utils.six import text_type
-from mixer.backend.django import mixer
 from rest_framework.request import Request
 from rest_framework.test import APIClient, APIRequestFactory
-from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework_jwt.settings import api_settings
+
+jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 
 @pytest.fixture
@@ -63,17 +64,10 @@ def anon_user():
 
 
 @pytest.fixture
-def decoded_jwt():
+def jwt():
     def execute(instance):
-        return AccessToken.for_user(instance)
-    return execute
-
-
-@pytest.fixture
-def jwt(decoded_jwt):
-    def execute(instance):
-        json = decoded_jwt(instance)
-        return text_type(json)
+        payload = jwt_payload_handler(instance)
+        return jwt_encode_handler(payload)
     return execute
 
 

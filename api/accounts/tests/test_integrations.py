@@ -3,11 +3,9 @@ from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
 from djoser.utils import encode_uid
 from mixer.backend.django import mixer
-from mock import patch
 from rest_framework import status
 
 from accounts.models import User
-from accounts.serializers import UserSerializer
 
 
 @pytest.fixture
@@ -197,7 +195,7 @@ class TestUsersApiPasswordResetConfirmIntegration:
         user.refresh_from_db()
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data['non_field_errors'] == ["The two password fields didn't match."]
+        assert len(response.data['non_field_errors']) == 1
 
 
 @pytest.mark.django_db
@@ -250,23 +248,17 @@ class TestUsersApiChangePassowordIntegration:
 @pytest.mark.django_db
 class TestTokensApiObtainTokenIntegration:
     @pytest.fixture
-    def user(self):
-        return User.objects.create_user(
-            email='superman@us.com',
-            password='secretPa$$123',
-        )
-
-    @pytest.fixture
     def url(self):
         return reverse('auth:jwt-create')
 
     def test_obtain_token_sucessfull(self, url, user, anonymous_client):
         response = anonymous_client.post(path=url, data={
-            'email': 'superman@us.com',
-            'password': 'secretPa$$123'
+            'email': user.email,
+            'password': 'user'
         })
 
         assert response.status_code == status.HTTP_200_OK
+        assert response.data['token']
 
     def test_obtain_token_invalid_credentials(self, url, anonymous_client):
         response = anonymous_client.post(path=url, data={
@@ -275,20 +267,16 @@ class TestTokensApiObtainTokenIntegration:
         })
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data['non_field_errors'] == [
-            'Unable to log in with provided credentials.'
-        ]
+        assert len(response.data['non_field_errors']) == 1
 
-    def test_obtain_token_inactive_user(self, url, user, anonymous_client):
-        user.is_active = False
-        user.save()
+    def test_obtain_token_inactive_user(self, url, inactive_user, anonymous_client):
         response = anonymous_client.post(path=url, data={
-            'email': 'superman@us.com',
-            'password': 'secretPa$$123'
+            'email': inactive_user.email,
+            'password': 'inactive'
         })
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data['non_field_errors'] == ["User account is disabled."]
+        assert len(response.data['non_field_errors']) == 1
 
 
 @pytest.mark.django_db
@@ -299,21 +287,17 @@ class TestTokensApiRefreshTokenIntegration:
 
     def test_refresh_token_invalid_data(self, jwt, user, url, anonymous_client):
         response = anonymous_client.post(path=url, data={
-            'refresh': 'asdaosd1201k1do312mdkmm2im3rk213',
+            'token': 'asdaosd1201k1do312mdkmm2im3rk213',
         })
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert len(response.data['non_field_errors']) == 1
 
     def test_refresh_token_valid_data(self, jwt, url, user, anonymous_client):
-        jwt = anonymous_client.post(path=reverse('auth:jwt-create'), data={
-            'email': user.email,
-            'password': 'user',
-        })
-        pytest.set_trace()
-
+        token = jwt(user)
         response = anonymous_client.post(path=url, data={
-            'refresh': jwt['refresh']
+            'token': token
         })
 
         assert response.status_code == status.HTTP_200_OK
+        assert response.data['token']

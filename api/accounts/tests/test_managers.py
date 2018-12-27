@@ -1,6 +1,5 @@
 import pytest
 from mixer.backend.django import mixer
-from mock import Mock, patch
 
 from accounts.models import User
 
