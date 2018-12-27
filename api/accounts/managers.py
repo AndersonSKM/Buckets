@@ -8,7 +8,7 @@ from core.managers import AbstractBaseManager
 class UserManager(BaseUserManager, AbstractBaseManager):
     use_in_migrations = True
 
-    def create_user(self, email, password, **kwargs):
+    def create_user(self, email, password, ** kwargs):
         kwargs['is_staff'] = False
         kwargs['is_superuser'] = False
         return self._create_user(
@@ -23,7 +23,6 @@ class UserManager(BaseUserManager, AbstractBaseManager):
         return self._create_user(
             email=email,
             password=password,
-            confirm=confirm,
             **kwargs
         )
 
@@ -40,6 +39,7 @@ class UserManager(BaseUserManager, AbstractBaseManager):
             email=self.normalize_email(email),
             **kwargs
         )
+        user.is_active = kwargs.get('is_active', True)
         user.set_password(password)
         user.save(using=self._db)
         return user

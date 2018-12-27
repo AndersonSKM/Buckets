@@ -1,12 +1,10 @@
 import pytest
 from django.contrib.auth.models import AnonymousUser
+from django.utils.six import text_type
 from mixer.backend.django import mixer
 from rest_framework.request import Request
 from rest_framework.test import APIClient, APIRequestFactory
-from rest_framework_jwt.settings import api_settings
-
-jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+from rest_framework_simplejwt.tokens import AccessToken
 
 
 @pytest.fixture
@@ -19,9 +17,10 @@ def adm_user(user_model):
     """
     This fixture will return a django admin user
     """
-    return mixer.blend(
+    return user_model.objects.create_superuser(
         user_model,
         email='admin@admin.com',
+        password='admin',
         is_active=True,
         is_superuser=False,
         is_staff=True
@@ -33,12 +32,25 @@ def user(user_model):
     """
     This fixture will return a django user
     """
-    return mixer.blend(
-        user_model,
+    return user_model.objects.create_user(
         email='user@user.com',
-        is_active=True,
-        is_superuser=False,
-        is_staff=False
+        password='user',
+        first_name='John',
+        last_name='Doe'
+    )
+
+
+@pytest.fixture
+def inactive_user(user_model):
+    """
+    This fixture will return a inactive django user
+    """
+    return user_model.objects.create_user(
+        email='inactive@user.com',
+        password='inactive',
+        is_active=False,
+        first_name='Inactive',
+        last_name='User'
     )
 
 
@@ -51,10 +63,17 @@ def anon_user():
 
 
 @pytest.fixture
-def jwt():
+def decoded_jwt():
     def execute(instance):
-        payload = jwt_payload_handler(instance)
-        return jwt_encode_handler(payload)
+        return AccessToken.for_user(instance)
+    return execute
+
+
+@pytest.fixture
+def jwt(decoded_jwt):
+    def execute(instance):
+        json = decoded_jwt(instance)
+        return text_type(json)
     return execute
 
 

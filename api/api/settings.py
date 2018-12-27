@@ -43,6 +43,7 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'rest_framework',
+    'rest_framework.authtoken',
     'djoser',
     'corsheaders',
 ]
@@ -195,7 +196,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
@@ -209,31 +210,38 @@ REST_FRAMEWORK = {
         'rest_framework.pagination.LimitOffsetPagination',
     'DEFAULT_THROTTLE_CLASSES': (
         'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle'
+        'rest_framework.throttling.UserRateThrottle',
+        'rest_framework.throttling.ScopedRateThrottle',
     ),
     'DEFAULT_THROTTLE_RATES': {
         'anon': '20/minute',
         'user': '120/minute',
+        'health-check': '12/minute',
     },
     'EXCEPTION_HANDLER': 'core.exceptions.exception_handler',
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     'PAGE_SIZE': 50
 }
 
-JWT_AUTH = {
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(minutes=15),
-    'JWT_ALLOW_REFRESH': True,
-    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(hours=4),
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=15),
+    'AUTH_HEADER_TYPES': ('JWT',),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(hours=4),
 }
 
 # Djoser
 # ------------------------------------------------------------------------------
 
 DJOSER = {
+    'PASSWORD_RESET_CONFIRM_RETYPE': True,
     'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
     'ACTIVATION_URL': '#/activate/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': not DEBUG,
     'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND': True,
+    'SET_PASSWORD_RETYPE': True,
+    'SERIALIZERS': {
+        'user': 'accounts.serializers.UserSerializer'
+    }
 }
 
 # Email

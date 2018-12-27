@@ -6,16 +6,11 @@ from rest_framework.views import exception_handler as drf_exception_handler
 
 def exception_handler(exception, context):
     if isinstance(exception, DjangoValidationError):
-        if hasattr(exception, 'message_dict'):
-            detail = exception.message_dict
-        elif hasattr(exception, 'message'):
-            detail = {
-                'non_field_errors': [exception.message]
-            }
-        elif hasattr(exception, 'messages'):
-            detail = {
-                'non_field_errors': exception.messages
-            }
+        message = getattr(exception, 'message', None)
+        messages = getattr(exception, 'messages', None)
+        detail = {
+            'non_field_errors': [message] or messages
+        }
         exception = DRFValidationError(detail=detail)
 
     response = drf_exception_handler(exception, context)

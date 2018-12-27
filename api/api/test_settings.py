@@ -4,4 +4,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 
 REST_FRAMEWORK['DEFAULT_THROTTLE_CLASSES'] = ()
 
-LOG_LEVEL = 'INFO'
+LOGGING['loggers']['django']['level'] = 'INFO'
+
+DJOSER['SEND_ACTIVATION_EMAIL'] = True

@@ -1,7 +1,8 @@
 from django.urls import path
 
-from core.views import HeathCheckView
+from core import views
 
 urlpatterns = [
-    path('health-check/', HeathCheckView.as_view(), name='health-check'),
+    path('', views.IndexView.as_view(), name='index'),
+    path('api/health-check/', views.HeathCheckView.as_view(), name='health-check'),
 ]
