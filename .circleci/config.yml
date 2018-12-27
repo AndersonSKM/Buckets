@@ -16,8 +16,6 @@ jobs:
           command: |
             echo "DEBUG=$DEBUG" >> .env
             echo "SECRET_KEY=$SECRET_KEY" >> .env
-            echo "USER_ACTIVATION_URI=$USER_ACTIVATION_URI" >> .env
-            echo "USER_PASSWORD_RESET_URI=$USER_PASSWORD_RESET_URI" >> .env
             echo "DATABASE_URL=$DATABASE_URL" >> .env
             echo "REDIS_URL=$REDIS_URL" >> .env
             echo "VUE_APP_API_URL=$VUE_APP_API_URL" >> .env
