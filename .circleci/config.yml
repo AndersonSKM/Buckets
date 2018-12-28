@@ -1,12 +1,10 @@
 version: 2
 jobs:
   build:
-    docker:
-      - image: circleci/buildpack-deps:jessie
+    machine:
+      docker_layer_caching: true
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
       - run:
           name: Export env vars
           command: |
@@ -40,7 +38,9 @@ jobs:
           command: make up
       - run:
           name: Test
-          command: make test
+          command: |
+            sudo /etc/init.d/xvfb stop
+            make test
       - run:
           name: Coverage
           command: make coverage
