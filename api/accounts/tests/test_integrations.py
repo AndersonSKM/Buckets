@@ -21,7 +21,7 @@ def user_data():
 
 
 @pytest.mark.django_db
-class TestUsersApiCreateIntegration:
+class TestUserCreate:
     @pytest.fixture
     def input_data(self):
         return {
@@ -55,7 +55,7 @@ class TestUsersApiCreateIntegration:
 
 @pytest.mark.django_db
 @pytest.mark.freeze_time('2018-01-04T13:30:55')
-class TestUsersApiRetrieveIntegration:
+class TestUserRetrieve:
     @pytest.fixture()
     def url(self):
         return reverse('accounts:user')
@@ -72,7 +72,7 @@ class TestUsersApiRetrieveIntegration:
 
 
 @pytest.mark.django_db
-class TestUsersApiUpdateIntegration:
+class TestUserUpdate:
     @pytest.fixture()
     def url(self):
         return reverse('accounts:user')
@@ -102,12 +102,12 @@ class TestUsersApiUpdateIntegration:
 
 
 @pytest.mark.django_db
-class TestUsersApiDeleteIntegration:
+class TestUserDelete:
     @pytest.fixture()
     def url(self):
         return reverse('accounts:user-me')
 
-    def test_successfull_delete(self, user, client, url):
+    def test_successfully_delete(self, user, client, url):
         response = client.delete(path=url, data={'current_password': 'user'}, follow=True)
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
@@ -122,12 +122,12 @@ class TestUsersApiDeleteIntegration:
 
 
 @pytest.mark.django_db
-class TestUsersApiActivateIntegration:
+class TestUserActivate:
     @pytest.fixture
     def url(self):
         return reverse('accounts:user-activate')
 
-    def test_successful_activation(self, anonymous_client, url):
+    def test_successfully_activation(self, anonymous_client, url):
         user = mixer.blend(User, is_active=False)
         data = {
             'uid': encode_uid(user.pk),
@@ -141,12 +141,12 @@ class TestUsersApiActivateIntegration:
 
 
 @pytest.mark.django_db
-class TestUsersApiPasswordResetIntegration:
+class TestPasswordReset:
     @pytest.fixture
     def url(self):
         return reverse('accounts:password_reset')
 
-    def test_successful(self, anonymous_client, url, user, mailoutbox):
+    def test_successfully(self, anonymous_client, url, user, mailoutbox):
         response = anonymous_client.post(path=url, data={'email': user.email})
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
@@ -160,7 +160,7 @@ class TestUsersApiPasswordResetIntegration:
 
 
 @pytest.mark.django_db
-class TestUsersApiPasswordResetConfirmIntegration:
+class TestPasswordResetConfirm:
     @pytest.fixture
     def url(self):
         return reverse('accounts:password_reset_confirm')
@@ -174,14 +174,14 @@ class TestUsersApiPasswordResetConfirmIntegration:
             're_new_password': 'New$ecretPass%',
         }
 
-    def test_successful(self, anonymous_client, url, input_data, user):
+    def test_successfully(self, anonymous_client, url, input_data, user):
         response = anonymous_client.post(path=url, data=input_data)
         user.refresh_from_db()
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert user.check_password(input_data['new_password'])
 
-    def test_weak_password(self, anonymous_client, url, input_data, user):
+    def test_error_with_weak_password(self, anonymous_client, url, input_data, user):
         input_data['new_password'] = 'qwerty'
         input_data['re_new_password'] = 'qwerty'
         response = anonymous_client.post(path=url, data=input_data)
@@ -189,7 +189,7 @@ class TestUsersApiPasswordResetConfirmIntegration:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert len(response.data['new_password']) > 1
 
-    def test_invalid_passowrd_confirm(self, anonymous_client, url, input_data, user):
+    def test_error_with_invalid_passowrd_confirm(self, anonymous_client, url, input_data, user):
         input_data['re_new_password'] = 'invalid'
         response = anonymous_client.post(path=url, data=input_data)
         user.refresh_from_db()
@@ -199,7 +199,7 @@ class TestUsersApiPasswordResetConfirmIntegration:
 
 
 @pytest.mark.django_db
-class TestUsersApiChangePassowordIntegration:
+class TestChangePassoword:
     @pytest.fixture
     def url(self):
         return reverse('accounts:set_password')
@@ -215,21 +215,21 @@ class TestUsersApiChangePassowordIntegration:
         user.save()
         return fields
 
-    def test_successful(self, client, url, input_data, user):
+    def test_successfully(self, client, url, input_data, user):
         response = client.post(path=url, data=input_data)
         user.refresh_from_db()
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert user.check_password(input_data['new_password'])
 
-    def test_wrong_current_password(self, client, url, input_data, user):
+    def test_error_with_wrong_current_password(self, client, url, input_data, user):
         input_data['current_password'] = 'Dummy'
         response = client.post(path=url, data=input_data)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert len(response.data['current_password']) == 1
 
-    def test_weak_password(self, client, url, input_data, user):
+    def test_error_with_weak_password(self, client, url, input_data, user):
         input_data['new_password'] = 'qwerty'
         input_data['re_new_password'] = 'qwerty'
         response = client.post(path=url, data=input_data)
@@ -237,7 +237,7 @@ class TestUsersApiChangePassowordIntegration:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert len(response.data['new_password']) > 1
 
-    def test_invalid_passowrd_confirm(self, client, url, input_data, user):
+    def test_error_with_invalid_passowrd_confirm(self, client, url, input_data, user):
         input_data['re_new_password'] = 'invalid'
         response = client.post(path=url, data=input_data)
 
@@ -246,12 +246,12 @@ class TestUsersApiChangePassowordIntegration:
 
 
 @pytest.mark.django_db
-class TestTokensApiObtainTokenIntegration:
+class TestJWTCreate:
     @pytest.fixture
     def url(self):
         return reverse('auth:jwt-create')
 
-    def test_obtain_token_sucessfull(self, url, user, anonymous_client):
+    def test_sucessfully(self, url, user, anonymous_client):
         response = anonymous_client.post(path=url, data={
             'email': user.email,
             'password': 'user'
@@ -260,7 +260,7 @@ class TestTokensApiObtainTokenIntegration:
         assert response.status_code == status.HTTP_200_OK
         assert response.data['token']
 
-    def test_obtain_token_invalid_credentials(self, url, anonymous_client):
+    def test_error_with_invalid_credentials(self, url, anonymous_client):
         response = anonymous_client.post(path=url, data={
             'email': 'fake@fake.com',
             'password': 'aslfoakf3'
@@ -269,7 +269,7 @@ class TestTokensApiObtainTokenIntegration:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert len(response.data['non_field_errors']) == 1
 
-    def test_obtain_token_inactive_user(self, url, inactive_user, anonymous_client):
+    def test_error_with_inactive_user(self, url, inactive_user, anonymous_client):
         response = anonymous_client.post(path=url, data={
             'email': inactive_user.email,
             'password': 'inactive'
@@ -280,20 +280,12 @@ class TestTokensApiObtainTokenIntegration:
 
 
 @pytest.mark.django_db
-class TestTokensApiRefreshTokenIntegration:
+class TestJWTRrefresh:
     @pytest.fixture
     def url(self):
         return reverse('auth:jwt-refresh')
 
-    def test_refresh_token_invalid_data(self, jwt, user, url, anonymous_client):
-        response = anonymous_client.post(path=url, data={
-            'token': 'asdaosd1201k1do312mdkmm2im3rk213',
-        })
-
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert len(response.data['non_field_errors']) == 1
-
-    def test_refresh_token_valid_data(self, jwt, url, user, anonymous_client):
+    def test_sucessfully(self, jwt, url, user, anonymous_client):
         token = jwt(user)
         response = anonymous_client.post(path=url, data={
             'token': token
@@ -301,3 +293,11 @@ class TestTokensApiRefreshTokenIntegration:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.data['token']
+
+    def test_error_with_invalid_token(self, jwt, user, url, anonymous_client):
+        response = anonymous_client.post(path=url, data={
+            'token': 'asdaosd1201k1do312mdkmm2im3rk213',
+        })
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert len(response.data['non_field_errors']) == 1

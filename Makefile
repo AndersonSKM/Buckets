@@ -60,7 +60,9 @@ api-clean:
 	@docker-compose exec api sh -c "rm -f .coverage && rm -rf coverage/"
 
 api-health-check:
-	@docker-compose exec api curl -sS --retry 10 --retry-max-time 30 --retry-connrefused http://0.0.0.0:8000/api/health-check/
+	@docker-compose exec api curl \
+		-H "Accept: application/json" \
+		-sS --retry 10 --retry-max-time 30 --retry-connrefused http://0.0.0.0:8000/api/health-check/
 
 api-migrate:
 	@docker-compose exec api python3 manage.py migrate --noinput

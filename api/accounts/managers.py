@@ -6,21 +6,20 @@ from core.managers import AbstractBaseManager
 class UserManager(BaseUserManager, AbstractBaseManager):
     use_in_migrations = True
 
-    def create_user(self, email, password, ** kwargs):
-        kwargs['is_staff'] = False
-        kwargs['is_superuser'] = False
+    def create_user(self, email, password, **kwargs):
         return self._create_user(
             email=email,
             password=password,
+            is_staff=False,
+            is_superuser=False,
             **kwargs
         )
 
     def create_superuser(self, email, password, **kwargs):
-        kwargs['is_staff'] = True
-        kwargs['is_superuser'] = True
         return self._create_user(
             email=email,
             password=password,
+            is_superuser=True,
             **kwargs
         )
 

@@ -1,16 +1,12 @@
 version: 2
 jobs:
   build:
-    machine:
-      docker_layer_caching: true
+    docker:
+      - image: circleci/buildpack-deps:jessie
     steps:
       - checkout
-      - run:
-          name: Install Docker Compose
-          command: |
-            curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
-            chmod +x ~/docker-compose
-            sudo mv ~/docker-compose /usr/local/bin/docker-compose
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
           name: Export env vars
           command: |
@@ -44,9 +40,7 @@ jobs:
           command: make up
       - run:
           name: Test
-          command: |
-            sudo ps -ef | grep Xvfb | grep -v grep | awk '{print $2}' | xargs kill -9
-            make test
+          command: make test
       - run:
           name: Coverage
           command: make coverage
