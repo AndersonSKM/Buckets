@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if $CI; then
-  cypress run --record
+  cypress run --env api_url=$VUE_APP_API_URL --record
 else
   cypress run --env api_url=$VUE_APP_API_URL
 fi
