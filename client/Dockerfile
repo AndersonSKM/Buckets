@@ -3,6 +3,8 @@ FROM node:8.12-alpine
 RUN apk update && apk upgrade && \
     apk add --update \
         python \
+        curl \
+        bash \
         build-base
 
 RUN yarn global add @vue/cli@3.0.3
