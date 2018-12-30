@@ -46,4 +46,19 @@ describe('/sign-in', () => {
         .should('contain', 'Unable to log in with provided credentials')
     })
   })
+
+  it('redirects to main page on sucessfully login', () => {
+    cy.visit('/sign-in')
+
+    cy.get('form[data-ref=form]').within(() => {
+      cy.get('input[data-ref=email]')
+        .type('john.doe@test.com')
+      cy.get('input[data-ref=password]')
+        .type('johndoe')
+      cy.get('button[data-ref=submit]')
+        .click()
+      cy.url()
+        .should('contain', '/home')
+    })
+  })
 })

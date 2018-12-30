@@ -3,7 +3,6 @@ import store from './store'
 import Router from 'vue-router'
 
 import SignInView from './views/sign-in.vue'
-import PasswordForgotView from './views/password-forgot.vue'
 import HomeView from './views/home.vue'
 
 Vue.use(Router)
@@ -14,12 +13,6 @@ const router = new Router({
       path: '/sign-in',
       name: 'sign-in',
       component: SignInView,
-      meta: { requiresAuth: false }
-    },
-    {
-      path: '/password-forgot',
-      name: 'password-forgot',
-      component: PasswordForgotView,
       meta: { requiresAuth: false }
     },
     {
