@@ -18,3 +18,8 @@ import './commands'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+
+before(() => {
+  cy.log('Seeding tests user')
+  cy.request('POST', Cypress.env('api_url') + '/seed/')
+})

@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils'
+import { shallow } from '@vue/test-utils'
 
 import flushPromises from 'flush-promises'
 
@@ -16,7 +16,7 @@ describe('sign-in.vue', () => {
     mockStore = {
       dispatch: jest.fn(() => Promise.resolve())
     }
-    wrapper = mount(SignIn, {
+    wrapper = shallow(SignIn, {
       sync: false,
       mocks: {
         $t: jest.fn(),
@@ -38,15 +38,22 @@ describe('sign-in.vue', () => {
       password: '',
       form_errors: []
     })
-    wrapper.find('#btn-submit').trigger('click')
+    wrapper.setMethods({
+      resetForm: jest.fn()
+    })
+    wrapper.find('form').trigger('submit')
     await flushPromises()
 
     expect(wrapper.vm.errors.count()).toBe(2)
     expect(mockStore.dispatch).toHaveBeenCalledTimes(0)
+    expect(wrapper.vm.resetForm).toHaveBeenCalledTimes(0)
   })
 
   it("calls the store if email and password aren't blank", async () => {
-    wrapper.find('#btn-submit').trigger('click')
+    wrapper.setMethods({
+      resetForm: jest.fn()
+    })
+    wrapper.find('form').trigger('submit')
     await flushPromises()
 
     expect(wrapper.vm.$store.dispatch).toHaveBeenCalledWith('auth/obtainToken', {
@@ -55,9 +62,13 @@ describe('sign-in.vue', () => {
     })
     expect(wrapper.vm.$router.push).toHaveBeenCalledWith('/home')
     expect(wrapper.vm.form_errors).toEqual([])
+    expect(wrapper.vm.resetForm).toHaveBeenCalledTimes(1)
   })
 
   it('sets the error message if api return a 400 error', async () => {
+    wrapper.setMethods({
+      resetForm: jest.fn()
+    })
     global.console = {
       log: jest.fn()
     }
@@ -75,11 +86,27 @@ describe('sign-in.vue', () => {
         reject(error)
       })
     })
-    wrapper.find('#btn-submit').trigger('click')
+    wrapper.find('form').trigger('submit')
     await flushPromises()
 
     expect(wrapper.vm.$router.push).toHaveBeenCalledTimes(0)
     expect(wrapper.vm.form_errors).toEqual(['Error!'])
     expect(global.console.log).toHaveBeenCalled()
+    expect(wrapper.vm.resetForm).toHaveBeenCalledTimes(1)
+  })
+
+  it('clears the form and focus on email field when called', async () => {
+    wrapper.setData({
+      email: 'test@test.com',
+      password: 'test',
+      form_errors: ['error']
+    })
+    wrapper.vm.resetForm()
+    await flushPromises()
+
+    expect(wrapper.find('input[data-ref=email]').attributes('focused')).toBeTruthy()
+    expect(wrapper.vm.email).toBeUndefined()
+    expect(wrapper.vm.password).toBeUndefined()
+    expect(wrapper.vm.form_errors).toEqual(['error'])
   })
 })

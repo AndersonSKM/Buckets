@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import store from './store'
 import Router from 'vue-router'
-import SignIn from './views/sign-in.vue'
-import Home from './views/home.vue'
+
+import SignInView from './views/sign-in.vue'
+import HomeView from './views/home.vue'
 
 Vue.use(Router)
 
@@ -11,19 +12,19 @@ const router = new Router({
     {
       path: '/sign-in',
       name: 'sign-in',
-      component: SignIn,
+      component: SignInView,
       meta: { requiresAuth: false }
     },
     {
       path: '/home',
       name: 'home',
-      component: Home,
+      component: HomeView,
       meta: { requiresAuth: true }
     },
-    { // Always leave this as last one
+    {
       path: '*',
       name: '404',
-      component: Home,
+      component: HomeView,
       meta: { requiresAuth: true }
     }
   ]

@@ -4,7 +4,9 @@ import VeeValidate from 'vee-validate'
 import Vuex from 'vuex'
 
 Vue.use(Vuetify)
-Vue.use(VeeValidate)
+Vue.use(VeeValidate, {
+  events: ''
+})
 Vue.use(Vuex)
 
 Vue.config.productionTip = false

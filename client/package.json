@@ -7,8 +7,7 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint --no-fix --max-warnings=0 --max-errors=0",
     "lint:fix": "vue-cli-service lint",
-    "test:unit": "vue-cli-service test:unit --coverage",
-    "test:e2e": "vue-cli-service test:e2e --headless"
+    "test:unit": "vue-cli-service test:unit --coverage"
   },
   "dependencies": {
     "axios": "^0.18.0",
@@ -26,7 +25,6 @@
     "@babel/polyfill": "^7.0.0-beta.49",
     "@kazupon/vue-i18n-loader": "^0.3.0",
     "@vue/cli-plugin-babel": "^3.0.3",
-    "@vue/cli-plugin-e2e-cypress": "^3.0.3",
     "@vue/cli-plugin-eslint": "^3.0.3",
     "@vue/cli-plugin-pwa": "^3.0.3",
     "@vue/cli-plugin-unit-jest": "^3.0.3",
@@ -108,6 +106,7 @@
     ]
   },
   "vue": {
+    "assetsDir": "static",
     "devServer": {
       "hot": true,
       "progress": true,

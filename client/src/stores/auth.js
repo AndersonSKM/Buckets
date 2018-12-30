@@ -18,13 +18,13 @@ const getters = {
   isAuthenticated: (state, getters) => {
     return (state.token !== '') && !getters.isExpiredToken
   },
-  isExpiredToken: (getters) => {
+  isExpiredToken: (state, getters) => {
     const token = getters.decodedToken
     if (!token) {
       return true
     }
 
-    return token.exp < Date.now()
+    return Date.now() > token.exp
   },
   decodedToken: (state) => {
     if (!state.token) {
@@ -38,7 +38,7 @@ const getters = {
       exp: token.exp * 1000
     }
   },
-  canRefreshToken: (getters) => {
+  canRefreshToken: (state, getters) => {
     const token = getters.decodedToken
     if (!token) {
       return false
@@ -55,7 +55,7 @@ const getters = {
 
 const actions = {
   async obtainToken ({ commit }, credentials) {
-    const response = await api.post('tokens/', credentials)
+    const response = await api.post('auth/jwt/create/', credentials)
 
     if (response.status === 200) {
       commit('SET_TOKEN', response.data.token)
@@ -70,7 +70,7 @@ const actions = {
   },
   async refreshToken ({ state, commit }) {
     try {
-      const response = await api.post('tokens/refresh/', { token: state.token })
+      const response = await api.post('auth/jwt/refresh/', { token: state.token })
 
       if (response.status === 200) {
         commit('SET_TOKEN', response.data.token)

@@ -2,6 +2,7 @@ import datetime
 import os
 
 import dj_database_url
+from prettyconf import config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -10,18 +11,18 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # ------------------------------------------------------------------------------
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY = os.environ['SECRET_KEY']
+SECRET_KEY = config('SECRET_KEY')
 
 # DEBUG
 # ------------------------------------------------------------------------------
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = os.environ.get('DEBUG', False) == 'True'
+DEBUG = config('DEBUG', default=False, cast=config.boolean)
 
 # ALLOWED_HOSTS
 # ------------------------------------------------------------------------------
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split()
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=['*',], cast=config.list)
 
 # AUTH
 # ------------------------------------------------------------------------------
@@ -42,6 +43,8 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
     'corsheaders',
 ]
 
@@ -94,7 +97,7 @@ ROOT_URLCONF = 'api.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['/public/'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -125,8 +128,8 @@ DATABASES = {
 
 CACHES = {
     'default': {
-        'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': os.environ['REDIS_URL'],
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': config('REDIS_URL'),
     }
 }
 
@@ -160,15 +163,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
-
 SITE_ID = 1
 
 # STATIC FILE CONFIGURATION
@@ -176,7 +174,8 @@ SITE_ID = 1
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/static/'
+STATIC_ROOT = os.path.join('/public/', 'static')
+STATICFILES_DIRS = []
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # MEDIA CONFIGURATION
@@ -211,12 +210,15 @@ REST_FRAMEWORK = {
         'rest_framework.pagination.LimitOffsetPagination',
     'DEFAULT_THROTTLE_CLASSES': (
         'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle'
+        'rest_framework.throttling.UserRateThrottle',
+        'rest_framework.throttling.ScopedRateThrottle',
     ),
     'DEFAULT_THROTTLE_RATES': {
         'anon': '20/minute',
         'user': '120/minute',
+        'health-check': '12/minute',
     },
+    'EXCEPTION_HANDLER': 'core.exceptions.exception_handler',
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     'PAGE_SIZE': 50
 }
@@ -227,26 +229,68 @@ JWT_AUTH = {
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(hours=4),
 }
 
+
+# Djoser
+# ------------------------------------------------------------------------------
+
+DJOSER = {
+    'PASSWORD_RESET_CONFIRM_RETYPE': True,
+    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
+    'ACTIVATION_URL': '#/activate/{uid}/{token}',
+    'SEND_ACTIVATION_EMAIL': not DEBUG,
+    'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND': True,
+    'SET_PASSWORD_RETYPE': True,
+    'SERIALIZERS': {
+        'user': 'accounts.serializers.UserSerializer'
+    }
+}
+
 # Email
 # ------------------------------------------------------------------------------
 
-EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST', None)
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', None)
-EMAIL_HOST = os.environ.get('EMAIL_BACKEND', None)
-EMAIL_PORT = os.environ.get('EMAIL_PORT', 587)
-EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
-
-# Client Application URI's
-# Should be a string like this 'https://myapp.com/user-activation/{uuidb64}/{token}/'
-# The {uuidb64} and {token} will be replaced
-# ------------------------------------------------------------------------------
-
-USER_ACTIVATION_URI = os.environ.get('USER_ACTIVATION_URI', None)
-USER_PASSWORD_RESET_URI = os.environ.get('USER_PASSWORD_RESET_URI', None)
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST_USER = config('EMAIL_HOST', default=None)
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default=None)
+EMAIL_HOST = config('EMAIL_BACKEND', default=None)
+EMAIL_PORT = config('EMAIL_PORT', default=587)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=config.boolean)
 
 # CORS
 # ------------------------------------------------------------------------------
 
-CORS_ORIGIN_ALLOW_ALL = False
-CORS_ORIGIN_WHITELIST = os.environ.get('CORS_ORIGIN_WHITELIST', '').split()
+CORS_ORIGIN_ALLOW_ALL = DEBUG
+CORS_ORIGIN_WHITELIST = config('CORS_ORIGIN_WHITELIST', default=[], cast=config.list)
+
+# LOGGING
+# ------------------------------------------------------------------------------
+
+LOG_LEVEL = config('LOG_LEVEL', default='INFO').upper()
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'console': {
+            'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'console',
+        },
+    },
+    'loggers': {
+        '': {
+            'level': LOG_LEVEL,
+            'handlers': ['console'],
+        },
+        'django': {
+            'level': LOG_LEVEL,
+            'handlers': ['console'],
+        },
+        'gunicorn': {
+            'level': LOG_LEVEL,
+            'handlers': ['console'],
+        }
+    }
+}

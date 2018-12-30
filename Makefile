@@ -1,3 +1,7 @@
+#!make
+include .env
+export $(shell sed 's/=.*//' .env)
+
 PROJECT_NAME := buckets
 
 up:
@@ -8,7 +12,7 @@ up:
 stop:
 	docker-compose stop
 
-build: client-build api-build
+build: client-build api-build e2e-build
 
 logs:
 	docker-compose logs --follow --tail=40 $(service)
@@ -16,7 +20,7 @@ logs:
 sh:
 	docker-compose exec $(service) sh
 
-test: api-test client-test
+test: api-test client-test e2e-test
 
 coverage:
 	docker-compose exec api sh -c "curl -s https://codecov.io/bash > .codecov && chmod +x .codecov && ./.codecov -Z"
@@ -47,7 +51,7 @@ api-outdated:
 	docker-compose exec api pip3 list --outdated --format=columns
 
 api-clean:
-	$(info Cleaning directories)
+	$(info Cleaning API directories)
 	@docker-compose exec api sh -c "find . -name "*.pyo" | xargs rm -rf"
 	@docker-compose exec api sh -c "find . -name "*.cache" | xargs rm -rf"
 	@docker-compose exec api sh -c "find . -name "*.mypy_cache" | xargs rm -rf"
@@ -56,7 +60,9 @@ api-clean:
 	@docker-compose exec api sh -c "rm -f .coverage && rm -rf coverage/"
 
 api-health-check:
-	@docker-compose exec api curl -sS --retry 10 --retry-max-time 30 --retry-connrefused http://0.0.0.0:8000/api/health-check/
+	@docker-compose exec api curl \
+		-H "Accept: application/json" \
+		-sS --retry 10 --retry-max-time 30 --retry-connrefused http://0.0.0.0:8000/api/health-check/
 
 api-migrate:
 	@docker-compose exec api python3 manage.py migrate --noinput
@@ -70,7 +76,7 @@ api-collectstatic:
 # Client Commands --------------------------------------------------------------------------
 
 client-build:
-	docker build ./client/ -t $(PROJECT_NAME)/client:dev
+	docker build --build-arg api_url=$(VUE_APP_API_URL) ./client/ -t $(PROJECT_NAME)/client:dev
 
 client-test: client-lint client-unit
 
@@ -82,3 +88,11 @@ client-lint:
 
 client-lint-fix:
 	docker-compose exec client yarn lint:fix
+
+# E2E Commands --------------------------------------------------------------------------
+
+e2e-build:
+	docker build ./e2e/ -t $(PROJECT_NAME)/e2e:dev
+
+e2e-test:
+	docker-compose run --rm e2e sh run.sh

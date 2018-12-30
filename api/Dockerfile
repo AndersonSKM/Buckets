@@ -15,12 +15,14 @@ RUN pip3 install --upgrade pip
 RUN mkdir -p /app
 RUN mkdir -p /media
 RUN mkdir -p /static
+RUN mkdir -p /public/
 
 COPY requirements.txt /app
 RUN pip3 install -r /app/requirements.txt
 
 COPY . /app
 WORKDIR /app
+COPY --from=buckets/client:dev /client/dist /public/
 
 RUN chmod +x /app/run.sh
 

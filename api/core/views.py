@@ -1,44 +1,31 @@
-import logging
-
-from django.core.cache import cache
-from django.db import connection
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes, throttle_classes
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
+from django.views.generic import TemplateView
+from rest_framework import status, views
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.throttling import AnonRateThrottle
 
-logger = logging.getLogger(__name__)
-
-
-class HealthCheckThrottle(AnonRateThrottle):
-    rate = '60/minute'
+from core import services
 
 
-@api_view(['GET',])
-@permission_classes([AllowAny,])
-@throttle_classes([HealthCheckThrottle,])
-def health_check(request):
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute('SELECT 1;')
-            row = cursor.fetchone()
-            if not row:
-                raise Exception("Invalid DB response")
-    except Exception as error:
-        logger.exception(error)
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={
-            'detail': f"Database is not working: {error}"}
-        )
+@method_decorator(never_cache, name='dispatch')
+class IndexView(TemplateView):
+    template_name = 'index.html'
 
-    try:
-        cache.set('alive', True, timeout=None)
-        if not cache.get('alive'):
-            raise Exception("Invalid Cache response")
-    except Exception as error:
-        logger.exception(error)
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={
-            'detail': f"Cache is not working: {error}"}
-        )
 
-    return Response(status=status.HTTP_200_OK, data={'detail': 'healthy'})
+class HeathCheckView(views.APIView):
+    permission_classes = [AllowAny,]
+    throttle_scope = 'health-check'
+
+    def get(self, request, *args, **kwargs):
+        services.check_database_state()
+        services.check_cache_state()
+        return Response(status=status.HTTP_200_OK, data={'detail': 'healthy'})
+
+
+class SeedE2ETestsDataView(views.APIView):
+    permission_classes = [AllowAny,]
+
+    def post(self, request, *args, **kwargs):
+        services.seed_e2e_user()
+        return Response(status=status.HTTP_201_CREATED)

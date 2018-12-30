@@ -55,8 +55,11 @@ describe('Getters', () => {
       const getters = {
         decodedToken: null
       }
+      const state = {
+        token: null
+      }
 
-      expect(store.getters.isExpiredToken(getters)).toBeTruthy()
+      expect(store.getters.isExpiredToken(state, getters)).toBeTruthy()
     })
 
     it('returns true if token was created after fifteen minutes', () => {
@@ -69,7 +72,7 @@ describe('Getters', () => {
         }
       }
 
-      expect(store.getters.isExpiredToken(getters)).toBeTruthy()
+      expect(store.getters.isExpiredToken({}, getters)).toBeTruthy()
     })
 
     it('returns false if token was created before fifteen minutes', () => {
@@ -82,7 +85,7 @@ describe('Getters', () => {
         }
       }
 
-      expect(store.getters.isExpiredToken(getters)).toBeFalsy()
+      expect(store.getters.isExpiredToken({}, getters)).toBeFalsy()
     })
   })
 
@@ -126,7 +129,7 @@ describe('Getters', () => {
       const getters = {
         isAuthenticated: false
       }
-      expect(store.getters.canRefreshToken(getters)).toBeFalsy()
+      expect(store.getters.canRefreshToken({}, getters)).toBeFalsy()
     })
 
     it('returns false if token was created after four hours', () => {
@@ -141,7 +144,7 @@ describe('Getters', () => {
         }
       }
 
-      expect(store.getters.canRefreshToken(getters)).toBeFalsy()
+      expect(store.getters.canRefreshToken({}, getters)).toBeFalsy()
     })
 
     it("returns false if token doesn't have thirteen minutes", () => {
@@ -156,7 +159,7 @@ describe('Getters', () => {
         }
       }
 
-      expect(store.getters.canRefreshToken(getters)).toBeFalsy()
+      expect(store.getters.canRefreshToken({}, getters)).toBeFalsy()
     })
 
     it('returns true if token was created within four hours and has more than thirteen minutes', () => {
@@ -171,7 +174,7 @@ describe('Getters', () => {
         }
       }
 
-      expect(store.getters.canRefreshToken(getters)).toBeTruthy()
+      expect(store.getters.canRefreshToken({}, getters)).toBeTruthy()
     })
   })
 })
@@ -203,7 +206,7 @@ describe('Actions', () => {
 
       await store.actions.obtainToken({ commit }, credentials)
 
-      expect(mockAxios.post).toHaveBeenCalledWith('tokens/', credentials)
+      expect(mockAxios.post).toHaveBeenCalledWith('auth/jwt/create/', credentials)
       expect(commit).toHaveBeenCalledWith('SET_TOKEN', token)
     })
 
@@ -251,7 +254,7 @@ describe('Actions', () => {
       }))
 
       await store.actions.refreshToken({ state, commit })
-      expect(mockAxios.post).toHaveBeenCalledWith('tokens/refresh/', { token: state.token })
+      expect(mockAxios.post).toHaveBeenCalledWith('auth/jwt/refresh/', { token: state.token })
       expect(commit).toHaveBeenCalledWith('SET_TOKEN', 'newToken')
     })
 

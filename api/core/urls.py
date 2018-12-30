@@ -1,7 +1,14 @@
+from django.conf import settings
 from django.urls import path
 
-from core.views import health_check
+from core import views
 
 urlpatterns = [
-    path('health-check/', health_check, name='health-check'),
+    path('', views.IndexView.as_view(), name='index'),
+    path('api/health-check/', views.HeathCheckView.as_view(), name='health-check'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += [
+        path('api/seed/', views.SeedE2ETestsDataView.as_view(), name='seed-db'),
+    ]

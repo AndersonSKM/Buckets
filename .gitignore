@@ -217,3 +217,7 @@ typings/
 
 .vscode/
 .cache/
+
+# Cypress
+videos/
+screenshots/
