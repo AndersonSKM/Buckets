@@ -22,7 +22,7 @@ RUN pip3 install -r /app/requirements.txt
 
 COPY . /app
 WORKDIR /app
-COPY --from=buckets/client:dev /client/dist /public/
+COPY --from=cash-miner/client:dev /client/dist /public/
 
 RUN chmod +x /app/run.sh
 

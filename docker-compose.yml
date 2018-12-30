@@ -21,7 +21,7 @@ services:
       - "6380:6379"
 
   api:
-    image: buckets/api:dev
+    image: cash-miner/api:dev
     container_name: api
     restart: always
     env_file: ./.env
@@ -34,7 +34,7 @@ services:
       - "8000:8000"
 
   client:
-    image: buckets/client:dev
+    image: cash-miner/client:dev
     container_name: client
     restart: always
     env_file: ./.env
@@ -47,7 +47,7 @@ services:
       - "8080:8080"
 
   e2e:
-    image: buckets/e2e:dev
+    image: cash-miner/e2e:dev
     container_name: e2e
     env_file: ./.env
     depends_on:

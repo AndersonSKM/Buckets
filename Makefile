@@ -2,7 +2,7 @@
 include .env
 export $(shell sed 's/=.*//' .env)
 
-PROJECT_NAME := buckets
+PROJECT_NAME := cash-miner
 
 up:
 	docker-compose up -d
