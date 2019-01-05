@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  test:
     machine:
       docker_layer_caching: true
     steps:
@@ -12,7 +12,6 @@ jobs:
             echo "SECRET_KEY=$SECRET_KEY" >> .env
             echo "DATABASE_URL=$DATABASE_URL" >> .env
             echo "REDIS_URL=$REDIS_URL" >> .env
-            echo "VUE_APP_API_URL=$VUE_APP_API_URL" >> .env
             echo "CODECOV_TOKEN=$CODECOV_TOKEN" >> .env
             echo "CYPRESS_RECORD_KEY=$CYPRESS_RECORD_KEY" >> .env
 
@@ -43,20 +42,23 @@ jobs:
       - run:
           name: Coverage
           command: make coverage
+
+  deploy:
+    machine: true
+    steps:
+      - checkout
       - run:
-          name: Deploy API image on Heroku
-          command: |
-            if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
-              docker login --username=_ --password=$HEROKU_API_KEY registry.heroku.com
-              docker tag cash-miner/api:dev registry.heroku.com/$HEROKU_APP/web
-              docker push registry.heroku.com/$HEROKU_APP/web
-              curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
-              heroku container:login
-              heroku container:release web
-            fi
+          name: Push to Heroku
+          command: git push heroku master
 
 workflows:
   version: 2
-  pipeline:
+  test-deploy:
     jobs:
-      - build
+      - test
+      - deploy:
+          requires:
+            - test
+          filters:
+            branches:
+              only: master

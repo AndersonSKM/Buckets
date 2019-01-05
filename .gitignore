@@ -221,3 +221,5 @@ typings/
 # Cypress
 videos/
 screenshots/
+app/public/
+app/media/

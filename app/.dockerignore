@@ -5,3 +5,6 @@ dist/
 .pytest_cache/
 __pycache__/
 *.pyc
+client/node_modules/
+client/dist/
+client/coverage/

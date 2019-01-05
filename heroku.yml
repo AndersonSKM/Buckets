@@ -1,6 +1,6 @@
 build:
   docker:
-    web: api/Dockerfile
+    web: app/Dockerfile
 release:
   command:
     - python3 manage.py migrate --noinput

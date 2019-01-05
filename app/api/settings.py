@@ -45,7 +45,6 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
-    'corsheaders',
 ]
 
 LOCAL_APPS = [
@@ -60,7 +59,6 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # https://docs.djangoproject.com/en/1.10/topics/http/middleware/
 
 SECURITY_MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
 ]
 
@@ -97,7 +95,9 @@ ROOT_URLCONF = 'api.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['/public/'],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'client/dist/'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -174,8 +174,10 @@ SITE_ID = 1
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join('/public/', 'static')
-STATICFILES_DIRS = []
+STATIC_ROOT = os.path.join(BASE_DIR, 'public/static')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'client/dist/static'),
+]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # MEDIA CONFIGURATION
@@ -184,7 +186,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # https://docs.djangoproject.com/en/1.10/ref/settings/#media-url
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/'),
 
 # Django REST framework
 # ------------------------------------------------------------------------------
@@ -255,19 +257,13 @@ EMAIL_HOST = config('EMAIL_BACKEND', default=None)
 EMAIL_PORT = config('EMAIL_PORT', default=587)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=config.boolean)
 
-# CORS
-# ------------------------------------------------------------------------------
-
-CORS_ORIGIN_ALLOW_ALL = DEBUG
-CORS_ORIGIN_WHITELIST = config('CORS_ORIGIN_WHITELIST', default=[], cast=config.list)
-
 # LOGGING
 # ------------------------------------------------------------------------------
 
 LOG_LEVEL = config('LOG_LEVEL', default='INFO').upper()
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
     'formatters': {
         'console': {
             'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
@@ -280,17 +276,17 @@ LOGGING = {
         },
     },
     'loggers': {
-        '': {
+        'django': {
             'level': LOG_LEVEL,
             'handlers': ['console'],
         },
-        'django': {
+        'django.backends.db': {
             'level': LOG_LEVEL,
             'handlers': ['console'],
         },
         'gunicorn': {
             'level': LOG_LEVEL,
             'handlers': ['console'],
-        }
+        },
     }
 }

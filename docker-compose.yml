@@ -4,7 +4,7 @@ services:
   postgres:
     image: postgres:11.1-alpine
     container_name: postgres
-    restart: always
+    restart: on-failure
     environment:
       - POSTGRES_DB=development
     volumes:
@@ -15,43 +15,36 @@ services:
   redis:
     image: redis:3.2-alpine
     container_name: redis
-    restart: always
+    restart: on-failure
     env_file: ./.env
     ports:
       - "6380:6379"
 
-  api:
-    image: cash-miner/api:dev
-    container_name: api
-    restart: always
+  web:
+    build:
+      context: ./app/
+    image: cash-miner/web:dev
+    container_name: web
+    restart: on-failure
     env_file: ./.env
     depends_on:
       - "postgres"
       - "redis"
     volumes:
-      - ./api/:/app/
+      - ./app/:/app/
+      - node_modules:/app/client/node_modules
     ports:
       - "8000:8000"
-
-  client:
-    image: cash-miner/client:dev
-    container_name: client
-    restart: always
-    env_file: ./.env
-    depends_on:
-      - "api"
-    volumes:
-      - ./client:/client/
-      - node_modules:/client/node_modules
-    ports:
       - "8080:8080"
 
-  e2e:
-    image: cash-miner/e2e:dev
-    container_name: e2e
+  cypress:
+    build:
+      context: ./e2e/
+    image: cash-miner/cypress:dev
+    container_name: cypress
     env_file: ./.env
     depends_on:
-      - "client"
+      - "web"
     volumes:
       - ./e2e/:/e2e/
     network_mode: 'host'

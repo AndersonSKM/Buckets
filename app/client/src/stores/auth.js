@@ -55,7 +55,7 @@ const getters = {
 
 const actions = {
   async obtainToken ({ commit }, credentials) {
-    const response = await api.post('auth/jwt/create/', credentials)
+    const response = await api.post('api/auth/jwt/create/', credentials)
 
     if (response.status === 200) {
       commit('SET_TOKEN', response.data.token)
@@ -70,7 +70,7 @@ const actions = {
   },
   async refreshToken ({ state, commit }) {
     try {
-      const response = await api.post('auth/jwt/refresh/', { token: state.token })
+      const response = await api.post('api/auth/jwt/refresh/', { token: state.token })
 
       if (response.status === 200) {
         commit('SET_TOKEN', response.data.token)

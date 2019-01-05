@@ -21,5 +21,5 @@ import './commands'
 
 before(() => {
   cy.log('Seeding tests user')
-  cy.request('POST', Cypress.env('api_url') + '/seed/')
+  cy.request('POST', 'api/seed/')
 })
