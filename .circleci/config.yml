@@ -16,8 +16,6 @@ jobs:
       - image: redis
     steps:
       - checkout
-      - setup_remote_docker:
-        docker_layer_caching: true
       - run:
           name: Install Django Dependencies
           command: |
