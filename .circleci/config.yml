@@ -16,6 +16,8 @@ jobs:
       - image: redis
     steps:
       - checkout
+      - setup_remote_docker:
+        docker_layer_caching: true
       - run:
           name: Install Django Dependencies
           command: |
@@ -31,7 +33,7 @@ jobs:
           name: Up Django Server
           command: |
             cd api/
-            python3 manage.py runserver
+            pipenv run server
           background: true
       - run:
           name: Wait Django Server To Be Ready
