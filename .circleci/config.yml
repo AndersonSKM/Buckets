@@ -57,9 +57,9 @@ jobs:
           name: Upload Tests Results
           command: |
             curl -s https://codecov.io/bash > .codecov
-	          chmod +x .codecov
-	          ./.codecov -Z api/
-	          ./.codecov -Z client/
+            chmod +x .codecov
+            ./.codecov -Z api/
+            ./.codecov -Z client/
 
   deploy:
     machine: true
