@@ -9,14 +9,5 @@ coverage:
   range: 95..100
   round: down
   precision: 2
-  fixes:
-    - "api/::app/api/"
-    - "accounts/::app/accounts/"
-    - "core/::app/core/"
-    - "client/::app/client/"
-    - "src/::app/client/src/"
-    - "src/stores/::app/client/src/stores/"
-    - "src/views/::app/client/src/views/"
-    - "src/plugins/::app/client/src/plugins/"
 
 comment: off

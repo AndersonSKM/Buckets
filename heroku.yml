@@ -1,9 +1,7 @@
 build:
   docker:
-    web: app/Dockerfile
+    web: Dockerfile
 release:
   command:
-    - python3 manage.py migrate --noinput
+    - python3 manage.py collectstatic --noinput && python3 manage.py migrate --noinput
   image: web
-run:
-  web: ./run.sh

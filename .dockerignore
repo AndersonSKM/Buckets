@@ -1,0 +1,10 @@
+./Dockerfile
+api/*coverage/
+api/*.coverage
+api/*.pytest_cache/
+api/*__pycache__
+api/public/*
+*.pyc
+client/node_modules/
+client/dist/
+client/coverage/

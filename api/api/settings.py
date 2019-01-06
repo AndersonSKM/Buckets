@@ -96,7 +96,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'client/dist/'),
+            os.path.join(BASE_DIR, 'public/'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -174,10 +174,8 @@ SITE_ID = 1
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'public/static')
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'client/dist/static'),
-]
+STATIC_ROOT = os.path.join(BASE_DIR, 'public/static/')
+STATICFILES_DIRS = []
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # MEDIA CONFIGURATION
