@@ -22,6 +22,7 @@ jobs:
             sudo pip install pipenv
             cd api/
             pipenv install --dev
+            pipenv shell
       - run:
           name: Install Vue Dependencies
           command: |
@@ -31,7 +32,7 @@ jobs:
           name: Up Django Server
           command: |
             cd api/
-            pipenv run server
+            python3 manage.py runserver
           background: true
       - run:
           name: Wait Django Server To Be Ready
