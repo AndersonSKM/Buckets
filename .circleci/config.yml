@@ -22,7 +22,6 @@ jobs:
             sudo pip install pipenv
             cd api/
             pipenv install --dev
-            pipenv shell
       - run:
           name: Install Vue Dependencies
           command: |
@@ -36,13 +35,31 @@ jobs:
           background: true
       - run:
           name: Wait Django Server To Be Ready
-          command: make health-check
+          command: |
+            cd api/
+            pipenv run health-check
+            pipenv run migrate
       - run:
-          name: Test
-          command: make test
+          name: Test Backend
+          command: |
+            cd api/
+            pipenv run lint
+            pipenv run check-imports
+            pipenv run test
       - run:
-          name: Coverage
-          command: make coverage
+          name: Test Frontend
+          command: |
+            cd client/
+            yarn run lint
+            yarn test:unit
+            yarn test:e2e --record
+      - run:
+          name: Upload Tests Results
+          command: |
+            curl -s https://codecov.io/bash > .codecov
+	          chmod +x .codecov
+	          ./.codecov -Z api/
+	          ./.codecov -Z client/
 
   deploy:
     machine: true

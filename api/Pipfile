@@ -66,3 +66,9 @@ python_version = "3.6"
 
 [scripts]
 server = "python3 manage.py runserver"
+migrate = "python3 manage.py migrate --noinput"
+lint = "flake8 ."
+check-imports = "isort --check --diff -tc -rc ."
+test = "pytest ."
+fix-imports = "isort -tc -rc ."
+health-check = "curl -H \"Accept: application/json\" -sS --retry 10 --retry-max-time 30 --retry-connrefused http://0.0.0.0:8000/api/health-check/"
