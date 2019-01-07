@@ -16,6 +16,12 @@ jobs:
       - image: redis
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            v1-pip-deps-{{ checksum "api/Pipfile.lock" }}
+            v1-pip-deps-
+            v1-npm-deps-{{ checksum "client/yarn.lock" }}
+            v1-npm-deps-
       - run:
           name: Install Django Dependencies
           command: |
@@ -26,7 +32,18 @@ jobs:
           name: Install Vue Dependencies
           command: |
             cd client/
+            yarn global add @vue/cli@3.0.3
             yarn install
+      - save_cache:
+          key: v1-pip-deps-{{ checksum "api/Pipfile.lock" }}
+          paths:
+            - "api/.venv"
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.6/site-packages"
+          key: v1-npm-deps-{{ checksum "client/yarn.lock" }}
+          paths:
+            - "~/.cache/yarn"
+            - "client/node_modules"
       - run:
           name: Up Django Server
           command: |
@@ -53,8 +70,8 @@ jobs:
           command: |
             cd client/
             yarn run lint
-            yarn test:unit
-            yarn test:e2e --record
+            yarn run test:unit
+            yarn run test:e2e --record
       - run:
           name: Upload Tests Results
           command: |
