@@ -36,9 +36,9 @@ jobs:
       - run:
           name: Wait Django Server To Be Ready
           command: |
-            cd api/
-            pipenv run health-check
-            pipenv run migrate
+            curl -H "Accept: application/json" \
+              -sS --retry 10 --retry-max-time 30 \
+              --retry-connrefused http://0.0.0.0:8000/api/health-check/
       - run:
           name: Test Backend
           command: |
