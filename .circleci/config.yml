@@ -19,27 +19,27 @@ jobs:
       - restore_cache:
           keys:
             v1-pip-deps-{{ checksum "api/Pipfile.lock" }}
-            v1-pip-deps-
+            v1-pip-deps
             v1-npm-deps-{{ checksum "client/yarn.lock" }}
-            v1-npm-deps-
+            v1-npm-deps
       - run:
           name: Install Django Dependencies
           command: |
             sudo pip install pipenv
             cd api/
             pipenv install --dev
-      - run:
-          name: Install Vue Dependencies
-          command: |
-            cd client/
-            yarn global add @vue/cli@3.0.3
-            yarn install
       - save_cache:
           key: v1-pip-deps-{{ checksum "api/Pipfile.lock" }}
           paths:
             - "api/.venv"
             - "/usr/local/bin"
             - "/usr/local/lib/python3.6/site-packages"
+      - run:
+          name: Install Vue Dependencies
+          command: |
+            cd client/
+            yarn global add @vue/cli@3.0.3
+            yarn install
       - save_cache:
           key: v1-npm-deps-{{ checksum "client/yarn.lock" }}
           paths:
@@ -54,10 +54,8 @@ jobs:
       - run:
           name: Wait Django Server To Be Ready
           command: |
+            make health-check
             cd api/
-            curl -H "Accept: application/json" \
-              -sS --retry 10 --retry-max-time 30 \
-              --retry-connrefused http://0.0.0.0:8000/api/health-check/
             pipenv run migrate
       - run:
           name: Test Backend
@@ -75,11 +73,7 @@ jobs:
             yarn run test:e2e --record
       - run:
           name: Upload Tests Results
-          command: |
-            curl -s https://codecov.io/bash > .codecov
-            chmod +x .codecov
-            ./.codecov -Z api/
-            ./.codecov -Z client/
+          command: make codecov
 
   deploy:
     machine: true

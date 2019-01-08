@@ -23,6 +23,7 @@ FROM python:3.6-alpine3.7
 
 RUN apk update && apk upgrade && \
     apk add --update \
+    bash \
     build-base \
     postgresql-dev \
     zlib-dev \
@@ -39,9 +40,12 @@ COPY ./api/Pipfile.lock /app
 RUN pipenv install --system --deploy
 
 COPY ./api /app
+RUN chmod +x /app/deployment-tasks.sh
 COPY --from=builder /api/public/ /app/public/
 
 ENV PORT=8000
+ENV DEBUG=false
+
 EXPOSE ${PORT}
 
-CMD ["sh", "-c", "/usr/local/bin/gunicorn api.wsgi -b 0.0.0.0:$PORT"]
+CMD ["/bin/bash", "-c", "/usr/local/bin/gunicorn api.wsgi -b 0.0.0.0:$PORT"]

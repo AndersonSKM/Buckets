@@ -8,3 +8,5 @@ api/public/*
 client/node_modules/
 client/dist/
 client/coverage/
+client/tests/e2e/screenshots/
+client/tests/e2e/videos/

@@ -3,5 +3,5 @@ build:
     web: Dockerfile
 release:
   command:
-    - python3 manage.py collectstatic --noinput && python3 manage.py migrate --noinput
+    - ./deployment-tasks.sh
   image: web
