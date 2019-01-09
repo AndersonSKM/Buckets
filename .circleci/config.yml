@@ -41,7 +41,7 @@ jobs:
             yarn global add @vue/cli@3.0.3
             yarn install
       - save_cache:
-          key: cash-miner-npm-v1-{{ checksum "./client/yarn.lock" }}
+          key: cash-miner-npm-v2-{{ checksum "./client/yarn.lock" }}
           paths:
             - "~/.cache/yarn"
             - "client/node_modules"
