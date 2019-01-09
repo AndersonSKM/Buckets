@@ -19,9 +19,6 @@ jobs:
       - restore_cache:
           keys:
             v1-pip-deps-{{ checksum "api/Pipfile.lock" }}
-            v1-pip-deps
-            v1-npm-deps-{{ checksum "client/yarn.lock" }}
-            v1-npm-deps
       - run:
           name: Install Django Dependencies
           command: |
@@ -34,6 +31,9 @@ jobs:
             - "api/.venv"
             - "/usr/local/bin"
             - "/usr/local/lib/python3.6/site-packages"
+      - restore_cache:
+          keys:
+            v1-npm-deps-{{ checksum "client/yarn.lock" }}
       - run:
           name: Install Vue Dependencies
           command: |
