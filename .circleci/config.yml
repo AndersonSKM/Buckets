@@ -44,6 +44,7 @@ jobs:
           key: cash-miner-npm-v2-{{ checksum "./client/yarn.lock" }}
           paths:
             - "~/.cache/yarn"
+            - "~/.cache/Cypress"
             - "client/node_modules"
       - run:
           name: Up Django Server
