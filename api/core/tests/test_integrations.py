@@ -1,4 +1,5 @@
 import pytest
+from django.http import HttpResponse
 from django.test import Client as DjangoClient
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
@@ -17,8 +18,12 @@ class TestIndexPage:
     def client(self):
         return DjangoClient()
 
-    def test_successfully(self, client, url):
+    @patch('core.views.render')
+    def test_successfully(self, mock_render, client, url):
+        mock_render.return_value = HttpResponse(status=status.HTTP_200_OK)
         response = client.get(path=url)
+
+        assert mock_render.called
         assert response.status_code == status.HTTP_200_OK
 
 

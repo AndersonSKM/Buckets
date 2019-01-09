@@ -221,3 +221,5 @@ typings/
 # Cypress
 videos/
 screenshots/
+api/public/*
+media/
