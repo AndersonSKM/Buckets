@@ -18,7 +18,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            v1-pip-deps-{{ checksum "./api/Pipfile.lock" }}
+            - cash-miner-pip-v1-{{ checksum "./api/Pipfile.lock" }}
       - run:
           name: Install Django Dependencies
           command: |
@@ -26,14 +26,14 @@ jobs:
             cd api/
             pipenv install --dev
       - save_cache:
-          key: v1-pip-deps-{{ checksum "./api/Pipfile.lock" }}
+          key: cash-miner-pip-v1-{{ checksum "./api/Pipfile.lock" }}
           paths:
             - "api/.venv"
             - "/usr/local/bin"
             - "/usr/local/lib/python3.6/site-packages"
       - restore_cache:
           keys:
-            v1-npm-deps-{{ checksum "./client/yarn.lock" }}
+            - cash-miner-npm-v1-{{ checksum "./client/yarn.lock" }}
       - run:
           name: Install Vue Dependencies
           command: |
@@ -41,7 +41,7 @@ jobs:
             yarn global add @vue/cli@3.0.3
             yarn install
       - save_cache:
-          key: v1-npm-deps-{{ checksum "./client/yarn.lock" }}
+          key: cash-miner-npm-v1-{{ checksum "./client/yarn.lock" }}
           paths:
             - "~/.cache/yarn"
             - "client/node_modules"
