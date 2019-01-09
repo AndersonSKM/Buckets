@@ -18,8 +18,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - cash-miner-pip-v3-{{ checksum "./api/Pipfile.lock" }}
-            - cash-miner-pip-v3-
+            - pip-deps-{{ .Environment.CACHE_VERSION }}-{{ checksum "./api/Pipfile.lock" }}
+            - pip-deps-{{ .Environment.CACHE_VERSION }}-
       - run:
           name: Install Django Dependencies
           command: |
@@ -27,13 +27,13 @@ jobs:
             cd api/
             pipenv install --dev
       - save_cache:
-          key: cash-miner-pip-v3-{{ checksum "./api/Pipfile.lock" }}
+          key: pip-deps-{{ .Environment.CACHE_VERSION }}-{{ checksum "./api/Pipfile.lock" }}
           paths:
             - "api/.venv"
       - restore_cache:
           keys:
-            - cash-miner-npm-v3-{{ checksum "./client/yarn.lock" }}
-            - cash-miner-npm-v3-
+            - npm-deps-{{ .Environment.CACHE_VERSION }}-{{ checksum "./client/yarn.lock" }}
+            - npm-deps-{{ .Environment.CACHE_VERSION }}-
       - run:
           name: Install Vue Dependencies
           command: |
@@ -41,7 +41,7 @@ jobs:
             yarn global add @vue/cli@3.0.3
             yarn install
       - save_cache:
-          key: cash-miner-npm-v3-{{ checksum "./client/yarn.lock" }}
+          key: npm-deps-{{ .Environment.CACHE_VERSION }}-{{ checksum "./client/yarn.lock" }}
           paths:
             - "~/.cache/yarn"
             - "~/.cache/Cypress"
@@ -83,7 +83,8 @@ jobs:
       - checkout
       - run:
           name: Deploy Master to Heroku
-          command: git push heroku master
+          command: |
+            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git master
 
 workflows:
   version: 2
