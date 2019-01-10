@@ -45,6 +45,9 @@ COPY --from=builder /api/public/ /app/public/
 
 ENV PORT=8000
 ENV DEBUG=false
+ENV LOG_LEVEL=INFO
+
+RUN python3 manage.py collectstatic --noinput
 
 EXPOSE ${PORT}
 
