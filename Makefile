@@ -26,12 +26,22 @@ build:
 	docker build . -t cash-miner:dev -f Dockerfile
 
 deploy-local:
-	$(info Running image localy)
+	$(info Running database migrations)
+	docker run --rm \
+		-e DATABASE_URL \
+		-e SECRET_KEY \
+		-it \
+		--name cash-miner \
+		cash-miner:dev \
+		python3 manage.py migrate --noinput
+	$(info Running application)
 	docker run --rm -p 8000:8000 \
 		-e DATABASE_URL \
 		-e REDIS_URL \
 		-e SECRET_KEY \
-		-it --name cash-miner cash-miner:dev \
+		-it \
+		--name cash-miner \
+		cash-miner:dev
 
 codecov:
 	$(info Running test coverage)
