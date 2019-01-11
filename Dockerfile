@@ -23,10 +23,11 @@ RUN mkdir -p /app/
 WORKDIR /app/
 COPY ./api/Pipfile /app
 COPY ./api/Pipfile.lock /app
+ENV PIPENV_HIDE_EMOJIS=true
+ENV PIPENV_NOSPIN=true
 RUN pipenv install --system --deploy
 
 COPY ./api /app
-RUN chmod +x /app/deployment-tasks.sh
 COPY --from=builder /api/public/ /app/public/
 
 ENV PORT=8000
