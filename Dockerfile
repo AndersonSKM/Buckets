@@ -34,6 +34,4 @@ ENV PORT=8000
 ENV DEBUG=false
 EXPOSE ${PORT}
 
-RUN python3 manage.py collectstatic --noinput
-
 CMD ["/bin/bash", "-c", "/usr/local/bin/gunicorn api.wsgi -b 0.0.0.0:$PORT"]
