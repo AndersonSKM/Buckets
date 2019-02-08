@@ -71,7 +71,7 @@ jobs:
             cd client/
             yarn run lint
             yarn run test:unit
-            yarn run test:e2e --record
+            yarn run test:e2e --headless --record
       - run:
           name: Upload Tests Results
           command: make codecov
