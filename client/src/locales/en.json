@@ -1,8 +1,6 @@
 {
-  "application": {
-    "name": "Cash Miner"
-  },
   "globals": {
+    "app-name": "Cash Miner",
     "password": "Password"
   },
   "sign-in-view": {
@@ -11,9 +9,11 @@
     "forgot-your-password": "Forgot your password?",
     "dont-have-an-account": "Don't have an account?"
   },
-  "password-forgot-view": {
+  "password-reset-view": {
     "label": "Reset your password",
-    "submit": "Submit",
-    "try-sign-in": "Try to sign in again."
+    "help-text-before-send": "Enter your email address and we will send you a link to reset your password.",
+    "help-text-after-send": "Check your email for a link to reset your password. If it doesn’t appear within a few minutes, check your spam folder.",
+    "send-password-reset-email": "Send password reset email",
+    "return-to-sign-in": "Return to sign in"
   }
 }
