@@ -217,6 +217,7 @@ typings/
 
 .vscode/
 .cache/
+.idea/
 
 # Cypress
 videos/
