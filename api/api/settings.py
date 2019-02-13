@@ -119,8 +119,10 @@ WSGI_APPLICATION = 'api.wsgi.application'
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
+DATABASE_URL = config('DATABASE_URL')
+
 DATABASES = {
-    'default': dj_database_url.config(conn_max_age=30)
+    'default': dj_database_url.parse(DATABASE_URL, conn_max_age=30)
 }
 
 # CACHE CONFIGURATION
