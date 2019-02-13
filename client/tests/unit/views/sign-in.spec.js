@@ -47,7 +47,7 @@ describe('SignInView', () => {
       resetForm: jest.fn()
     })
     wrapper.vm.$store.dispatch = jest.fn(() => {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         resolve({
           status: 200
         })
