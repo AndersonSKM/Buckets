@@ -31,7 +31,7 @@ describe('PasswordResetView', () => {
     wrapper.vm.$services.user.sendPasswordResetEmail.mockClear()
   })
 
-  it('sets ok if form is submited with a valid email', async () => {
+  it('sets ok if form is submitted with a valid email', async () => {
     wrapper.find('form[data-ref=form]').trigger('submit')
     await flushPromises()
 
@@ -60,6 +60,21 @@ describe('PasswordResetView', () => {
 
     expect(wrapper.vm.errors.count()).toBe(1)
     expect(wrapper.vm.ok).toBeFalsy()
+  })
+
+  it('does nothing if the form is invalid', async () => {
+    wrapper.setMethods({
+      resetForm: jest.fn()
+    })
+    wrapper.setData({
+      email: ''
+    })
+    wrapper.find('form[data-ref=form]').trigger('submit')
+    await flushPromises()
+
+    expect(wrapper.vm.errors.count()).toBe(1)
+    expect(wrapper.vm.resetForm).toHaveBeenCalledTimes(1)
+    expect(wrapper.vm.$services.user.sendPasswordResetEmail).not.toHaveBeenCalled()
   })
 
   it('returns the correct label', () => {
