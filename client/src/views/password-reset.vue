@@ -76,7 +76,7 @@ export default {
   methods: {
     async submit () {
       if (!await this.$validator.validateAll()) {
-        return
+        return this.resetForm()
       }
 
       try {
@@ -86,6 +86,9 @@ export default {
         this.handleApiValidations(error, this.$validator)
       }
 
+      this.resetForm()
+    },
+    resetForm () {
       this.$refs.form.reset()
       this.$refs.email.focus()
     }
