@@ -26,6 +26,18 @@ describe('/password-reset', () => {
     })
   })
 
+  it('focus on email field when form is blank', () => {
+    cy.visit('#/password-reset')
+
+    cy.get('form[data-ref=form]').within(() => {
+      cy.get('button[data-ref=submit]')
+        .click()
+      cy.focused()
+        .should('have.attr', 'data-ref', 'email')
+        .should('have.value', '')
+    })
+  })
+
   it('hides the form and show the button to retrun to sig in when sucessfuly subimit', () => {
     cy.visit('#/password-reset')
 

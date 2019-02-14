@@ -101,8 +101,8 @@
       "!**/node_modules/**",
       "!tests/**",
       "!src/main.js",
+      "!src/plugins/services/index.js",
       "!src/i18n.js",
-      "!src/registerServiceWorker.js",
       "!src/plugins/vuetify.js",
       "!src/store.js",
       "!src/router.js"
