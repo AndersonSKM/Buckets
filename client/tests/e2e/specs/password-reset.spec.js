@@ -38,7 +38,7 @@ describe('/password-reset', () => {
     })
   })
 
-  it('hides the form and show the button to retrun to sig in when sucessfuly subimit', () => {
+  it('hides the form and show the button to return to sig in when successfully submit', () => {
     cy.visit('#/password-reset')
 
     cy.get('form[data-ref=form]').within(() => {
