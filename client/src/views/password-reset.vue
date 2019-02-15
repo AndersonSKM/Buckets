@@ -1,8 +1,8 @@
 <template>
-  <cmp-greeting-page :label="label" :helpText="helpText">
+  <cmp-greeting-page :label="$t('password-reset-view.label')" :helpText="helpText">
     <v-form @submit.prevent="submit" ref="form" data-ref="form" v-if="!ok">
       <v-text-field
-        prepend-icon="person"
+        prepend-icon="email"
         label="E-mail"
         type="text"
         ref="email"
@@ -64,9 +64,6 @@ export default {
   },
 
   computed: {
-    label () {
-      return this.$t('password-reset-view.label')
-    },
     helpText () {
       const textKind = this.ok ? 'after' : 'before'
       return this.$t(`password-reset-view.help-text-${textKind}-send`)
