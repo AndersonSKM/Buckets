@@ -10,8 +10,7 @@ describe('PasswordResetView', () => {
     wrapper = mount(PasswordResetView, {
       sync: false,
       stubs: [
-        'router-link',
-        'cmp-greeting-page'
+        'router-link'
       ],
       mocks: {
         $services: {
@@ -75,10 +74,6 @@ describe('PasswordResetView', () => {
     expect(wrapper.vm.errors.count()).toBe(1)
     expect(wrapper.vm.resetForm).toHaveBeenCalledTimes(1)
     expect(wrapper.vm.$services.user.sendPasswordResetEmail).not.toHaveBeenCalled()
-  })
-
-  it('returns the correct label', () => {
-    expect(wrapper.vm.label).toEqual('password-reset-view.label')
   })
 
   it('returns the correct helpText when ok is false', () => {

@@ -10,8 +10,7 @@ describe('SignInView', () => {
     wrapper = mount(SignInView, {
       sync: false,
       stubs: [
-        'router-link',
-        'cmp-greeting-page'
+        'router-link'
       ]
     })
 
