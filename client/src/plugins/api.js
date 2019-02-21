@@ -1,6 +1,6 @@
-import axios from 'axios'
+import Axios from 'axios'
 
-export default axios.create({
+export default Axios.create({
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
