@@ -40,11 +40,9 @@ describe('refreshToken', () => {
     API.post = jest.fn(() => {
       throw new Error('Bad request')
     })
-    global.console.log = jest.fn()
     const result = await AuthService.refreshToken(fakeToken)
 
     expect(result).toEqual('')
-    expect(global.console.log).toHaveBeenCalledTimes(1)
   })
 })
 
