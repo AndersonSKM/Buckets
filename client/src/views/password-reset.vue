@@ -4,6 +4,7 @@
       <v-text-field
         prepend-icon="email"
         label="E-mail"
+        color="grey darken-2"
         type="text"
         ref="email"
         data-ref="email"
@@ -46,14 +47,13 @@
 </template>
 
 <script>
-import CmpGreetingPage from '@/components/greeting-page.vue'
 import ApiValidationsHandlerMixin from '@/mixins/api-validations-handler.js'
 
 export default {
   name: 'PasswordResetView',
   mixins: [ApiValidationsHandlerMixin],
   components: {
-    'cmp-greeting-page': CmpGreetingPage
+    'cmp-greeting-page': () => import('@/components/greeting-page.vue')
   },
 
   data () {
