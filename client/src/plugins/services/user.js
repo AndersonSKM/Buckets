@@ -6,6 +6,14 @@ class UserService {
       email: email
     })
   }
+
+  async create ({ name, email, password }) {
+    return API.post('api/accounts/users/', {
+      name,
+      email,
+      password
+    })
+  }
 }
 
 export default new UserService()
