@@ -16,8 +16,7 @@ def seed_e2e_user():
     return User.objects.create_user(
         email='john.doe@test.com',
         password='johndoe',
-        first_name='John',
-        last_name='Doe'
+        name='John Doe',
     )
 
 

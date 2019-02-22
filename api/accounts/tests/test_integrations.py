@@ -11,8 +11,7 @@ from accounts.models import User
 @pytest.fixture
 def user_data():
     return {
-        'first_name': 'Bruce',
-        'last_name': 'Wayne',
+        'name': 'Bruce Wayne',
         'id': '4af5528b-0b75-44d9-aaf4-995f7f0849e3',
         'email': 'bruce@we.com',
         'created_at': '2018-01-04T13:30:55Z',
@@ -26,8 +25,7 @@ class TestUserCreate:
     def input_data(self):
         return {
             'email': 'bruce@we.com',
-            'first_name': 'Bruce',
-            'last_name': 'Wayne',
+            'name': 'Bruce Wayne',
             'password': 'secretPa$$123',
         }
 
@@ -35,7 +33,7 @@ class TestUserCreate:
     def url(self):
         return reverse('accounts:user-create')
 
-    def test_anonymous_user(self, anonymous_client, url, input_data, mailoutbox):
+    def test_successfully_create(self, anonymous_client, url, input_data, mailoutbox):
         response = anonymous_client.post(path=url, data=input_data)
         user = User.objects.get_by_natural_key(input_data['email'])
 
@@ -44,7 +42,7 @@ class TestUserCreate:
         assert not user.is_staff
         assert not user.is_active
 
-    def test_weak_password(self, anonymous_client, url, input_data):
+    def test_bad_request_with_weak_password(self, anonymous_client, url, input_data):
         input_data['password'] = 'bruce'
         response = anonymous_client.post(path=url, data=input_data)
 
@@ -60,7 +58,7 @@ class TestUserRetrieve:
     def url(self):
         return reverse('accounts:user')
 
-    def test_retrieve_self_record(self, anonymous_client, url, user_data, jwt):
+    def test_successfully_retrieve_self_record(self, anonymous_client, url, user_data, jwt):
         user = mixer.blend(User, is_active=True, **user_data)
 
         token = jwt(user)
@@ -77,12 +75,12 @@ class TestUserUpdate:
     def url(self):
         return reverse('accounts:user')
 
-    def test_update_self_record(self, client, url, user):
-        response = client.patch(path=url, data={'first_name': 'Austin Powers'})
+    def test_successfully_update_self_record(self, client, url, user):
+        response = client.patch(path=url, data={'name': 'Austin Powers'})
         user.refresh_from_db()
 
         assert response.status_code == status.HTTP_200_OK
-        assert user.first_name == 'Austin Powers'
+        assert user.name == 'Austin Powers'
 
     def test_block_update_is_staff_and_is_superuser(self, client, url, user):
         response = client.patch(path=url, data={'is_staff': True, 'is_superuser': True})

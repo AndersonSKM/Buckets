@@ -25,6 +25,6 @@ class HeathCheckView(views.APIView):
 class SeedE2ETestsDataView(views.APIView):
     permission_classes = [AllowAny,]
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         services.seed_e2e_user()
         return Response(status=status.HTTP_201_CREATED)

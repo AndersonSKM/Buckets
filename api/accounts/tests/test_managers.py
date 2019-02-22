@@ -11,16 +11,14 @@ class TestUserManager:
         return {
             'email': 'bruce@we.com',
             'password': '|e_Aub*SF.9F',
-            'first_name': 'bruce',
-            'last_name': 'wayne',
+            'name': 'Bruce Wayne',
         }
 
     def test_create_user(self, data):
         user = User.objects.create_user(**data)
 
         assert user.email == data['email']
-        assert user.first_name == data['first_name']
-        assert user.last_name == data['last_name']
+        assert user.name == data['name']
         assert user.check_password(data['password'])
         assert not user.is_staff
         assert not user.is_superuser

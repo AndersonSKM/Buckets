@@ -14,8 +14,7 @@ class TestSeedE2ETestsData:
         mock_user_model.objects.create_user.assert_called_once_with(
             email='john.doe@test.com',
             password='johndoe',
-            first_name='John',
-            last_name='Doe'
+            name='John Doe'
         )
 
     @patch('core.services.User')
@@ -30,7 +29,7 @@ class TestSeedE2ETestsData:
 
 @pytest.mark.django_db
 class TestCheckDatabaseState:
-    def test_sucessfully(self, django_assert_max_num_queries):
+    def test_successfully(self, django_assert_max_num_queries):
         with django_assert_max_num_queries(1):
             services.check_database_state()
 
@@ -44,7 +43,7 @@ class TestCheckDatabaseState:
 
 
 class TestCheckCacheState:
-    def test_sucessfully(self):
+    def test_successfully(self):
         services.check_cache_state()
 
     @patch('core.services.cache')
