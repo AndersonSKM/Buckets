@@ -1,5 +1,13 @@
 <template>
   <cmp-greeting-page :label="$t('sign-up-view.label')">
+    <v-alert
+      data-ref="success-info"
+      :value="ok"
+      color="success"
+      icon="check_circle"
+      outline>
+      {{ $t('sign-up-view.alert-after-create') }}
+    </v-alert>
     <v-form @submit.prevent="submit" ref="form" data-ref="form" v-if="!ok">
       <cmp-form-error-list/>
       <v-text-field
@@ -51,24 +59,24 @@
           outline
           color="secondary"
           data-ref="submit"
-          class="text-capitalize"
+          class="text-none"
           dark>
           {{ $t('sign-up-view.continue') }}
         </v-btn>
       </v-layout>
     </v-form>
     <div data-ref="try-sign-in" v-if="ok">
-      <v-layout row mt-3>
+      <v-layout row mt-4>
         <v-btn
           to="/sign-in"
           outline
           round
           large
           block
-          color="success"
-          class="text-capitalize"
+          color="secondary"
+          class="text-none"
           data-ref="return-to-sign-in">
-          {{ $t('sign-up-view.sign-up-for-cash-miner') }}
+          {{ $t('sign-up-view.sign-in') }}
         </v-btn>
       </v-layout>
     </div>
@@ -111,13 +119,8 @@ export default {
         this.ok = response.status === 201
       } catch (error) {
         this.handleApiValidations(error, this.$validator)
+        this.password = ''
       }
-
-      this.resetForm()
-    },
-    resetForm () {
-      this.$refs.form.reset()
-      this.$refs.name.focus()
     }
   }
 }

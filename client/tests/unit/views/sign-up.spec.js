@@ -40,21 +40,14 @@ describe('SignUpView', () => {
         email: '',
         password: ''
       })
-      wrapper.setMethods({
-        resetForm: jest.fn()
-      })
       wrapper.find('form[data-ref=form]').trigger('submit')
       await flushPromises()
 
       expect(wrapper.vm.errors.count()).toBe(3)
       expect(wrapper.vm.$services.user.create).not.toHaveBeenCalled()
-      expect(wrapper.vm.resetForm).not.toHaveBeenCalled()
     })
 
     it('calls the store if email and password are not blank', async () => {
-      wrapper.setMethods({
-        resetForm: jest.fn()
-      })
       wrapper.vm.$services.user.create = jest.fn(() => {
         return new Promise((resolve) => {
           resolve({
@@ -70,14 +63,10 @@ describe('SignUpView', () => {
         email: wrapper.vm.email,
         password: wrapper.vm.password
       })
-      expect(wrapper.vm.resetForm).toHaveBeenCalledTimes(1)
       expect(wrapper.vm.ok).toBeTruthy()
     })
 
     it('sets the error message if api return a 400 error', async () => {
-      wrapper.setMethods({
-        resetForm: jest.fn()
-      })
       wrapper.vm.$services.user.create = jest.fn(() => {
         return new Promise((resolve, reject) => {
           const error = new Error('Bad Request')
@@ -97,19 +86,7 @@ describe('SignUpView', () => {
 
       expect(wrapper.vm.ok).toBeFalsy()
       expect(wrapper.vm.$validator.errors.count()).toEqual(1)
-      expect(wrapper.vm.resetForm).toHaveBeenCalledTimes(1)
-    })
-  })
-
-  describe('resetForm', () => {
-    it('clears the form and focus on email field when is called', () => {
-      wrapper.vm.$refs.name.focus = jest.fn()
-      wrapper.vm.resetForm()
-
-      expect(wrapper.vm.name).toBeUndefined()
-      expect(wrapper.vm.email).toBeUndefined()
-      expect(wrapper.vm.password).toBeUndefined()
-      expect(wrapper.vm.$refs.name.focus).toHaveBeenCalledTimes(1)
+      expect(wrapper.vm.password).toBe('')
     })
   })
 })

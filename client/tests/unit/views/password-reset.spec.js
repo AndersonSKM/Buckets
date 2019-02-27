@@ -78,12 +78,12 @@ describe('PasswordResetView', () => {
 
   it('returns the correct helpText when ok is false', () => {
     wrapper.setData({ ok: false })
-    expect(wrapper.vm.helpText).toEqual('password-reset-view.help-text-before-send')
+    expect(wrapper.vm.helpText).toEqual('password-reset-view.help-text')
   })
 
   it('returns the correct helpText when ok is true', () => {
     wrapper.setData({ ok: true })
-    expect(wrapper.vm.helpText).toEqual('password-reset-view.help-text-after-send')
+    expect(wrapper.vm.helpText).toBeNull()
   })
 
   it('shows the form when ok is false', async () => {

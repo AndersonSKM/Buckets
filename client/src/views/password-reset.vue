@@ -1,5 +1,15 @@
 <template>
-  <cmp-greeting-page :label="$t('password-reset-view.label')" :helpText="helpText">
+  <cmp-greeting-page
+    :label="$t('password-reset-view.label')"
+    :helpText="helpText">
+    <v-alert
+      data-ref="success-info"
+      :value="ok"
+      color="success"
+      icon="check_circle"
+      outline>
+      {{ $t('password-reset-view.alert-after-send') }}
+    </v-alert>
     <v-form @submit.prevent="submit" ref="form" data-ref="form" v-if="!ok">
       <v-text-field
         prepend-icon="email"
@@ -23,7 +33,7 @@
           block
           color="secondary"
           data-ref="submit"
-          class="text-capitalize">
+          class="text-none">
           {{ $t('password-reset-view.send-password-reset-email') }}
         </v-btn>
       </v-layout>
@@ -36,8 +46,8 @@
           round
           large
           block
-          color="success"
-          class="text-capitalize"
+          color="secondary"
+          class="text-none"
           data-ref="return-to-sign-in">
           {{ $t('password-reset-view.return-to-sign-in') }}
         </v-btn>
@@ -65,8 +75,7 @@ export default {
 
   computed: {
     helpText () {
-      const textKind = this.ok ? 'after' : 'before'
-      return this.$t(`password-reset-view.help-text-${textKind}-send`)
+      return this.ok ? null : this.$t('password-reset-view.help-text')
     }
   },
 
