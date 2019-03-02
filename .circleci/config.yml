@@ -74,7 +74,10 @@ jobs:
             yarn run test:e2e --headless --record
       - run:
           name: Upload Tests Results
-          command: make codecov
+          command: |
+            pip install codecov
+            make codecov
+
 
 workflows:
   version: 2
