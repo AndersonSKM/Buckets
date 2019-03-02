@@ -32,6 +32,9 @@ COPY --from=builder /api/public/ /app/public/
 
 ENV PORT=8000
 ENV DEBUG=false
+ENV SECRET_KEY=dumb
 EXPOSE ${PORT}
+
+RUN python manage.py collectstatic
 
 CMD ["/bin/bash", "-c", "/usr/local/bin/gunicorn api.wsgi -b 0.0.0.0:$PORT"]

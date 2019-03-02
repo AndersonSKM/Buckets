@@ -33,10 +33,10 @@ deploy-local:
 		-it \
 		--name cash-miner \
 		cash-miner:dev \
-		python3 manage.py collectstatic --noinput && \
-		python3 manage.py migrate --noinput
+		python manage.py migrate --noinput
 	$(info Running application)
-	docker run --rm -p 8000:8000 \
+	docker run --rm \
+	    -p 8000:8000 \
 		-e DATABASE_URL \
 		-e REDIS_URL \
 		-e SECRET_KEY \
