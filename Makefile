@@ -49,5 +49,4 @@ codecov:
 	$(info Running test coverage)
 	curl -s https://codecov.io/bash > .codecov
 	chmod +x .codecov
-	./.codecov -Z api/
-	./.codecov -Z client/
+	./.codecov -Z .
