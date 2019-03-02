@@ -33,6 +33,7 @@ deploy-local:
 		-it \
 		--name cash-miner \
 		cash-miner:dev \
+		python manage.py collectstatic --noinput && \
 		python manage.py migrate --noinput
 	$(info Running application)
 	docker run --rm \
