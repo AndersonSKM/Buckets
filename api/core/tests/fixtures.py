@@ -36,8 +36,7 @@ def user(user_model):
     return user_model.objects.create_user(
         email='user@user.com',
         password='user',
-        first_name='John',
-        last_name='Doe'
+        name='John Doe'
     )
 
 
@@ -50,8 +49,7 @@ def inactive_user(user_model):
         email='inactive@user.com',
         password='inactive',
         is_active=False,
-        first_name='Inactive',
-        last_name='User'
+        name='Inactive User'
     )
 
 

@@ -1,19 +1,11 @@
 <template>
   <cmp-greeting-page :label="label">
     <v-form @submit.prevent="login" ref="form" data-ref="form">
-      <v-layout align-center mt-3 mb-3 ml-4>
-        <ul data-ref="error-list">
-          <li
-            class="title font-weight-light red--text"
-            v-for="(error, index) in errors.collect('non_field_errors')"
-            :key="index">
-            {{error}}
-          </li>
-        </ul>
-      </v-layout>
+      <cmp-form-error-list/>
       <v-text-field
         data-ref="email"
-        prepend-icon="person"
+        prepend-icon="email"
+        color="grey darken-2"
         label="E-mail"
         type="text"
         ref="email"
@@ -27,7 +19,8 @@
       <v-text-field
         data-ref="password"
         prepend-icon="lock"
-        v-bind:label="$t('globals.password')"
+        color="grey darken-2"
+        :label="$t('globals.password')"
         type="password"
         ref="password"
         required
@@ -37,38 +30,44 @@
         :error-messages="errors.first('password')">
       </v-text-field>
       <v-layout row mt-2>
-        <v-btn type="submit" round large block color="secondary" data-ref="submit" dark>
-          <v-layout row justify-space-between>
-            <v-flex xs2></v-flex><v-flex xs2>{{ $t('sign-in-view.login') }}</v-flex>
-            <v-flex xs2>
-              <v-icon class="material-icons" right>keyboard_arrow_right</v-icon>
-            </v-flex>
-          </v-layout>
+        <v-btn
+          type="submit"
+          round
+          large
+          block
+          outline
+          color="secondary"
+          class="text-capitalize"
+          data-ref="submit"
+          dark>
+          {{ $t('sign-in-view.login') }}
         </v-btn>
       </v-layout>
     </v-form>
     <v-layout justify-space-between row fill-height mt-3>
-      <p class="subheading font-weight-light grey--text" role="button">
+      <p class="subheading font-weight-light" role="button">
         <router-link to="/password-reset" data-ref="password-forgot">
-          <u>{{ $t('sign-in-view.forgot-your-password') }}</u>
+          <u class="grey--text text--darken-4">{{ $t('sign-in-view.forgot-your-password') }}</u>
         </router-link>
       </p>
-      <p class="subheading font-weight-light grey--text" role="button">
-        <u>{{ $t('sign-in-view.dont-have-an-account') }}</u>
+      <p class="subheading font-weight-light" role="button">
+        <router-link to="/sign-up" data-ref="sign-up">
+          <u class="grey--text text--darken-4">{{ $t('sign-in-view.dont-have-an-account') }}</u>
+        </router-link>
       </p>
     </v-layout>
   </cmp-greeting-page>
 </template>
 
 <script>
-import CmpGreetingPage from '@/components/greeting-page.vue'
 import ApiValidationsHandlerMixin from '@/mixins/api-validations-handler.js'
 
 export default {
   name: 'SigInView',
   mixins: [ApiValidationsHandlerMixin],
   components: {
-    'cmp-greeting-page': CmpGreetingPage
+    'cmp-greeting-page': () => import('@/components/greeting-page.vue'),
+    'cmp-form-error-list': () => import('@/components/form-error-list.vue')
   },
 
   data () {
@@ -112,6 +111,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-</style>

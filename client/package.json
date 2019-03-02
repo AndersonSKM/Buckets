@@ -33,107 +33,15 @@
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "^10.0.1",
     "babel-jest": "^23.6.0",
-    "cypress": "^3.1.4",
+    "css-loader": "^2.1.0",
     "eslint": "^5.8.0",
     "eslint-plugin-vue": "^5.0.0",
     "flush-promises": "^1.0.1",
+    "style-loader": "^0.23.1",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.2",
     "vue-cli-plugin-i18n": "^0.5.0",
     "vue-cli-plugin-vuetify": "^0.1.6",
     "vue-template-compiler": "^2.5.21"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "@vue/standard"
-    ],
-    "rules": {},
-    "parserOptions": {
-      "parser": "babel-eslint",
-      "ecmaVersion": 2017
-    }
-  },
-  "postcss": {
-    "plugins": {
-      "autoprefixer": {}
-    }
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not ie <= 8"
-  ],
-  "jest": {
-    "setupTestFrameworkScriptFile": "<rootDir>/tests/unit/jest-setup.js",
-    "moduleFileExtensions": [
-      "js",
-      "jsx",
-      "json",
-      "vue"
-    ],
-    "transform": {
-      "^.+\\.vue$": "vue-jest",
-      ".+\\.(css|styl|less|sass|scss|svg|png|jpg|ttf|woff|woff2)$": "jest-transform-stub",
-      "^.+\\.jsx?$": "babel-jest"
-    },
-    "moduleNameMapper": {
-      "^@/(.*)$": "<rootDir>/src/$1"
-    },
-    "snapshotSerializers": [
-      "jest-serializer-vue"
-    ],
-    "testMatch": [
-      "**/tests/unit/**/*.spec.(js|jsx|ts|tsx)|**/__tests__/*.(js|jsx|ts|tsx)"
-    ],
-    "testURL": "http://localhost/",
-    "collectCoverage": true,
-    "coverageReporters": [
-      "json",
-      "html",
-      "text-summary"
-    ],
-    "coverageDirectory": "<rootDir>/coverage",
-    "collectCoverageFrom": [
-      "src/**/*.{js,vue}",
-      "!**/node_modules/**",
-      "!tests/**",
-      "!src/main.js",
-      "!src/plugins/services/index.js",
-      "!src/i18n.js",
-      "!src/plugins/vuetify.js",
-      "!src/store.js",
-      "!src/router.js"
-    ]
-  },
-  "vue": {
-    "outputDir": "./../api/public/",
-    "assetsDir": "static",
-    "devServer": {
-      "hot": true,
-      "progress": true,
-      "host": "0.0.0.0",
-      "port": 8080,
-      "watchOptions": {
-        "aggregateTimeout": 300,
-        "poll": 1000
-      },
-      "proxy": {
-        "/api/*": {
-          "target": "http://localhost:8000",
-          "secure": false
-        }
-      }
-    },
-    "pluginOptions": {
-      "i18n": {
-        "locale": "en",
-        "fallbackLocale": "pt-BR",
-        "localeDir": "locales",
-        "enableInSFC": true
-      }
-    }
   }
 }

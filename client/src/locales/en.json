@@ -11,9 +11,17 @@
   },
   "password-reset-view": {
     "label": "Reset your password",
-    "help-text-before-send": "Enter your email address and we will send you a link to reset your password.",
-    "help-text-after-send": "Check your email for a link to reset your password. If it doesn’t appear within a few minutes, check your spam folder.",
+    "help-text": "Enter your email address and we will send you a link to reset your password.",
+    "alert-after-send": "Check your email for a link to reset your password. If it doesn't appear within a few minutes, check your spam folder.",
     "send-password-reset-email": "Send password reset email",
-    "return-to-sign-in": "Return to sign in"
+    "return-to-sign-in": "Sign in"
+  },
+  "sign-up-view": {
+    "label": "Sign up",
+    "name": "Name",
+    "password": "Password",
+    "continue": "Continue",
+    "alert-after-create": "Please check your e-mail and activate your account. Yay!",
+    "sign-in": "Sign in"
   }
 }

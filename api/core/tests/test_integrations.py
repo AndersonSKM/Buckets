@@ -56,7 +56,7 @@ class TestHealthCheck:
 
 
 class TestSeedE2EData:
-    def test_successfully(self, factory, settings, user_model):
+    def test_successfully(self, factory, user_model):
         request = factory.post('/api/seed/', format='json')
         view = SeedE2ETestsDataView.as_view()
         response = view(request)

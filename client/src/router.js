@@ -1,10 +1,7 @@
 import Vue from 'vue'
-import store from './store'
 import Router from 'vue-router'
 
-import SignInView from './views/sign-in.vue'
-import HomeView from './views/home.vue'
-import PasswordResetView from './views/password-reset.vue'
+import store from '@/store.js'
 
 Vue.use(Router)
 
@@ -13,7 +10,7 @@ const router = new Router({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: () => import('@/views/home.vue'),
       meta: {
         requiresAuth: true
       }
@@ -21,7 +18,7 @@ const router = new Router({
     {
       path: '/sign-in',
       name: 'sign-in',
-      component: SignInView,
+      component: () => import('@/views/sign-in.vue'),
       meta: {
         requiresAuth: false
       }
@@ -29,7 +26,15 @@ const router = new Router({
     {
       path: '/password-reset',
       name: 'password-reset',
-      component: PasswordResetView,
+      component: () => import('@/views/password-reset.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
+      path: '/sign-up',
+      name: 'sign-up',
+      component: () => import('@/views/sign-up.vue'),
       meta: {
         requiresAuth: false
       }
@@ -37,7 +42,7 @@ const router = new Router({
     {
       path: '*',
       name: '404',
-      component: HomeView,
+      component: () => import('@/views/home.vue'),
       meta: {
         requiresAuth: true
       }

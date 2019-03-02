@@ -1,7 +1,9 @@
 describe('/password-reset', () => {
-  it('renders properties correctly', () => {
+  beforeEach(() => {
     cy.visit('#/password-reset')
+  })
 
+  it('renders properties correctly', () => {
     cy.get('p[data-ref=greeting-label]')
       .should('contain', 'Reset your password')
     cy.get('p[data-ref=app-name]')
@@ -10,11 +12,13 @@ describe('/password-reset', () => {
       .should('contain', 'Enter your email address')
     cy.get('button[data-ref=submit] div:first')
       .should('contain', 'Send password reset email')
+    cy.get('div[data-ref=success-info]')
+      .should('not.be.visible')
+    cy.get('a[data-ref=try-sign-in]')
+      .should('not.exist')
   })
 
   it('resets the form and focus on email field when api returns an error', () => {
-    cy.visit('#/password-reset')
-
     cy.get('form[data-ref=form]').within(() => {
       cy.get('input[data-ref=email]')
         .type('test@test.com')
@@ -27,8 +31,6 @@ describe('/password-reset', () => {
   })
 
   it('focus on email field when form is blank', () => {
-    cy.visit('#/password-reset')
-
     cy.get('form[data-ref=form]').within(() => {
       cy.get('button[data-ref=submit]')
         .click()
@@ -38,9 +40,7 @@ describe('/password-reset', () => {
     })
   })
 
-  it('hides the form and show the button to retrun to sig in when sucessfuly subimit', () => {
-    cy.visit('#/password-reset')
-
+  it('hides the form and show the button to return to sign in when successfully submit', () => {
     cy.get('form[data-ref=form]').within(() => {
       cy.get('input[data-ref=email]')
         .type('john.doe@test.com')
@@ -48,12 +48,12 @@ describe('/password-reset', () => {
         .click()
     })
 
-    cy.get('p[data-ref=help-text]')
+    cy.get('div[data-ref=success-info]')
       .should('contain', 'Check your email')
     cy.get('a[data-ref=return-to-sign-in]')
       .should('have.attr', 'href', '#/sign-in')
     cy.get('a[data-ref=return-to-sign-in] div:first')
-      .should('contain', 'Return to sign in')
+      .should('contain', 'Sign in')
     cy.get('form[data-ref=form]')
       .should('not.exist')
   })

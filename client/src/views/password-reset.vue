@@ -1,9 +1,20 @@
 <template>
-  <cmp-greeting-page :label="label" :helpText="helpText">
+  <cmp-greeting-page
+    :label="$t('password-reset-view.label')"
+    :helpText="helpText">
+    <v-alert
+      data-ref="success-info"
+      :value="ok"
+      color="success"
+      icon="check_circle"
+      outline>
+      {{ $t('password-reset-view.alert-after-send') }}
+    </v-alert>
     <v-form @submit.prevent="submit" ref="form" data-ref="form" v-if="!ok">
       <v-text-field
-        prepend-icon="person"
+        prepend-icon="email"
         label="E-mail"
+        color="grey darken-2"
         type="text"
         ref="email"
         data-ref="email"
@@ -22,7 +33,7 @@
           block
           color="secondary"
           data-ref="submit"
-          class="text-capitalize">
+          class="text-none">
           {{ $t('password-reset-view.send-password-reset-email') }}
         </v-btn>
       </v-layout>
@@ -35,8 +46,8 @@
           round
           large
           block
-          color="success"
-          class="text-capitalize"
+          color="secondary"
+          class="text-none"
           data-ref="return-to-sign-in">
           {{ $t('password-reset-view.return-to-sign-in') }}
         </v-btn>
@@ -46,14 +57,13 @@
 </template>
 
 <script>
-import CmpGreetingPage from '@/components/greeting-page.vue'
 import ApiValidationsHandlerMixin from '@/mixins/api-validations-handler.js'
 
 export default {
   name: 'PasswordResetView',
   mixins: [ApiValidationsHandlerMixin],
   components: {
-    'cmp-greeting-page': CmpGreetingPage
+    'cmp-greeting-page': () => import('@/components/greeting-page.vue')
   },
 
   data () {
@@ -64,12 +74,8 @@ export default {
   },
 
   computed: {
-    label () {
-      return this.$t('password-reset-view.label')
-    },
     helpText () {
-      const textKind = this.ok ? 'after' : 'before'
-      return this.$t(`password-reset-view.help-text-${textKind}-send`)
+      return this.ok ? null : this.$t('password-reset-view.help-text')
     }
   },
 

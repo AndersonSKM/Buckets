@@ -2,11 +2,11 @@ import jwt from 'jsonwebtoken'
 import API from '@/plugins/api.js'
 
 class AuthService {
-  async createToken (credentials) {
+  static async createToken (credentials) {
     return API.post('api/auth/jwt/create/', credentials)
   }
 
-  async refreshToken (oldToken) {
+  static async refreshToken (oldToken) {
     let newToken = ''
 
     try {
@@ -14,28 +14,27 @@ class AuthService {
       if (response.status === 200) {
         newToken = response.data.token
       }
-    } catch (error) {
-      console.log('Failed to refresh token', error)
+    } catch {
     }
 
     return newToken
   }
 
-  canRefreshToken (encodedToken) {
+  static canRefreshToken (encodedToken) {
     if (this.isExpiredToken(encodedToken)) {
       return false
     }
 
     const token = this.decodedToken(encodedToken)
-    const oneMinuteInMiliseconds = 60000
-    const oneHourInMiliseconds = 36e5
+    const oneMinuteInMilliseconds = 60000
+    const oneHourInMilliseconds = 36e5
 
-    const tokenWasCreatedWithinFourHours = (Math.abs(Date.now() - token.orig_iat) / oneHourInMiliseconds) <= 4
-    const tokenHasMoreThanThirteenMinutes = (Math.abs(Date.now() - token.orig_iat) / oneMinuteInMiliseconds) >= 13
+    const tokenWasCreatedWithinFourHours = (Math.abs(Date.now() - token.orig_iat) / oneHourInMilliseconds) <= 4
+    const tokenHasMoreThanThirteenMinutes = (Math.abs(Date.now() - token.orig_iat) / oneMinuteInMilliseconds) >= 13
     return tokenWasCreatedWithinFourHours && tokenHasMoreThanThirteenMinutes
   }
 
-  isExpiredToken (encodedToken) {
+  static isExpiredToken (encodedToken) {
     const token = this.decodedToken(encodedToken)
     if (!token) {
       return true
@@ -44,7 +43,7 @@ class AuthService {
     return Date.now() > token.exp
   }
 
-  decodedToken (encodedToken) {
+  static decodedToken (encodedToken) {
     if (!encodedToken) {
       return ''
     }
@@ -58,4 +57,4 @@ class AuthService {
   }
 }
 
-export default new AuthService()
+export default AuthService

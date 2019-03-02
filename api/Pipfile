@@ -41,8 +41,8 @@ psycopg2 = "==2.7.6.1"
 python_version = "3.6"
 
 [scripts]
-server = "python3 manage.py runserver"
-migrate = "python3 manage.py migrate --noinput"
+server = "python manage.py runserver"
+migrate = "python manage.py migrate --noinput"
 lint = "flake8 ."
 check-imports = "isort --check --diff -tc -rc ."
 test = "pytest ."
