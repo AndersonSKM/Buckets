@@ -75,7 +75,7 @@ jobs:
       - run:
           name: Upload Tests Results
           command: |
-            pip install codecov
+            pip install --user codecov
             make codecov
 
 
