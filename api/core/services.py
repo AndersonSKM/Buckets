@@ -9,15 +9,18 @@ User = get_user_model()
 
 
 @transaction.atomic
-def seed_e2e_user():
+def seed_e2e_user(create=True):
     user = User.objects.get_or_none(email='john.doe@test.com')
     if user:
         user.delete()
-    return User.objects.create_user(
-        email='john.doe@test.com',
-        password='johndoe',
-        name='John Doe',
-    )
+        user = None
+    if create:
+        user = User.objects.create_user(
+            email='john.doe@test.com',
+            password='johndoe',
+            name='John Doe',
+        )
+    return user
 
 
 def check_database_state():

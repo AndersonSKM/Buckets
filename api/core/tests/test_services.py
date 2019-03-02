@@ -5,8 +5,8 @@ from core import services
 
 
 @pytest.mark.django_db
+@patch('core.services.User')
 class TestSeedE2ETestsData:
-    @patch('core.services.User')
     def test_create_user_if_not_exists(self, mock_user_model):
         mock_user_model.objects.get_or_none.return_value = None
         services.seed_e2e_user()
@@ -17,7 +17,6 @@ class TestSeedE2ETestsData:
             name='John Doe'
         )
 
-    @patch('core.services.User')
     def test_delete_and_create_user_if_exists(self, mock_user_model):
         mock_user = Mock()
         mock_user_model.objects.get_or_none.return_value = mock_user
@@ -25,6 +24,15 @@ class TestSeedE2ETestsData:
 
         assert mock_user.delete.called
         assert mock_user_model.objects.create_user.called
+
+    def test_just_delete_when_created_param_is_false(self, mock_user_model):
+        mock_user = Mock()
+        mock_user_model.objects.get_or_none.return_value = mock_user
+        result = services.seed_e2e_user(create=False)
+
+        assert result is None
+        assert mock_user.delete.called
+        assert not mock_user_model.objects.create_user.called
 
 
 @pytest.mark.django_db

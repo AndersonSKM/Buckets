@@ -16,7 +16,7 @@ class HeathCheckView(views.APIView):
     permission_classes = [AllowAny,]
     throttle_scope = 'health-check'
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         services.check_database_state()
         services.check_cache_state()
         return Response(status=status.HTTP_200_OK, data={'detail': 'healthy'})
@@ -26,5 +26,6 @@ class SeedE2ETestsDataView(views.APIView):
     permission_classes = [AllowAny,]
 
     def post(self, request):
-        services.seed_e2e_user()
+        create = request.data.get('create', True)
+        services.seed_e2e_user(create=create)
         return Response(status=status.HTTP_201_CREATED)
