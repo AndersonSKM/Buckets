@@ -33,6 +33,7 @@ deploy-local:
 		-it \
 		--name cash-miner \
 		cash-miner:dev \
+		python manage.py collectstatic --noinput && \
 		python manage.py migrate --noinput
 	$(info Running application)
 	docker run --rm \
@@ -48,5 +49,4 @@ codecov:
 	$(info Running test coverage)
 	curl -s https://codecov.io/bash > .codecov
 	chmod +x .codecov
-	./.codecov -Z api/
-	./.codecov -Z client/
+	./.codecov -Z .
