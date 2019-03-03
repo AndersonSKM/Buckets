@@ -2,14 +2,14 @@
   <v-container fluid fill-height>
     <v-layout align-center justify-center>
       <v-flex xs12 sm8 md6 lg3>
-        <v-layout align-center justify-space-around wrap fill-height mb-3 mt-3>
+        <v-layout align-center justify-space-around wrap fill-height mt-1>
           <p
             data-ref="app-name"
             class="text-lg-center display-1 font-weight-thin">
             {{ $t('globals.app-name') }}
           </p>
         </v-layout>
-        <v-layout row align-center justify-space-around wrap fill-height mt-3 mb-3>
+        <v-layout row align-center justify-space-around wrap fill-height mt-1>
           <v-avatar size="150" >
             <v-img
               :src="`https://cdn3.iconfinder.com/data/icons/cryptocurrency-and-blockchain/64/cryptocurrency_blockchain_mining-2-512.png`"
@@ -17,19 +17,17 @@
             />
           </v-avatar>
         </v-layout>
-        <v-layout row align-center justify-space-around wrap fill-height mt-3 mb-3>
+        <v-layout row align-center justify-space-around wrap fill-height mt-1>
           <p
-            data-ref="greeting-label"
             class="text-sm-center title font-weight-light"
-            mt-3>
+            data-ref="greeting-label" mt-3>
             {{ label }}
           </p>
         </v-layout>
-        <v-layout row align-center justify-space-around wrap fill-height mt-3 mb-3 v-if="helpText">
+        <v-layout row align-center justify-space-around wrap fill-height mt-1 mb-1 v-if="helpText">
           <p
-            data-ref="help-text"
             class="text-xs-center title font-weight-light"
-            mt-3>
+            data-ref="help-text" mt-3>
             {{ helpText }}
           </p>
         </v-layout>

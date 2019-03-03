@@ -1,5 +1,5 @@
 <template>
-  <v-layout align-center mt-3 mb-3 ml-4>
+  <v-layout align-center mt-2 mb-2 ml-4>
     <ul data-ref="error-list">
       <li
         class="title font-weight-light red--text"

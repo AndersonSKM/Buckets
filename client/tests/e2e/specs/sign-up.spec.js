@@ -3,7 +3,7 @@ describe('/sign-up', () => {
     cy.visit('#/sign-up')
   })
 
-  it('renders properties correctly', () => {
+  it('renders correctly', () => {
     cy.get('p[data-ref=greeting-label]')
       .should('contain', 'Sign up')
     cy.get('form[data-ref=form]')
@@ -12,6 +12,10 @@ describe('/sign-up', () => {
       .should('not.exist')
     cy.get('div[data-ref=success-info]')
       .should('not.be.visible')
+    cy.get('p[data-ref=sign-in-reference-label]')
+      .should('contain', 'Already have an account?')
+    cy.get('a[data-ref=sign-in-reference-link]')
+      .should('have.attr', 'href', '#/sign-in')
   })
 
   it('resets the form and clear the password field after submit with wrong values', () => {

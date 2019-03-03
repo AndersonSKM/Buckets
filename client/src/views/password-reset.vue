@@ -25,7 +25,7 @@
         data-vv-name="email"
         :error-messages="errors.first('email')">
       </v-text-field>
-      <v-layout row mt-3>
+      <v-layout row mt-1>
         <v-btn type="submit"
           outline
           round
@@ -37,9 +37,10 @@
           {{ $t('password-reset-view.send-password-reset-email') }}
         </v-btn>
       </v-layout>
+      <cmp-sign-in-reference :label="$t('password-reset-view.remember-your-password')"/>
     </v-form>
     <div data-ref="try-sign-in" v-if="ok">
-      <v-layout row mt-3>
+      <v-layout row mt-2>
         <v-btn
           to="/sign-in"
           outline
@@ -63,7 +64,8 @@ export default {
   name: 'PasswordResetView',
   mixins: [ApiValidationsHandlerMixin],
   components: {
-    'cmp-greeting-page': () => import('@/components/greeting-page.vue')
+    'cmp-greeting-page': () => import('@/components/greeting-page.vue'),
+    'cmp-sign-in-reference': () => import('@/components/sign-in-reference.vue')
   },
 
   data () {
