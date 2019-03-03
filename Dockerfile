@@ -32,6 +32,11 @@ COPY --from=builder /api/public/ /app/public/
 
 ENV PORT=8000
 ENV DEBUG=false
+ENV SECRET_KEY=dumb
+ENV DATABASE_URL=postgres://postgres:postgres@host.docker.internal:5432/cash-miner
+ENV REDIS_URL=redis://host.docker.internal:6379/1
 EXPOSE ${PORT}
+
+RUN python manage.py collectstatic --noinput
 
 CMD ["/bin/bash", "-c", "/usr/local/bin/gunicorn api.wsgi -b 0.0.0.0:$PORT"]
