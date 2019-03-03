@@ -8,3 +8,5 @@ LOGGING['loggers'].pop('django')
 LOGGING['loggers'].pop('gunicorn')
 
 DJOSER['SEND_ACTIVATION_EMAIL'] = True
+
+WHITENOISE_AUTOREFRESH = True
