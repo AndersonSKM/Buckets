@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuetify, {
   VApp,
   VContent,
+  VContainer,
   VNavigationDrawer,
   VFooter,
   VToolbar,
@@ -21,6 +22,7 @@ Vue.use(Vuetify, {
   components: {
     VApp,
     VContent,
+    VContainer,
     VNavigationDrawer,
     VFooter,
     VToolbar,

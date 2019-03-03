@@ -33,6 +33,7 @@ AUTH_USER_MODEL = 'accounts.User'
 # ------------------------------------------------------------------------------
 
 DJANGO_APPS = [
+    'whitenoise.runserver_nostatic',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -176,10 +177,10 @@ SITE_ID = 1
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'assets/')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'public/static/'),
+    os.path.join(BASE_DIR, 'public/static/')
 ]
 
 # MEDIA CONFIGURATION
