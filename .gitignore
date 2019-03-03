@@ -224,5 +224,5 @@ videos/
 screenshots/
 
 api/public/
-api/assets/
+api/staticfiles/
 
