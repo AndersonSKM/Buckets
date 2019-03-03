@@ -21,7 +21,7 @@
     "name": "Name",
     "password": "Password",
     "continue": "Continue",
-    "alert-after-create": "Please check your e-mail and activate your account. Yay!",
-    "sign-in": "Sign in"
+    "alert-after-create": "Please check your email and verify your email address.",
+    "sign-in": "Sign in now"
   }
 }

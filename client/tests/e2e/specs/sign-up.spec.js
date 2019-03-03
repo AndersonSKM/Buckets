@@ -58,6 +58,6 @@ describe('/sign-up', () => {
       .should('have.attr', 'href', '#/sign-in')
     cy.get('div[data-ref=success-info]')
       .should('be.visible')
-      .should('contain', 'Please check your e-mail and activate your account. Yay!')
+      .should('contain', 'Please check your email and verify your email address.')
   })
 })
