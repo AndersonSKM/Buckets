@@ -50,7 +50,7 @@
         data-vv-name="password"
         :error-messages="errors.first('password')">
       </v-text-field>
-      <v-layout row mt-3>
+      <v-layout row mt-1>
         <v-btn
           type="submit"
           round
@@ -64,9 +64,10 @@
           {{ $t('sign-up-view.continue') }}
         </v-btn>
       </v-layout>
+      <cmp-sign-in-reference :label="$t('sign-up-view.already-have-account')"/>
     </v-form>
     <div data-ref="try-sign-in" v-if="ok">
-      <v-layout row mt-4>
+      <v-layout row mt-2>
         <v-btn
           to="/sign-in"
           outline
@@ -76,7 +77,7 @@
           color="secondary"
           class="text-none"
           data-ref="return-to-sign-in">
-          {{ $t('sign-up-view.sign-in') }}
+          {{ $t('sign-up-view.sign-in-now') }}
         </v-btn>
       </v-layout>
     </div>
@@ -91,7 +92,8 @@ export default {
   mixins: [ApiValidationsHandlerMixin],
   components: {
     'cmp-greeting-page': () => import('@/components/greeting-page.vue'),
-    'cmp-form-error-list': () => import('@/components/form-error-list.vue')
+    'cmp-form-error-list': () => import('@/components/form-error-list.vue'),
+    'cmp-sign-in-reference': () => import('@/components/sign-in-reference.vue')
   },
 
   data () {

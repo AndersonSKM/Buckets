@@ -14,14 +14,17 @@
     "help-text": "Enter your email address and we will send you a link to reset your password.",
     "alert-after-send": "Check your email for a link to reset your password. If it doesn't appear within a few minutes, check your spam folder.",
     "send-password-reset-email": "Send password reset email",
-    "return-to-sign-in": "Sign in"
+    "return-to-sign-in": "Sign in",
+    "remember-your-password": "Remember your password?"
   },
   "sign-up-view": {
     "label": "Sign up",
     "name": "Name",
     "password": "Password",
     "continue": "Continue",
-    "alert-after-create": "Please check your e-mail and activate your account. Yay!",
-    "sign-in": "Sign in"
+    "alert-after-create": "Please check your email and verify your email address.",
+    "already-have-account": "Already have an account?",
+    "sign-in": "Sign in",
+    "sign-in-now": "Sign in now"
   }
 }

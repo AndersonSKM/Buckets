@@ -29,7 +29,7 @@
         data-vv-name="password"
         :error-messages="errors.first('password')">
       </v-text-field>
-      <v-layout row mt-2>
+      <v-layout row mt-1>
         <v-btn
           type="submit"
           round

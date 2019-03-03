@@ -11,7 +11,7 @@ describe('/sign-in', () => {
       .should('contain', '/#/sign-in')
   })
 
-  it('renders properties correctly', () => {
+  it('renders correctly', () => {
     cy.visit('#/sign-in')
 
     cy.get('p[data-ref=greeting-label]')

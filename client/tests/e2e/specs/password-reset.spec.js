@@ -16,6 +16,10 @@ describe('/password-reset', () => {
       .should('not.be.visible')
     cy.get('a[data-ref=try-sign-in]')
       .should('not.exist')
+    cy.get('p[data-ref=sign-in-reference-label]')
+      .should('contain', 'Remember your password?')
+    cy.get('a[data-ref=sign-in-reference-link]')
+      .should('have.attr', 'href', '#/sign-in')
   })
 
   it('resets the form and focus on email field when api returns an error', () => {
